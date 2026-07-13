@@ -239,4 +239,4 @@
 
 ---
 
-> **Documentos relacionados:** `BRAIN.md` (índice), `docs/PRINCIPLES.md` (princípios que motivaram as decisões), `docs/ARCHITECTURE.md` (como as decisões viram estrutura).
+> **Documentos relacionados:** `.ai/BRAIN.md` (índice), `docs/PRINCIPLES.md` (princípios que motivaram as decisões), `docs/ARCHITECTURE.md` (como as decisões viram estrutura).

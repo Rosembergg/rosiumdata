@@ -44,7 +44,7 @@
 - [ ] Configurar GitHub Actions (ou similar) para rodar testes no push
 
 #### Documentação
-- [ ] BRAIN.md ✅
+- [ ] BRAIN.md ✅ (em `.ai/`)
 - [ ] VISION.md ✅
 - [ ] PRINCIPLES.md ✅
 - [ ] ARCHITECTURE.md ✅
@@ -67,7 +67,7 @@
 | Item | Status |
 |---|---|
 | Conhecimento do projeto | ✅ 5 etapas de discovery concluídas |
-| BRAIN.md | ✅ Criado |
+| BRAIN.md | ✅ Criado (em `.ai/`) |
 | VISION.md | ✅ Criado |
 | PRINCIPLES.md | ✅ Criado |
 | ARCHITECTURE.md | ✅ Criado |
@@ -106,4 +106,4 @@ Quando a Fase 0 estiver concluída, a Fase 1 começa com:
 
 ---
 
-> **Documentos relacionados:** `BRAIN.md` (índice), `docs/ROADMAP.md` (fases completas), `docs/DECISIONS.md` (decisões relevantes à fase atual).
+> **Documentos relacionados:** `.ai/BRAIN.md` (índice), `docs/ROADMAP.md` (fases completas), `docs/DECISIONS.md` (decisões relevantes à fase atual).

@@ -108,4 +108,4 @@ A RSdata é **técnica, direta e sem firulas**. Não prometemos mágica — prom
 
 ---
 
-> **Documentos relacionados:** `BRAIN.md` (índice geral), `docs/PRINCIPLES.md` (princípios), `docs/ARCHITECTURE.md` (arquitetura), `docs/ROADMAP.md` (fases).
+> **Documentos relacionados:** `.ai/BRAIN.md` (índice geral), `docs/PRINCIPLES.md` (princípios), `docs/ARCHITECTURE.md` (arquitetura), `docs/ROADMAP.md` (fases).

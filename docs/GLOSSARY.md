@@ -189,4 +189,4 @@ A instrução de **como mostrar** o valor na tela para o humano. Ex: `"R$ #.##0,
 
 ---
 
-> **Documentos relacionados:** `BRAIN.md` (índice), `docs/ARCHITECTURE.md` (onde os conceitos se aplicam), `docs/PRINCIPLES.md` (princípios por trás dos conceitos).
+> **Documentos relacionados:** `.ai/BRAIN.md` (índice), `docs/ARCHITECTURE.md` (onde os conceitos se aplicam), `docs/PRINCIPLES.md` (princípios por trás dos conceitos).

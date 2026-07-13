@@ -365,13 +365,15 @@ RSdata/
 │           └── index.ts        ← Plugin Nuxt
 │
 ├── docs/                       ← Documentação (PRINCIPLES, ARCHITECTURE, etc.)
-├── .ai/                        ← Guias e regras para IAs
+├── .ai/                        ← Guias, regras e índice para IAs
+│   ├── BRAIN.md                ← Índice inteligente (leia primeiro)
+│   ├── AI_GUIDE.md             ← Regras para IAs desenvolvedoras
+│   └── TEMPLATE.md             ← Templates de kickoff de fases
 ├── VISION.md                   ← Visão do projeto
 ├── CONTRIBUTING.md             ← Guia de contribuição
-├── BRAIN.md                    ← Índice inteligente
 └── README.md                   ← Portal de entrada
 ```
 
 ---
 
-> **Documentos relacionados:** `BRAIN.md` (índice), `VISION.md` (identidade), `docs/PRINCIPLES.md` (princípios), `docs/GLOSSARY.md` (termos).
+> **Documentos relacionados:** `.ai/BRAIN.md` (índice), `VISION.md` (identidade), `docs/PRINCIPLES.md` (princípios), `docs/GLOSSARY.md` (termos).

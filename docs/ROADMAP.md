@@ -197,4 +197,4 @@ Cada fase é **bloqueante** para a seguinte. Nenhuma fase pode começar antes da
 
 ---
 
-> **Documentos relacionados:** `BRAIN.md` (índice), `docs/CURRENT_PHASE.md` (status atual), `docs/DECISIONS.md` (decisões que moldaram o roadmap), `docs/FUTURE.md` (pós-1.0 detalhado).
+> **Documentos relacionados:** `.ai/BRAIN.md` (índice), `docs/CURRENT_PHASE.md` (status atual), `docs/DECISIONS.md` (decisões que moldaram o roadmap), `docs/FUTURE.md` (pós-1.0 detalhado).

@@ -146,7 +146,7 @@
 
 **Mitigação:**
 - `CURRENT_PHASE.md` como "mapa" para retomar rapidamente.
-- `BRAIN.md` como índice geral do conhecimento.
+- `.ai/BRAIN.md` como índice geral do conhecimento.
 - Documentação extensa (a que estamos gerando) para que o autor — ou qualquer IA — possa retomar de onde parou sem precisar reler tudo.
 - Fases pequenas e bem definidas: cada fase tem começo, meio e fim claros.
 
@@ -163,7 +163,7 @@
 
 **Mitigação:**
 - `DECISIONS.md` como registro formal de cada decisão importante.
-- `BRAIN.md` como resumo executivo de tudo.
+- `.ai/BRAIN.md` como resumo executivo de tudo.
 - Este documento (`RISKS.md`) como registro do que pode dar errado.
 - Atualizar os documentos quando novas decisões forem tomadas.
 
@@ -180,7 +180,7 @@
 
 **Mitigação:**
 - `AI_GUIDE.md` com regras claras do que a IA pode e não pode fazer.
-- `BRAIN.md` como leitura obrigatória antes de qualquer IA tocar no código.
+- `.ai/BRAIN.md` como leitura obrigatória antes de qualquer IA tocar no código.
 - Revisão humana (autor) de todo código gerado por IA.
 - Princípio #2: se a IA propuser algo sem caminho oficial, é bug de design.
 

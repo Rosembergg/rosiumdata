@@ -8,7 +8,7 @@
 
 Leia estes documentos (não precisa decorar, mas conheça a essência):
 
-1. **[BRAIN.md](./BRAIN.md)** — índice de todo o conhecimento do projeto. Leia ao menos as seções de Identidade, Princípios e Arquitetura.
+1. **[BRAIN.md](./.ai/BRAIN.md)** — índice de todo o conhecimento do projeto. Leia ao menos as seções de Identidade, Princípios e Arquitetura.
 2. **[VISION.md](./VISION.md)** — quem somos, o que queremos e o que NÃO queremos.
 3. **[docs/PRINCIPLES.md](./docs/PRINCIPLES.md)** — os 7 princípios que guiam cada decisão.
 
@@ -77,7 +77,8 @@ RSdata/
 ├── docs/            ← Documentação detalhada
 ├── .ai/             ← Guias para IAs
 ├── VISION.md
-├── BRAIN.md
+├── .ai/
+│   ├── BRAIN.md
 └── CONTRIBUTING.md  ← você está aqui
 ```
 
