@@ -1,0 +1,33 @@
+{
+  "name": "@rsdata/nuxt",
+  "version": "0.0.1",
+  "description": "RSdata Render Engine — casca Vue/Nuxt para o Data Engine",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "dev": "unbuild --stub"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0",
+    "nuxt": "^3.12.0"
+  },
+  "dependencies": {
+    "@rsdata/core": "*"
+  },
+  "devDependencies": {
+    "vue": "^3.4.0",
+    "nuxt": "^3.12.0"
+  }
+}
