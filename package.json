@@ -1,0 +1,22 @@
+{
+  "name": "rsdata-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w packages/core && npm run build -w packages/nuxt",
+    "build:core": "npm run build -w packages/core",
+    "build:nuxt": "npm run build -w packages/nuxt",
+    "dev": "npm run dev -w packages/core & npm run dev -w packages/nuxt",
+    "dev:core": "npm run dev -w packages/core",
+    "dev:nuxt": "npm run dev -w packages/nuxt",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "unbuild": "^2.0.0",
+    "vitest": "^2.1.0"
+  }
+}

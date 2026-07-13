@@ -1,64 +1,63 @@
 # CURRENT_PHASE.md — RSdata
 
 > **Status atual do desenvolvimento.** Onde estamos, o que está feito e qual o próximo passo.  
-> **Atualizado em:** após conclusão das 5 etapas de discovery.
+> **Atualizado em:** 2026-07-13 — após conclusão da Fase 0.
 
 ---
 
-## FASE ATUAL: Fase 0 — Fundação
+## FASE ATUAL: Fase 1 — Data Engine + Colunas + Tipos
 
 **Status:** ⏳ Em progresso
 
-**Objetivo:** montar a "casa" antes dos móveis. Setup do repositório, ferramentas e estrutura inicial.
-
 ---
 
-### Checklist da Fase 0
+### Checklist da Fase 0 ✅ (CONCLUÍDA)
 
 #### Estrutura do repositório
-- [ ] Inicializar repositório Git (`git init`)
-- [ ] Criar `package.json` raiz com npm workspaces
-- [ ] Criar `packages/core/package.json` (`@rsdata/core`, zero dependências)
-- [ ] Criar `packages/nuxt/package.json` (`@rsdata/nuxt`, depende de `@rsdata/core`)
+- [x] Inicializar repositório Git (`git init`)
+- [x] Criar `package.json` raiz com npm workspaces
+- [x] Criar `packages/core/package.json` (`@rsdata/core`, zero dependências)
+- [x] Criar `packages/nuxt/package.json` (`@rsdata/nuxt`, depende de `@rsdata/core`)
 
 #### TypeScript
-- [ ] Criar `tsconfig.json` base na raiz
-- [ ] Criar `tsconfig.json` para `packages/core`
-- [ ] Criar `tsconfig.json` para `packages/nuxt`
+- [x] Criar `tsconfig.json` base na raiz
+- [x] Criar `tsconfig.json` para `packages/core`
+- [x] Criar `tsconfig.json` para `packages/nuxt`
 
 #### Build
-- [ ] Instalar e configurar unbuild para `packages/core`
-- [ ] Instalar e configurar unbuild para `packages/nuxt`
-- [ ] Script `build` na raiz (compila core → nuxt)
+- [x] Instalar e configurar unbuild para `packages/core`
+- [x] Instalar e configurar unbuild para `packages/nuxt`
+- [x] Script `build` na raiz (compila core → nuxt)
 
 #### Testes
-- [ ] Instalar e configurar Vitest
-- [ ] Script `test` na raiz
-- [ ] Criar arquivo de teste inicial (smoke test)
+- [x] Instalar e configurar Vitest
+- [x] Script `test` na raiz
+- [x] Criar arquivo de teste inicial (smoke test)
 
 #### Estrutura de pastas
-- [ ] Criar estrutura de `packages/core/src/` (engine, columns, adapter, filters, sorting, pagination, validation, events)
-- [ ] Criar estrutura de `packages/nuxt/src/` (components, composables, theme)
+- [x] Criar estrutura de `packages/core/src/` (engine, columns, adapter, filters, sorting, pagination, validation, events)
+- [x] Criar estrutura de `packages/nuxt/src/` (components, composables, theme)
 
 #### CI mínimo
 - [ ] Configurar GitHub Actions (ou similar) para rodar testes no push
+- **Nota:** CI foi adiado. O foco agora é código. Será configurado antes do primeiro release público.
 
 #### Documentação
-- [ ] BRAIN.md ✅ (em `.ai/`)
-- [ ] VISION.md ✅
-- [ ] PRINCIPLES.md ✅
-- [ ] ARCHITECTURE.md ✅
-- [ ] ROADMAP.md ✅
-- [ ] CURRENT_PHASE.md ✅
-- [ ] DECISIONS.md ⏳
-- [ ] GLOSSARY.md ⏳
-- [ ] FEATURES.md ⏳
-- [ ] FUTURE.md ⏳
-- [ ] RISKS.md ⏳
-- [ ] CONTRIBUTING.md ⏳
-- [ ] AI_GUIDE.md ⏳
-- [ ] PROJECT_RULES.md ⏳
-- [ ] README.md ⏳
+- [x] BRAIN.md ✅
+- [x] VISION.md ✅
+- [x] PRINCIPLES.md ✅
+- [x] ARCHITECTURE.md ✅
+- [x] ROADMAP.md ✅
+- [x] CURRENT_PHASE.md ✅
+- [x] PROJECT_RULES.md ✅
+- [x] AI_GUIDE.md ✅
+- [x] DECISIONS.md ✅
+- [x] GLOSSARY.md ✅
+- [x] FEATURES.md ✅
+- [x] FUTURE.md ✅
+- [x] RISKS.md ✅
+- [x] CONTRIBUTING.md ✅
+- [x] README.md ✅
 
 ---
 
@@ -67,22 +66,26 @@
 | Item | Status |
 |---|---|
 | Conhecimento do projeto | ✅ 5 etapas de discovery concluídas |
-| BRAIN.md | ✅ Criado (em `.ai/`) |
-| VISION.md | ✅ Criado |
-| PRINCIPLES.md | ✅ Criado |
-| ARCHITECTURE.md | ✅ Criado |
-| ROADMAP.md | ✅ Criado |
-| Código | ❌ Zero. Nenhuma linha escrita ainda. |
-| Setup do repositório | ❌ Não inicializado. |
+| Documentação | ✅ Completa (14 documentos) |
+| Repositório Git | ✅ Inicializado (branch `etapa-0`) |
+| npm workspaces | ✅ `packages/core` + `packages/nuxt` |
+| TypeScript | ✅ Configurado (strict, base + específicos) |
+| Build (unbuild) | ✅ Ambos pacotes compilam |
+| Testes (Vitest) | ✅ Smoke test passa (4/4) |
+| Estrutura de pastas | ✅ Conforme ARCHITECTURE.md |
+| Código de negócio | ❌ Apenas placeholders — implementação começa na Fase 1 |
 
 ---
 
 ## PRÓXIMOS PASSOS IMEDIATOS
 
-1. **Concluir a geração dos documentos restantes** (ordem: DECISIONS → GLOSSARY → FEATURES → FUTURE → RISKS → CONTRIBUTING → AI_GUIDE → PROJECT_RULES → README)
-2. **Inicializar o repositório Git** e criar a estrutura de pastas
-3. **Configurar npm workspaces, TypeScript, unbuild e Vitest**
-4. **Iniciar a Fase 1:** escrever a primeira linha de código do Data Engine
+1. **Iniciar a Fase 1:** escrever a primeira linha de código do Data Engine
+2. Implementar classe `RsTable`
+3. Definir interface do Adapter
+4. Implementar tipos de coluna como pacotes de comportamento
+5. Sistema de eventos (reatividade própria)
+6. Falhe Alto (validação)
+7. Cobertura de testes com Vitest
 
 ---
 
@@ -94,15 +97,14 @@ Nenhum no momento.
 
 ## PRÓXIMA FASE
 
-**Fase 1 — Data Engine + Colunas + Tipos**
+**Fase 2 — Adapter Local**
 
-Quando a Fase 0 estiver concluída, a Fase 1 começa com:
-- Implementar classe `RsTable`
-- Definir interface do Adapter
-- Implementar tipos de coluna como pacotes de comportamento
-- Sistema de eventos (reatividade própria)
-- Falhe Alto (validação)
-- Cobertura de testes com Vitest
+Quando a Fase 1 estiver concluída, a Fase 2 começa com:
+- Implementar `LocalAdapter` seguindo a interface definida na Fase 1
+- Lógica de filtro local
+- Lógica de ordenação local
+- Lógica de paginação local
+- Testes de integração: RsTable + LocalAdapter
 
 ---
 
