@@ -12,6 +12,8 @@ export type {
   Filter,
 } from './adapter'
 
+export { LocalAdapter } from './adapter/local'
+
 export {
   coluna,
   formatarValorPadrao,
@@ -27,12 +29,20 @@ export type {
 export { RsTable } from './engine'
 export type { TransformedCell, TransformedRow, RsTableState } from './engine'
 
-export { OPERADORES_PADRAO, OPERADOR_PADRAO } from './filters'
+export {
+  OPERADORES_PADRAO,
+  OPERADOR_PADRAO,
+  aplicarFiltros,
+} from './filters'
 
 export type { SortDirection } from './sorting'
-export { inverterDirecao } from './sorting'
+export { inverterDirecao, ordenarArray } from './sorting'
 
-export { calcularTotalPaginas, validarPagina } from './pagination'
+export {
+  calcularTotalPaginas,
+  validarPagina,
+  paginarArray,
+} from './pagination'
 
 export { validarLinha, validarLinhas } from './validation'
 export type { ValidationError } from './validation'
