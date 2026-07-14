@@ -86,10 +86,10 @@ Cada tipo = pacote de comportamento pronto (filtro, ordenação, alinhamento, va
 
 | Fase | O quê | Status |
 |---|---|---|
-| **0** | Setup: monorepo, TS, npm, unbuild, vitest | ⏳ |
-| **1** | Data Engine + Colunas + Tipos (JS puro) | ⬜ |
-| **2** | Adapter local (array) | ⬜ |
-| **3** | Render Nuxt + Theme default (CSS) | ⬜ |
+| **0** | Setup: monorepo, TS, npm, unbuild, vitest | ✅ |
+| **1** | Data Engine + Colunas + Tipos (JS puro) | ✅ |
+| **2** | Adapter local (array) | ✅ |
+| **3** | Render Nuxt + Theme default (CSS) | ⏳ |
 | **4** | Actions + Falhe Alto integrado | ⬜ |
 | **5** | Adapter Server-side (Laravel) | ⬜ |
 | **= v1.0** | MVP: RSdata no projeto real | |
@@ -142,9 +142,7 @@ Cada tipo = pacote de comportamento pronto (filtro, ordenação, alinhamento, va
 
 ---
 
-## FASE ATUAL: Fase 0 (Fundação)
-
-Setup do repositório + documentação.
+## FASE ATUAL: Fase 3 (Render Engine Nuxt + Theme)
 
 → `docs/CURRENT_PHASE.md`
 

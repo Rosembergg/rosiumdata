@@ -219,6 +219,29 @@ REGRAS ESPECÍFICAS DESTA FASE:
     - NADA de cache: stateless — toda mudança = nova chamada ao adapter
     - Se algo não estiver claro nos documentos, PERGUNTE antes de decidir
 
+PONTOS CRÍTICOS — NÃO IGNORE:
+    1. NADA DE UI: esta fase é JS/TS puro. Se você sentir vontade de criar um componente
+       Vue ou importar HTML/CSS no packages/core/, PARE. Isso é para a Fase 3. O Core é
+       testado no terminal (Vitest), sem navegador. Você NÃO verá nada na tela — e está
+       correto. O objetivo é solidificar o cérebro antes de vestir o corpo.
+
+    2. A API DEFINIDA AGORA É CONTRATO PARA SEMPRE: .filtrar(), .getLinhas(), .ordenar()
+       e todos os métodos públicos do RsTable serão usados por Render, Adapter e Plugins
+       nas fases seguintes. Se saírem com assinatura errada, tudo que vier depois nasce
+       quebrado. Revise cada assinatura com cuidado. Siga exatamente o que está em
+       ARCHITECTURE.md. Em caso de dúvida sobre a assinatura, PERGUNTE.
+
+    3. TESTES SÃO A ÚNICA PROVA DE QUE FUNCIONA: sem tela, sem servidor, sem navegador.
+       Se npm test não cobrir um cenário, ele NÃO EXISTE. Exija cobertura total dos casos
+       de borda: tabela vazia, filtro sem resultado, página além do total, dado inválido
+       por tipo, múltiplos filtros simultâneos, ordenação + filtro combinados.
+
+    4. FALHE ALTO É LÓGICA PURA DO CORE: o sistema de validação NÃO pode depender de
+       HTML, console.log ou DOM. Deve ser testável puramente no terminal. Emita eventos
+       de erro (tabela.on('erro', callback)) com { column, row, expected, received }.
+       O callback deve ser verificável nos testes do Vitest. Se o Falhe Alto só funcionar
+       com HTML, está errado.
+
 TESTES (packages/core/test/):
     - Testar cada tipo de coluna (comportamento padrão de filtro, ordenação, validação)
     - Testar RsTable com um adapter mock (simula fetch)
@@ -238,4 +261,130 @@ AO FINAL:
     - Atualize docs/CURRENT_PHASE.md (marque Fase 1 como ✅, inicie Fase 2)
     - Liste quaisquer decisões técnicas tomadas (ex: formato específico de operador)
     - Reporte qualquer dificuldade ou ambiguidade encontrada nos documentos
+```
+
+---
+
+## KICKOFF DA FASE 2
+
+> Gerado após conclusão da Fase 1. A Fase 1 definiu o contrato; a Fase 2 o implementa com dados reais.
+
+```
+Você é um desenvolvedor trabalhando no projeto RSdata.
+
+ANTES DE COMEÇAR, leia estes arquivos na ordem:
+1. .ai/BRAIN.md
+2. docs/CURRENT_PHASE.md
+3. docs/ARCHITECTURE.md — seções "Camada 1 — Data Source (Adapter)", "Contrato do
+   Adapter", "Dado sempre plano (flat)", e a tabela de Camadas
+4. docs/ROADMAP.md — seção "Fase 2"
+5. docs/FEATURES.md — seção "Fase 2 — Adapter Local"
+6. docs/PRINCIPLES.md — foco nos princípios #2, #3, #5
+7. docs/PROJECT_RULES.md
+8. .ai/AI_GUIDE.md
+
+TAREFA: Implementar a Fase 2 — Adapter Local.
+
+A Fase 2 é a PRIMEIRA prova real da arquitetura. Até agora o Data Engine só foi
+testado com mocks. Aqui ele recebe dados de verdade pela primeira vez.
+
+O QUE IMPLEMENTAR (em packages/core/src/):
+
+1. ADAPTER LOCAL (adapter/local.ts):
+   - Classe LocalAdapter que implementa a interface DataAdapter (definida na Fase 1)
+   - Construtor recebe um array de dados (Row[])
+   - fetch(query): aplica filtros → ordena → pagina → retorna { rows, total }
+   - fetchAll(query): aplica filtros → ordena → retorna TODAS as linhas (sem paginação)
+   - fetchFilterOptions(column): retorna valores únicos da coluna (para dropdowns)
+
+2. IMPLEMENTAÇÃO DOS OPERADORES DE FILTRO (filters/index.ts):
+   - Implementar função que aplica um filtro a uma linha
+   - Suporte a todos os operadores definidos por tipo na Fase 1:
+     texto: contains, equals, startsWith, endsWith
+     numero: eq, gt, lt, gte, lte, between
+     data/data-hora: between (intervalo), eq
+     booleano: eq
+     selecao: eq
+   - Múltiplos filtros = AND (todos precisam ser verdadeiros)
+
+3. IMPLEMENTAÇÃO DA ORDENAÇÃO (sorting/index.ts):
+   - Ordenar array por coluna e direção (asc/desc)
+   - Ordenação sensível ao tipo: alfabética (texto), numérica (numero),
+     cronológica (data), pelo valor de exibição (selecao)
+
+4. IMPLEMENTAÇÃO DA PAGINAÇÃO (pagination/index.ts):
+   - Fatiar array: calcular offset = (page - 1) * pageSize, retornar slice
+   - Calcular total de páginas: Math.ceil(total / pageSize)
+
+ARQUIVOS QUE NÃO PRECISAM SER ALTERADOS:
+   - packages/core/src/engine/ (a RsTable já está pronta)
+   - packages/core/src/columns/ (tipos e colunas já estão prontos)
+   - packages/core/src/events/ (sistema de eventos já está pronto)
+   - packages/core/src/validation/ (Falhe Alto já está pronto)
+   - packages/nuxt/ (a casca Nuxt só será implementada na Fase 3)
+   - build.config.ts, tsconfig.json, vitest.config.ts
+
+REGRAS ESPECÍFICAS DESTA FASE:
+   - Core é JS/TS puro — ZERO imports de Vue, React, Nuxt
+   - Core tem ZERO dependências de runtime — não instalar nada novo
+   - O adapter NUNCA transforma valor (1→"Ativo") — isso é do Data Engine
+   - O adapter NUNCA aplica máscara ou formatação visual
+   - fetch() sempre retorna Promise (simula comportamento assíncrono de servidor)
+   - Se algo não estiver claro nos documentos, PERGUNTE antes de decidir
+
+PONTOS CRÍTICOS — NÃO IGNORE:
+
+    1. O CONTRATO DO ADAPTER É TESTADO DE VERDADE AGORA: a Fase 1 definiu a interface
+       DataAdapter. A Fase 2 implementa ela com dados reais. Se a interface tiver algum
+       buraco (ex: Query não cobre um operador, FetchResult não é prático), VAI APARECER
+       AQUI. Se o adapter precisar de algo que a interface não prevê, a correção é na
+       INTERFACE (Fase 1), NUNCA uma gambiarra no adapter. Avise se encontrar buracos.
+
+    2. O ADAPTER NUNCA FAZ O TRABALHO DO DATA ENGINE: o LocalAdapter filtra, ordena e
+       pagina o array — mas NUNCA transforma valor. A transformação (1→"Ativo", máscara
+       R$, formatação de data) é exclusiva do Data Engine. Se o adapter começar a aplicar
+       transform(), mask, ou mapear valores, está ERRADO. O adapter entrega o dado BRUTO.
+
+    3. O ADAPTER SIMULA UM SERVIDOR, NÃO É UM ATALHO LOCAL: mesmo sendo array em memória,
+       o LocalAdapter se comporta COMO SE FOSSE REMOTO. Recebe Query, processa, devolve
+       FetchResult com rows + total. A RsTable NÃO SABE a diferença entre local e remoto.
+       fetch() SEMPRE retorna Promise<FetchResult>, nunca um array síncrono.
+
+    4. TESTES DE INTEGRAÇÃO, NÃO SÓ UNITÁRIOS: a Fase 1 testou RsTable com mock. A Fase 2
+       precisa testar RsTable + LocalAdapter JUNTOS — cenários de ponta a ponta. Criar
+       tabela → conectar adapter → filtrar → ordenar → paginar → verificar .getLinhas() e
+       .getTotal(). Se só existirem testes unitários do adapter isolado, está INCOMPLETO.
+
+    5. CASOS DE BORDA REAIS: tabela vazia (array []), filtro sem resultado, página além
+       do total, ordenação com dados repetidos, filtro + ordenação + paginação combinados,
+       Falhe Alto com dado inválido vindo do adapter. Se o Falhe Alto não disparar com
+       dado inválido fluindo do adapter, a cadeia está quebrada.
+
+EXPORTS (atualizar packages/core/src/index.ts):
+   - Exportar LocalAdapter
+   - Exportar funções de filtro, ordenação e paginação (se forem públicas)
+
+TESTES (packages/core/test/):
+   - Testar LocalAdapter isolado: fetch com filtro, ordenação, paginação
+   - Testar LocalAdapter.fetchAll (retorna todas as linhas, sem paginação)
+   - Testar LocalAdapter.fetchFilterOptions (valores únicos por coluna)
+   - Testar INTEGRAÇÃO: RsTable + LocalAdapter — fluxo completo
+   - Testar cada operador de filtro com dados reais
+   - Testar ordenação com cada tipo de coluna
+   - Testar paginação: primeira, última, meio, além do total
+   - Testar Falhe Alto: dado inválido no array → evento 'erro' disparado
+   - Casos de borda: array vazio, filtro sem match, página 0 ou negativa
+
+CRITÉRIO DE CONCLUSÃO:
+   - npm test passa com TODOS os cenários acima
+   - npm run build compila sem erros
+   - Nenhum import de Vue/React/Nuxt em packages/core/
+   - Nenhuma dependência nova em packages/core/package.json
+   - LocalAdapter implementa exatamente a interface DataAdapter
+   - Testes de integração RsTable + LocalAdapter cobrem o fluxo completo
+
+AO FINAL:
+   - Atualize docs/CURRENT_PHASE.md (marque Fase 2 como ✅, inicie Fase 3)
+   - Liste quaisquer decisões técnicas tomadas
+   - Reporte qualquer dificuldade ou buraco encontrado na interface do Adapter
 ```
