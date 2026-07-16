@@ -1,1 +1,5 @@
-export const components = true
+export { RsDataTable } from './RsDataTable'
+export { RsThead } from './RsThead'
+export { RsTbody, chaveLinha } from './RsTbody'
+export { RsPagination, paginasVisiveis } from './RsPagination'
+export { RsFilters, converterChaveOpcao, DEBOUNCE_FILTRO_MS } from './RsFilters'

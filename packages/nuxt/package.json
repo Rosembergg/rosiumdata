@@ -7,27 +7,31 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./theme/default.css": "./src/theme/default.css"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src/theme/default.css"
   ],
   "scripts": {
     "build": "unbuild",
     "dev": "unbuild --stub"
   },
   "peerDependencies": {
-    "vue": "^3.4.0",
-    "nuxt": "^3.12.0"
+    "nuxt": "^3.12.0",
+    "vue": "^3.4.0"
   },
   "dependencies": {
     "@rsdata/core": "*"
   },
   "devDependencies": {
-    "vue": "^3.4.0",
-    "nuxt": "^3.12.0"
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^20.10.6",
+    "nuxt": "^3.12.0",
+    "vue": "^3.4.0"
   }
 }
