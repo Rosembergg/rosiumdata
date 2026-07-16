@@ -4,6 +4,7 @@ export type {
   UseRsTableOptions,
   UseRsTableExtras,
   RsActionDefinition,
+  ActionDefinition,
   RsActionEvent,
   RsPreferencias,
 } from './useRsTable'

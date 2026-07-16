@@ -979,3 +979,111 @@ AO FINAL:
     - Reporte qualquer dificuldade com o contrato do Adapter
     - NÃO commitar
 ```
+
+---
+
+## BUGFIX: 3 buracos de contrato no Core (pós-Fase 5)
+
+> Issues reportadas durante as Fases 3-5 e confirmadas pelo CKO. Não bloqueiam a
+> v1.0, mas limitam funcionalidades. Resolver antes do uso em produção.
+
+```
+Você é um desenvolvedor no projeto RSdata. Sua tarefa é corrigir 3 buracos de
+contrato no Core (@rsdata/core) que foram reportados e confirmados durante as
+fases anteriores. São mudanças pequenas e cirúrgicas — não invente nada novo.
+
+ANTES DE COMEÇAR, leia:
+1. .ai/BRAIN.md
+2. docs/ARCHITECTURE.md — seções "Camada 1" e "Camada 2"
+3. packages/core/src/engine/index.ts (linhas 30, 35, 41-43 — adapter privado,
+   pageSize privado, só setado no construtor)
+4. packages/core/src/columns/index.ts (tipo 'acao' na linha 1, interface
+   ColumnDefinition)
+5. packages/core/src/adapter/index.ts (interface DataAdapter — fetchFilterOptions)
+6. packages/nuxt/src/composables/useRsTable.ts (linhas 35-56 — RsActionDefinition
+   no Render, comentário sobre "buraco de contrato")
+
+CORREÇÃO 1 — pageSize setter público
+
+Arquivo: packages/core/src/engine/index.ts
+Problema: pageSize é private, só definido no constructor. Se o usuário quiser
+mudar de 20 para 50 itens por página depois da tabela criada, não tem como.
+Solução: adicionar método público setPageSize(n: number): void.
+- Validar n > 0 (se inválido, emitir erro via evento 'erro')
+- Resetar currentPage para 1 (nova pageSize → recalcular total de páginas)
+- Disparar fetchData() automaticamente após mudar
+- Manter pageSize como private, sem getter (já exposto em getEstado())
+
+CORREÇÃO 2 — getOpcoesFiltro() público no Core
+
+Arquivo: packages/core/src/engine/index.ts
+Problema: adapter é private e fetchFilterOptions() nunca é exposto. O dropdown
+de colunas tipo 'selecao' usa col.options estático porque não tem como buscar
+opções dinâmicas do servidor.
+Solução: adicionar método público async getOpcoesFiltro(column): Promise<FilterOption[]>.
+- Se adapter não existe: emite erro e retorna []
+- Se adapter não implementa fetchFilterOptions: retorna []
+- Se implementa: delega para adapter.fetchFilterOptions(column)
+- Se der erro na chamada: emite evento 'erro' e retorna []
+- Exportar tipo FilterOption se ainda não estiver exportado
+
+CORREÇÃO 3 — Tipagem oficial de actions no Core
+
+Arquivo: packages/core/src/columns/index.ts
+Problema: a interface RsActionDefinition (key, label, danger?) vive no Render
+(packages/nuxt/), mas 'acao' é um ColumnType do Core. O Core tipa options como
+Record<string, string>, gerando cast no código do usuário.
+Solução: mover a tipagem de actions para o Core.
+- Criar interface ActionDefinition no Core (packages/core/src/columns/):
+  export interface ActionDefinition {
+    key: string
+    label: string
+    danger?: boolean
+  }
+- Atualizar ColumnDefinition.options para aceitar actions:
+  options?: Record<string, unknown> & { actions?: ActionDefinition[] }
+- Exportar ActionDefinition no index.ts do Core
+- O Render (packages/nuxt/) deve importar ActionDefinition de @rsdata/core
+  e remover a definição duplicada RsActionDefinition, re-exportando ou
+  criando alias se necessário
+- colunaAcao() no Render deve usar ActionDefinition do Core
+
+ARQUIVOS QUE VOCÊ PODE ALTERAR:
+    - packages/core/src/engine/index.ts (correções 1 e 2)
+    - packages/core/src/columns/index.ts (correção 3)
+    - packages/core/src/index.ts (novos exports)
+    - packages/nuxt/src/composables/useRsTable.ts (importar do Core)
+    - packages/nuxt/src/components/RsActions.ts (importar do Core se usar)
+
+ARQUIVOS QUE NÃO DEVEM SER ALTERADOS:
+    - packages/core/src/adapter/ (interface já está correta)
+    - packages/core/src/events/
+    - packages/core/src/validation/
+    - packages/nuxt/src/components/ (exceto RsActions.ts se necessário)
+    - build.config.ts, tsconfig.json, vitest.config.ts
+
+REGRAS:
+    - Core continua ZERO dependências
+    - NADA de mágica — métodos públicos explícitos (Princípio #6)
+    - Mudanças mínimas e cirúrgicas — não refatore nada além do necessário
+    - Testes existentes NÃO podem quebrar
+    - Se algo não estiver claro, PERGUNTE
+
+TESTES:
+    - #1: setPageSize(50) → getEstado().pageSize === 50, fetchData foi chamado
+    - #1: setPageSize(0) → evento 'erro' emitido
+    - #2: getOpcoesFiltro('status') → retorna opções do adapter
+    - #2: getOpcoesFiltro sem adapter → retorna []
+    - #3: ColumnDefinition aceita options.actions tipado
+    - #3: Render importa ActionDefinition de @rsdata/core (sem duplicação)
+
+CRITÉRIO DE CONCLUSÃO:
+    - npm test passa (todos os 352 testes intactos + novos)
+    - npm run build compila sem erros
+    - NENHUMA dependência nova
+    - git diff packages/core/ mostra APENAS engine, columns e index.ts alterados
+
+AO FINAL:
+    - NÃO commitar
+    - Liste arquivos alterados e resumo das mudanças
+```

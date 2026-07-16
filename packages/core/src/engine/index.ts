@@ -1,5 +1,5 @@
 import type { ColumnDefinition } from '../columns'
-import type { DataAdapter, Filter, Query, Row } from '../adapter'
+import type { DataAdapter, Filter, FilterOption, Query, Row } from '../adapter'
 import { EventEmitter } from '../events'
 import { formatarValorPadrao } from '../columns'
 import { validarLinhas } from '../validation'
@@ -83,6 +83,21 @@ export class RsTable {
     await this.fetchData()
   }
 
+  async setPageSize(n: number): Promise<void> {
+    if (typeof n !== 'number' || n <= 0 || !Number.isFinite(n)) {
+      this.events.emit('erro', {
+        column: '',
+        rowIndex: -1,
+        expected: 'pageSize > 0 (number)',
+        received: String(n),
+      })
+      return
+    }
+    this.pageSize = n
+    this.currentPage = 1
+    await this.fetchData()
+  }
+
   getLinhas(): TransformedRow[] {
     return this.currentRows
   }
@@ -103,6 +118,32 @@ export class RsTable {
       rows: this.currentRows,
       visibleColumns: [...this.visibleColumns],
       columnOrder: this.getColumnOrder(),
+    }
+  }
+
+  async getOpcoesFiltro(column: string): Promise<FilterOption[]> {
+    if (!this.adapter) {
+      this.events.emit('erro', {
+        column: '',
+        rowIndex: -1,
+        expected: 'adapter configurado',
+        received: 'nenhum adapter',
+      })
+      return []
+    }
+    if (!this.adapter.fetchFilterOptions) {
+      return []
+    }
+    try {
+      return await this.adapter.fetchFilterOptions(column)
+    } catch (err) {
+      this.events.emit('erro', {
+        column: '',
+        rowIndex: -1,
+        expected: 'fetchFilterOptions bem-sucedido',
+        received: err instanceof Error ? err.message : String(err),
+      })
+      return []
     }
   }
 

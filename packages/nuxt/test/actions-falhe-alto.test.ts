@@ -13,7 +13,7 @@ import {
   mensagemErro,
   lerPreferencias,
 } from '@rsdata/nuxt'
-import type { RsActionDefinition, RsActionEvent } from '@rsdata/nuxt'
+import type { ActionDefinition, RsActionEvent } from '@rsdata/nuxt'
 
 const DADOS: Row[] = [
   { id: 1, nome: 'Coca-Cola', preco: 5.99, status: 1 },
@@ -21,15 +21,15 @@ const DADOS: Row[] = [
   { id: 3, nome: 'Agua', preco: 2.0, status: 2 },
 ]
 
-const ACAO_UNICA: RsActionDefinition[] = [{ key: 'editar', label: 'Editar' }]
+const ACAO_UNICA: ActionDefinition[] = [{ key: 'editar', label: 'Editar' }]
 
-const TRES_ACOES: RsActionDefinition[] = [
+const TRES_ACOES: ActionDefinition[] = [
   { key: 'ver', label: 'Ver detalhes' },
   { key: 'editar', label: 'Editar' },
   { key: 'excluir', label: 'Excluir', danger: true },
 ]
 
-function criarColunas(actions: RsActionDefinition[] = ACAO_UNICA) {
+function criarColunas(actions: ActionDefinition[] = ACAO_UNICA) {
   return [
     coluna('id', { type: 'numero' }),
     coluna('nome', { type: 'texto', label: 'Nome' }),
@@ -40,7 +40,7 @@ function criarColunas(actions: RsActionDefinition[] = ACAO_UNICA) {
 
 function montarTabela(opcoes: {
   dados?: Row[]
-  actions?: RsActionDefinition[]
+  actions?: ActionDefinition[]
   debug?: boolean
   attach?: boolean
 } = {}) {

@@ -168,3 +168,4 @@ Cada tipo = pacote de comportamento pronto (filtro, ordenação, alinhamento, va
 | AI_GUIDE.md | `.ai/` | ✅ |
 | TEMPLATE.md | `.ai/` | ✅ |
 | PROJECT_RULES.md | `docs/` | ✅ |
+| USAGE.md | `docs/` | ✅ |

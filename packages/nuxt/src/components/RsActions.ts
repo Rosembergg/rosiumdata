@@ -1,6 +1,6 @@
 import { defineComponent, h, onUnmounted, ref, Teleport } from 'vue'
 import type { PropType, VNode } from 'vue'
-import type { ColumnDefinition, RsActionDefinition, TransformedRow } from '../composables/useRsTable'
+import type { ColumnDefinition, ActionDefinition, TransformedRow } from '../composables/useRsTable'
 
 /**
  * Extrai as actions declaradas em uma coluna do tipo 'acao'.
@@ -8,10 +8,10 @@ import type { ColumnDefinition, RsActionDefinition, TransformedRow } from '../co
  * O contrato guarda as actions em col.options.actions (ver colunaAcao() no
  * composable). Duck-typing em runtime: se não houver array, não há actions.
  */
-export function acoesDaColuna(col: ColumnDefinition): RsActionDefinition[] {
+export function acoesDaColuna(col: ColumnDefinition): ActionDefinition[] {
   const options = col.options as Record<string, unknown> | undefined
   const actions = options?.['actions']
-  return Array.isArray(actions) ? (actions as RsActionDefinition[]) : []
+  return Array.isArray(actions) ? (actions as ActionDefinition[]) : []
 }
 
 /** Distância (px) entre o botão ⋯ e o dropdown */
@@ -31,7 +31,7 @@ export const RsActions = defineComponent({
   name: 'RsActions',
   props: {
     acoes: {
-      type: Array as PropType<RsActionDefinition[]>,
+      type: Array as PropType<ActionDefinition[]>,
       required: true,
     },
     linha: {
@@ -49,7 +49,7 @@ export const RsActions = defineComponent({
     const menuEl = ref<HTMLElement | null>(null)
     const posicao = ref({ top: 0, left: 0 })
 
-    function disparar(acao: RsActionDefinition): void {
+    function disparar(acao: ActionDefinition): void {
       emit('action', { key: acao.key, row: props.linha })
       fechar()
     }
@@ -87,7 +87,7 @@ export const RsActions = defineComponent({
 
     onUnmounted(fechar)
 
-    function botaoUnico(acao: RsActionDefinition): VNode {
+    function botaoUnico(acao: ActionDefinition): VNode {
       return h(
         'button',
         {

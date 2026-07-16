@@ -2,6 +2,7 @@ import { computed, ref, shallowRef, getCurrentScope, onScopeDispose } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
 import { RsTable, ALINHAMENTO_PADRAO, OPERADOR_PADRAO, coluna } from '@rsdata/core'
 import type {
+  ActionDefinition,
   ColumnAlignment,
   ColumnDefinition,
   DataAdapter,
@@ -32,14 +33,8 @@ export type { RsTable } from '@rsdata/core'
  * do que acontece depois (API, exclusão, navegação) é 100% do usuário.
  * A RSdata é o transportador; o usuário traz a arma.
  */
-export interface RsActionDefinition {
-  /** Identificador da action, entregue no evento 'action' */
-  key: string
-  /** Texto do botão / item do menu */
-  label: string
-  /** Ação destrutiva — ganha destaque visual de perigo (vermelho) */
-  danger?: boolean
-}
+export type { ActionDefinition as RsActionDefinition }
+export type { ActionDefinition }
 
 /** Payload do evento 'action': qual action e a linha completa (raw + display) */
 export interface RsActionEvent {
@@ -50,17 +45,16 @@ export interface RsActionEvent {
 /**
  * Helper para definir uma coluna do tipo 'acao' com actions tipadas.
  *
- * O contrato do Core guarda as actions em `options.actions` (a ColumnDefinition
- * do Core tipa `options` como Record<string, string> — ver "buraco de contrato"
- * reportado no CURRENT_PHASE.md). Este helper vive no Render e produz uma
- * ColumnDefinition válida sem exigir cast no código do usuário.
+ * As actions são guardadas em `options.actions`. O Core tipa `options`
+ * como `Record<string, unknown> & { actions?: ActionDefinition[] }`
+ * — ver interface ColumnDefinition em @rsdata/core.
  */
 export function colunaAcao(
   key: string,
-  config: { label?: string; actions: RsActionDefinition[] },
+  config: { label?: string; actions: ActionDefinition[] },
 ): ColumnDefinition {
   const def = coluna(key, { type: 'acao', label: config.label })
-  def.options = { actions: config.actions } as unknown as ColumnDefinition['options']
+  def.options = { actions: config.actions }
   return def
 }
 
@@ -148,6 +142,7 @@ export interface UseRsTableContext {
   filtrar: (filter: Filter) => Promise<void>
   ordenar: (column: string, direction: SortDirection) => Promise<void>
   irParaPagina: (n: number) => Promise<void>
+  setPageSize: (n: number) => Promise<void>
   esconderColuna: (key: string) => void
   mostrarColuna: (key: string) => void
   reordenarColunas: (keys: string[]) => void
@@ -309,6 +304,7 @@ export function useRsTable(
     filtrar: (filter) => executar(() => tabela.filtrar(filter)),
     ordenar: (column, direction) => executar(() => tabela.ordenar(column, direction)),
     irParaPagina: (n) => executar(() => tabela.irParaPagina(n)),
+    setPageSize: (n) => executar(() => tabela.setPageSize(n)),
     esconderColuna: (key) => tabela.esconderColuna(key),
     mostrarColuna: (key) => tabela.mostrarColuna(key),
     reordenarColunas: (keys) => tabela.reordenarColunas(keys),
