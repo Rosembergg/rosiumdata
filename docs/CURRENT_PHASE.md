@@ -1,11 +1,11 @@
 # CURRENT_PHASE.md — RSdata
 
 > **Status atual do desenvolvimento.** Onde estamos, o que está feito e qual o próximo passo.  
-> **Atualizado em:** 2026-07-16 — após conclusão da Fase 3.
+> **Atualizado em:** 2026-07-16 — após conclusão da Fase 4.
 
 ---
 
-## FASE ATUAL: Fase 4 — Actions + Falhe Alto (integrado)
+## FASE ATUAL: Fase 5 — Adapter Server-side (Laravel)
 
 **Status:** ⏳ Iniciando
 
@@ -229,6 +229,9 @@
 | Theme default | ✅ CSS puro próprio, classes .rs-* |
 | Plugin Vue/Nuxt | ✅ app.use(RsData) registra componentes |
 | Playground | ✅ Prova visual (npx vite playground) |
+| Actions (gatilho) | ✅ Botão único, menu ⋯, evento `{ key, row }` — nunca executa |
+| Falhe Alto visual | ✅ Dev grita (banner + tooltip), produção segura (⚠ sutil) |
+| Preferências persistentes | ✅ localStorage opt-in via chave `persistencia` |
 
 ---
 
@@ -285,6 +288,21 @@
 
 O contrato `DataAdapter` define `fetchFilterOptions?(column)`, mas a classe `RsTable` (Core) **não expõe** nenhum método para o Render consumi-lo (o adapter é privado). Como o Render não pode falar com o Adapter diretamente (regra de camadas), o dropdown de seleção da Fase 3 usa `col.options` da definição da coluna. **Sugestão para Fase 4/5:** adicionar ao Core um método oficial (ex.: `RsTable.getOpcoesFiltro(column)`) que delega ao adapter. O Core NÃO foi alterado nesta fase.
 
+## DECISÕES TÉCNICAS DA FASE 4
+
+| ID | Decisão | Detalhe |
+|---|---|---|
+| DT-045 | Actions declaradas em `col.options.actions` (API definida pelo autor no kickoff da fase) | O Core trata `options` como opaco para o tipo `acao` (não filtra, não valida, `display` = ''). O Render lê por duck-typing (`acoesDaColuna()`). Core intocado |
+| DT-046 | Helper `colunaAcao(key, { label, actions })` no Render | A `ColumnDefinition.options` do Core é tipada como `Record<string\|number, string>` — declarar actions inline exigiria cast no código do usuário. O helper produz a definição válida (via `coluna()` do Core) e mantém o uso explícito e tipado |
+| DT-047 | Evento de action viaja por canal próprio do composable (`contexto.on/off/emitirAcao`) | A `RsTable` do Core não expõe `emit` público — o Render não pode (nem deve) emitir eventos na instância do Core. O composable é o hub: RsTbody → `emitirAcao` → listeners + re-emit Vue no `<RsTable @action>`. Payload: `{ key, row }` com a linha transformada (raw + display) |
+| DT-048 | Dropdown ⋯ via `Teleport` nativo do Vue para o `<body>` | Zero dependências. Posição calculada do `getBoundingClientRect()` do botão; alinhado à direita via CSS (`translateX(-100%)`). Clique fora, Escape, clique em item e unmount fecham |
+| DT-049 | Falhe Alto visual com modos dev/produção via prop `:debug` | Default: `import.meta.env.DEV` (helper `ambienteDev()` com guard para ambientes sem Vite → assume produção, o modo seguro). Dev: `.rs-cell--error-debug` + `data-rs-error` (tooltip CSS) + banner `role="alert"`. Produção: só `.rs-cell--error` + ⚠ com `aria-label`, sem internals |
+| DT-050 | `mensagemErro()` formata a denúncia | "Coluna \`X\`, linha N, esperava \`Y\`, recebeu \`Z\`". `rowIndex` é o índice na página atual (contrato do Core desde a Fase 1). Erros gerais (adapter ausente, `rowIndex: -1`) omitem coluna/linha |
+| DT-051 | Persistência opt-in por chave explícita (`persistencia`) | Resolve a reserva do DT-039 (restauração automática seria mágica): sem chave visível no código de uso, nada é salvo. Storage: `rsdata:<chave>` com `{ colunasVisiveis, pageSize }`. Restauração usa somente API oficial do Core |
+| DT-052 | pageSize restaurado apenas no modo rápido | O Core não tem setter público de pageSize (só no construtor) — **gancho a avaliar no Core** se a Fase 5 precisar de seletor de tamanho de página. No modo instância, o pageSize salvo é ignorado (sem gambiarra) |
+| DT-053 | Coluna `acao` nunca recebe estado de erro | O Core não valida tipo `acao` (Fase 1); no Render a célula de action (`.rs-cell-action`) e a célula com erro (`.rs-cell--error`) são células distintas e independentes — action + erro convivem na mesma linha sem sobreposição |
+| DT-054 | Classes de erro renomeadas: `.rs-cell--error` / `.rs-cell--error-debug` | Substituem o CSS dormante `.rs-cell-error`/`.rs-row-error` da Fase 3 (nunca publicadas em release — sem quebra) |
+
 ## REFINAMENTO VISUAL PREMIUM (pós-aprovação da Fase 3)
 
 Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark mode automático). Decisões:
@@ -304,12 +322,58 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 
 ---
 
+### Checklist da Fase 4 ✅ (CONCLUÍDA)
+
+#### Actions — coluna tipo `acao` no Render (gatilhos, nunca executores)
+- [x] `RsActions` (components/RsActions.ts) — renderiza as actions de uma célula
+- [x] Actions declaradas em `col.options.actions: [{ key, label, danger? }]`
+- [x] Helper `colunaAcao(key, { label, actions })` no Render — cria a ColumnDefinition sem cast no código do usuário
+- [x] 1 action → botão direto (`.rs-action-btn`); `danger: true` → `.rs-action-btn--danger`
+- [x] 2+ actions → botão ⋯ (`.rs-action-more`) que abre dropdown
+- [x] Dropdown: card branco, borda sutil, sombra, animação 150ms ease-out; itens 8px 16px com hover; `danger` → texto vermelho + hover red (`.rs-menu-item--danger`)
+- [x] Dropdown renderizado no `<body>` via `Teleport` (nativo do Vue, zero deps)
+- [x] Clique fora OU Escape fecha; clique em uma ação emite e fecha
+- [x] Clique emite APENAS `{ key, row }` — zero fetch/exclusão/navegação no componente (read-only: a RSdata é o transportador, o usuário traz a arma)
+- [x] Cadeia do evento: RsActions → RsTbody → `contexto.emitirAcao()` → listeners de `contexto.on('action')` → `<RsTable @action>` (re-emit Vue)
+
+#### Falhe Alto — visual (consumidor dos eventos do Core, nunca produtor)
+- [x] `useRsTable()` já expunha `erros[]` (Fase 3) — nenhuma validação nova no Render
+- [x] Modo DEV (`:debug="true"` ou `import.meta.env.DEV`): célula com `.rs-cell--error` + `.rs-cell--error-debug` (fundo red-50, borda esquerda 3px vermelha), tooltip via `data-rs-error` e banner `.rs-error-banner` abaixo da toolbar com "Coluna \`X\`, linha N, esperava \`Y\`, recebeu \`Z\`"
+- [x] Modo PRODUÇÃO (`:debug="false"`): ícone ⚠ sutil (`.rs-cell-error-icon`) + fundo levemente alterado; sem banner, sem detalhes internos; resto da tabela funciona
+- [x] Erro + action na mesma linha: células independentes, sem sobreposição (coluna `acao` nunca é validada pelo Core; célula com erro nunca contém botão)
+
+#### Preferências persistentes (100% no composable, zero no Core)
+- [x] `useRsTable(fonte, { persistencia: 'chave' })` — salva em `localStorage` (`rsdata:chave`): colunas visíveis + ordem + pageSize
+- [x] Sem a chave, nada é salvo/restaurado (explícito, Princípio #6 — resolve a reserva do DT-039)
+- [x] Restauração no mount via API oficial do Core (`mostrarColuna`/`esconderColuna`/`reordenarColunas`); pageSize restaurado no modo rápido (construtor)
+- [x] Prop `persistencia` no `<RsTable>`; menu "Colunas" da toolbar (checkboxes) alimenta a persistência
+- [x] Preferências corrompidas/colunas inexistentes são ignoradas com fallback para defaults
+
+#### Testes (Vitest + happy-dom)
+- [x] Ação única: botão renderiza, clique emite `{ key, row }`, `ctx.on/off('action')`
+- [x] 3 ações: menu ⋯ renderiza, dropdown abre/fecha (item, clique fora, Escape, unmount)
+- [x] Ação danger: classes CSS no botão direto e no dropdown
+- [x] Falhe Alto dev: `.rs-cell--error`, `.rs-cell--error-debug`, `data-rs-error`, banner
+- [x] Falhe Alto produção: sem banner, indicador sutil, tabela continua funcionando
+- [x] Ação + erro na mesma linha: layout não quebra
+- [x] Preferências: salvar/restaurar/ignorar corrompidas; fluxo completo via `<RsTable>`
+- [x] Menu colunas: checkboxes mostram/escondem colunas
+- [x] `packages/core/` sem NENHUMA alteração (`git diff packages/core/` vazio)
+- **Total: 279 testes passando (28 novos)**
+
+#### Exports
+- [x] `RsActions`, `colunaAcao`, `acoesDaColuna`, `mensagemErro`, `ambienteDev`, `lerPreferencias`, `salvarPreferencias` + tipos `RsActionDefinition`, `RsActionEvent`, `RsPreferencias`, `UseRsTableExtras`
+- [x] Plugin `RsData` registra também `RsActions`
+- [x] `npm run build` compila sem erros; zero dependências novas
+
+---
+
 ## PRÓXIMOS PASSOS IMEDIATOS
 
-1. **Iniciar a Fase 4:** Actions + Falhe Alto integrado
-2. Coluna tipo `acao` renderizando botão configurável + evento com o dado da linha
-3. Falhe Alto no Render: dev (mensagem com localização exata) vs. produção (estado de erro na célula)
-4. Avaliar gancho oficial no Core para `fetchFilterOptions` (buraco de contrato da Fase 3)
+1. **Iniciar a Fase 5:** Adapter Server-side (Laravel)
+2. Implementar `LaravelAdapter` (ou adapter HTTP genérico customizável)
+3. Tradução do contrato Query → parâmetros de request; parsing da resposta → dado plano
+4. Avaliar ganchos oficiais no Core reportados nas Fases 3/4: `getOpcoesFiltro(column)` (opções de filtro via adapter), setter público de pageSize e `actions` tipadas na `ColumnDefinition`
 
 ---
 
@@ -321,11 +385,10 @@ Nenhum no momento.
 
 ## PRÓXIMA FASE
 
-**Fase 4 — Actions + Falhe Alto (integrado)**
+**Fase 5 — Adapter Server-side (Laravel)**
 
-Quando a Fase 4 estiver concluída, a Fase 5 começa com:
-- Adapter Server-side (Laravel)
-- v1.0 MVP: RSdata no projeto real
+Quando a Fase 5 estiver concluída:
+- **v1.0 MVP:** RSdata funcionando no projeto real, substituindo o PowerGrid
 
 ---
 

@@ -1,14 +1,15 @@
-import { defineComponent, h, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, computed, h, onMounted, onUnmounted, ref } from 'vue'
 import type { PropType, VNode } from 'vue'
 import { useRsTable } from '../composables/useRsTable'
 import type {
   ColumnDefinition,
   DataAdapter,
+  RsActionEvent,
   RsTable as RsTableCore,
   UseRsTableContext,
 } from '../composables/useRsTable'
 import { RsThead } from './RsThead'
-import { RsTbody } from './RsTbody'
+import { RsTbody, mensagemErro } from './RsTbody'
 import { RsPagination } from './RsPagination'
 import { RsFilters } from './RsFilters'
 
@@ -32,6 +33,20 @@ function icone(d: string): VNode {
 const ICONE_FILTRO = 'M22 3H2l8 9.46V19l4 2v-8.54L22 3z'
 const ICONE_COLUNAS = 'M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18'
 const ICONE_DENSIDADE = 'M3 6h18M3 12h18M3 18h18'
+
+/**
+ * Detecta ambiente de desenvolvimento (Vite define import.meta.env.DEV).
+ * Fora do Vite (Node puro, bundlers sem env), assume produção — o modo
+ * seguro do Falhe Alto.
+ */
+export function ambienteDev(): boolean {
+  try {
+    const env = (import.meta as unknown as { env?: { DEV?: boolean } }).env
+    return env?.DEV === true
+  } catch {
+    return false
+  }
+}
 
 /**
  * Componente principal da tabela. Chama-se RsDataTable para não colidir com a
@@ -61,23 +76,52 @@ export const RsDataTable = defineComponent({
       type: Number,
       default: undefined,
     },
+    /**
+     * Falhe Alto: true = modo dev (banner + tooltip com localização exata do
+     * erro); false = modo produção (indicador sutil, sem expor internals).
+     * Sem a prop, detecta import.meta.env.DEV.
+     */
+    debug: {
+      type: Boolean,
+      default: undefined,
+    },
+    /**
+     * Chave de persistência de preferências (colunas visíveis, ordem,
+     * pageSize) em localStorage. Sem a chave, nada é salvo nem restaurado.
+     */
+    persistencia: {
+      type: String,
+      default: undefined,
+    },
   },
-  setup(props) {
+  emits: {
+    /** Gatilho de action: { key, row }. A RSdata não executa nada. */
+    action: (payload: RsActionEvent) => payload !== undefined,
+  },
+  setup(props, { emit }) {
     let contexto: UseRsTableContext
 
     if (props.tabela) {
-      contexto = useRsTable(props.tabela)
+      contexto = useRsTable(props.tabela, { persistencia: props.persistencia })
     } else if (props.columns && props.adapter) {
-      contexto = useRsTable({
-        columns: props.columns,
-        adapter: props.adapter,
-        pageSize: props.pageSize,
-      })
+      contexto = useRsTable(
+        {
+          columns: props.columns,
+          adapter: props.adapter,
+          pageSize: props.pageSize,
+        },
+        { persistencia: props.persistencia },
+      )
     } else {
       throw new Error(
         '[RSdata] <RsTable> precisa da prop "tabela" (instância RsTable) OU das props "columns" + "adapter".',
       )
     }
+
+    /* Propaga o gatilho de action do Render para o consumidor Vue */
+    contexto.on('action', (payload) => emit('action', payload))
+
+    const modoDebug = computed(() => props.debug ?? ambienteDev())
 
     /* Estado de UI (sessão apenas — sem persistência, sem lógica de dado) */
     const filtrosAbertos = ref(false)
@@ -91,13 +135,21 @@ export const RsDataTable = defineComponent({
       }
     }
 
+    function aoTeclar(e: KeyboardEvent): void {
+      if (e.key === 'Escape') {
+        menuColunasAberto.value = false
+      }
+    }
+
     onMounted(() => {
       document.addEventListener('click', aoClicarFora)
+      document.addEventListener('keydown', aoTeclar)
       void contexto.carregar()
     })
 
     onUnmounted(() => {
       document.removeEventListener('click', aoClicarFora)
+      document.removeEventListener('keydown', aoTeclar)
     })
 
     function colunaVisivel(key: string): boolean {
@@ -187,6 +239,23 @@ export const RsDataTable = defineComponent({
       )
     }
 
+    /**
+     * Banner do Falhe Alto — SÓ no modo debug. Grita a localização exata de
+     * cada dado inválido. Em produção, a denúncia fica restrita ao indicador
+     * sutil na célula (sem internals) e a tabela continua funcionando.
+     */
+    function bannerErros(): VNode | null {
+      if (!modoDebug.value || contexto.erros.value.length === 0) return null
+      return h('div', { class: 'rs-error-banner', role: 'alert' }, [
+        h('strong', { class: 'rs-error-banner-title' }, [
+          `Falhe Alto: ${contexto.erros.value.length} dado(s) inválido(s)`,
+        ]),
+        ...contexto.erros.value.map((erro, i) =>
+          h('div', { key: i, class: 'rs-error-banner-item' }, mensagemErro(erro)),
+        ),
+      ])
+    }
+
     return () =>
       h(
         'div',
@@ -199,6 +268,7 @@ export const RsDataTable = defineComponent({
               h('div', { class: 'rs-toolbar-left' }, [botaoFiltros()]),
               h('div', { class: 'rs-toolbar-right' }, [menuColunas(), botaoDensidade()]),
             ]),
+            bannerErros(),
             h(
               'div',
               { class: ['rs-filters-panel', { 'rs-filters-open': filtrosAbertos.value }] },
@@ -207,7 +277,7 @@ export const RsDataTable = defineComponent({
             h('div', { class: 'rs-table-wrap' }, [
               h('table', { class: 'rs-table' }, [
                 h(RsThead, { contexto }),
-                h(RsTbody, { contexto }),
+                h(RsTbody, { contexto, debug: modoDebug.value }),
               ]),
             ]),
             h(RsPagination, { contexto }),

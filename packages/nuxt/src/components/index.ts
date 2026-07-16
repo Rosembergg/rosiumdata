@@ -1,5 +1,6 @@
-export { RsDataTable } from './RsDataTable'
+export { RsDataTable, ambienteDev } from './RsDataTable'
 export { RsThead } from './RsThead'
-export { RsTbody, chaveLinha } from './RsTbody'
+export { RsTbody, chaveLinha, mensagemErro } from './RsTbody'
+export { RsActions, acoesDaColuna } from './RsActions'
 export { RsPagination, paginasVisiveis } from './RsPagination'
 export { RsFilters, converterChaveOpcao, DEBOUNCE_FILTRO_MS } from './RsFilters'

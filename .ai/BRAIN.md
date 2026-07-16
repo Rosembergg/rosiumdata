@@ -90,8 +90,8 @@ Cada tipo = pacote de comportamento pronto (filtro, ordenação, alinhamento, va
 | **1** | Data Engine + Colunas + Tipos (JS puro) | ✅ |
 | **2** | Adapter local (array) | ✅ |
 | **3** | Render Nuxt + Theme default (CSS) | ✅ |
-| **4** | Actions + Falhe Alto integrado | ⏳ |
-| **5** | Adapter Server-side (Laravel) | ⬜ |
+| **4** | Actions + Falhe Alto integrado | ✅ |
+| **5** | Adapter Server-side (Laravel) | ⏳ |
 | **= v1.0** | MVP: RSdata no projeto real | |
 | **+** | Exportação, Seleção, Cache, React, etc. | |
 
@@ -142,7 +142,7 @@ Cada tipo = pacote de comportamento pronto (filtro, ordenação, alinhamento, va
 
 ---
 
-## FASE ATUAL: Fase 4 (Actions + Falhe Alto integrado)
+## FASE ATUAL: Fase 5 (Adapter Server-side Laravel)
 
 → `docs/CURRENT_PHASE.md`
 

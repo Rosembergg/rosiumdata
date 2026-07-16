@@ -2,15 +2,20 @@ import type { App, Plugin } from 'vue'
 import { RsDataTable } from './components/RsDataTable'
 import { RsThead } from './components/RsThead'
 import { RsTbody } from './components/RsTbody'
+import { RsActions } from './components/RsActions'
 import { RsPagination } from './components/RsPagination'
 import { RsFilters } from './components/RsFilters'
 
 export { VERSION, NAME } from './meta'
 
-export { useRsTable } from './composables/useRsTable'
+export { useRsTable, colunaAcao, lerPreferencias, salvarPreferencias } from './composables/useRsTable'
 export type {
   UseRsTableContext,
   UseRsTableOptions,
+  UseRsTableExtras,
+  RsActionDefinition,
+  RsActionEvent,
+  RsPreferencias,
   ColumnAlignment,
   ColumnDefinition,
   DataAdapter,
@@ -21,7 +26,10 @@ export type {
   ValidationError,
 } from './composables/useRsTable'
 
-export { RsDataTable, RsThead, RsTbody, RsPagination, RsFilters }
+export { RsDataTable, RsThead, RsTbody, RsActions, RsPagination, RsFilters }
+export { acoesDaColuna } from './components/RsActions'
+export { mensagemErro } from './components/RsTbody'
+export { ambienteDev } from './components/RsDataTable'
 
 export { THEME_DEFAULT_CSS } from './theme'
 
@@ -43,6 +51,7 @@ export const RsData: Plugin = {
     app.component('RsTable', RsDataTable)
     app.component('RsThead', RsThead)
     app.component('RsTbody', RsTbody)
+    app.component('RsActions', RsActions)
     app.component('RsPagination', RsPagination)
     app.component('RsFilters', RsFilters)
   },

@@ -2,9 +2,12 @@ import { defineComponent, h } from 'vue'
 import type { PropType, VNode } from 'vue'
 import type {
   ColumnDefinition,
+  RsActionEvent,
   TransformedRow,
   UseRsTableContext,
+  ValidationError,
 } from '../composables/useRsTable'
+import { RsActions, acoesDaColuna } from './RsActions'
 
 /**
  * Key de linha para o Vue rastrear elementos DOM.
@@ -23,6 +26,18 @@ export function chaveLinha(linha: TransformedRow, index: number): string | numbe
 const LINHAS_SKELETON_MIN = 3
 const LINHAS_SKELETON_MAX = 8
 
+/**
+ * Mensagem de erro do Falhe Alto para tooltip/banner (apenas modo debug).
+ * Localização exata: coluna + linha + esperado vs. recebido.
+ */
+export function mensagemErro(erro: ValidationError): string {
+  const recebido = typeof erro.received === 'string' ? `"${erro.received}"` : String(erro.received)
+  if (erro.column === '' || erro.rowIndex < 0) {
+    return `Esperava \`${erro.expected}\`, recebeu \`${recebido}\``
+  }
+  return `Coluna \`${erro.column}\`, linha ${erro.rowIndex}, esperava \`${erro.expected}\`, recebeu \`${recebido}\``
+}
+
 export const RsTbody = defineComponent({
   name: 'RsTbody',
   props: {
@@ -30,8 +45,20 @@ export const RsTbody = defineComponent({
       type: Object as PropType<UseRsTableContext>,
       required: true,
     },
+    /**
+     * Falhe Alto: true = modo dev (grita: fundo vermelho, borda, tooltip com
+     * localização exata); false = modo produção (ícone ⚠ sutil, sem detalhes
+     * internos). O RsDataTable resolve o padrão via import.meta.env.DEV.
+     */
+    debug: {
+      type: Boolean,
+      default: false,
+    },
   },
-  setup(props) {
+  emits: {
+    action: (payload: RsActionEvent) => payload !== undefined,
+  },
+  setup(props, { emit }) {
     /**
      * Célula de exibição. O valor vem SEMPRE pronto do Core (display).
      * Colunas de seleção ganham um badge visual — só apresentação: o texto
@@ -44,6 +71,28 @@ export const RsTbody = defineComponent({
         return h('span', { class: 'rs-badge', 'data-rs-badge': display }, display)
       }
       return display
+    }
+
+    /**
+     * Célula de action: renderiza os gatilhos e propaga o evento 'action'
+     * ({ key, row }) para o contexto e para o pai. Nunca executa lógica.
+     */
+    function celulaAcao(col: ColumnDefinition, linha: TransformedRow): VNode {
+      return h(RsActions, {
+        acoes: acoesDaColuna(col),
+        linha,
+        onAction: (payload: RsActionEvent) => {
+          props.contexto.emitirAcao(payload)
+          emit('action', payload)
+        },
+      })
+    }
+
+    /** Erro do Falhe Alto para a célula (rowIndex do Core = índice na página) */
+    function erroDaCelula(index: number, col: ColumnDefinition): ValidationError | undefined {
+      return props.contexto.erros.value.find(
+        (e) => e.rowIndex === index && e.column === col.key,
+      )
     }
 
     return () => {
@@ -105,16 +154,50 @@ export const RsTbody = defineComponent({
           h(
             'tr',
             { key: chaveLinha(linha, index), class: 'rs-row' },
-            colunas.value.map((col) =>
-              h(
+            colunas.value.map((col) => {
+              if (col.type === 'acao') {
+                return h(
+                  'td',
+                  {
+                    key: col.key,
+                    class: ['rs-cell', 'rs-cell-action', `rs-align-${props.contexto.alinhamento(col)}`],
+                  },
+                  [celulaAcao(col, linha)],
+                )
+              }
+
+              const erro = erroDaCelula(index, col)
+              return h(
                 'td',
                 {
                   key: col.key,
-                  class: ['rs-cell', `rs-align-${props.contexto.alinhamento(col)}`],
+                  class: [
+                    'rs-cell',
+                    `rs-align-${props.contexto.alinhamento(col)}`,
+                    {
+                      'rs-cell--error': erro !== undefined,
+                      'rs-cell--error-debug': erro !== undefined && props.debug,
+                    },
+                  ],
+                  /* Detalhes do erro só no modo debug — produção não expõe internals */
+                  'data-rs-error': erro && props.debug ? mensagemErro(erro) : undefined,
                 },
-                [celula(col, linha)],
-              ),
-            ),
+                [
+                  erro
+                    ? h(
+                        'span',
+                        {
+                          class: 'rs-cell-error-icon',
+                          role: 'img',
+                          'aria-label': 'Dado inválido',
+                        },
+                        '\u26A0',
+                      )
+                    : null,
+                  celula(col, linha),
+                ],
+              )
+            }),
           ),
         ),
       )
