@@ -1,13 +1,13 @@
 # CURRENT_PHASE.md — RSdata
 
 > **Status atual do desenvolvimento.** Onde estamos, o que está feito e qual o próximo passo.  
-> **Atualizado em:** 2026-07-16 — após conclusão da Fase 4.
+> **Atualizado em:** 2026-07-16 — após conclusão da Fase 5.
 
 ---
 
-## FASE ATUAL: Fase 5 — Adapter Server-side (Laravel)
+## FASE ATUAL: Fase 5 — Adapter Server-side (Laravel) ✅ CONCLUÍDA
 
-**Status:** ⏳ Iniciando
+**Status:** ✅ Concluída — **v1.0 MVP alcançado.** Próximo passo: usar a RSdata no projeto real (substituir o PowerGrid) e/ou fases pós-1.0 opcionais (exportação, seleção, cache).
 
 ---
 
@@ -232,6 +232,7 @@
 | Actions (gatilho) | ✅ Botão único, menu ⋯, evento `{ key, row }` — nunca executa |
 | Falhe Alto visual | ✅ Dev grita (banner + tooltip), produção segura (⚠ sutil) |
 | Preferências persistentes | ✅ localStorage opt-in via chave `persistencia` |
+| LaravelAdapter | ✅ Server-side: Query → params Laravel, parse response, erros de rede viram evento |
 
 ---
 
@@ -368,12 +369,83 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 
 ---
 
+### Checklist da Fase 5 ✅ (CONCLUÍDA)
+
+#### LaravelAdapter (packages/core/src/adapter/laravel.ts)
+- [x] Classe `LaravelAdapter` implementando exatamente a interface `DataAdapter` (mesma do `LocalAdapter` — troca transparente para o Core)
+- [x] Construtor: `new LaravelAdapter(baseUrl, { headers?, fetchOptions?, timeout?, fetchAllPageSize? })`
+- [x] `fetch(query)`: Query → query params Laravel → fetch nativo → parse → `{ rows, total }`
+- [x] `fetchAll(query)`: mesmo endpoint com `page=1` + `per_page` grande (default 1000000, configurável)
+- [x] `fetchFilterOptions(column)`: `GET {baseUrl}/filter-options/{coluna}`
+- [x] Zero dependências novas — `fetch()` nativo (Node 18+ e navegadores), sem axios/ky/got
+
+#### Tradução Query → Laravel (contrato público, documentado via JSDoc no adapter)
+- [x] Filtros → `filter[coluna][operador]=valor` (múltiplos = AND)
+- [x] Mapa de operadores URL-safe: `=`→eq, `>`→gt, `<`→lt, `>=`→gte, `<=`→lte, `igual`→eq, `contem`→like, `comeca_com`→starts_with, `termina_com`→ends_with, `entre`→between, `antes`→before, `depois`→after (todos os operadores da Fase 1)
+- [x] Ordenação → `sort=nome` (asc) / `sort=-nome` (desc)
+- [x] Paginação → `page=3&per_page=20`
+- [x] Serialização: array → `20,60` (vírgula), `Date` → ISO 8601, booleano → `1`/`0`
+- [x] Operador desconhecido → erro claro com a lista de suportados (Falhe Alto)
+
+#### Parsing Response Laravel → FetchResult
+- [x] Formato paginator: `{ data: [...], meta: { current_page, total, per_page } }`
+- [x] Formato simplificado: `{ data: [...], total }` (fallback do total na raiz)
+- [x] Dado aninhado achatado pelo adapter: `{ categoria: { nome } }` → `categoria_nome` (recursivo; arrays preservados)
+- [x] Defensivo: `data` deve ser array de objetos; `total` deve ser numérico — formato inesperado = erro com mensagem clara, nunca quebra silencioso
+- [x] Adapter NUNCA transforma valor (1→"Ativo" é Data Engine) — entrega o raw do servidor
+
+#### Tratamento de erros de rede (o adapter nunca quebra)
+- [x] Timeout configurável (default 30s) via `AbortController` — mensagem clara com o limite
+- [x] HTTP 4xx/5xx → erro com status code + body
+- [x] Resposta não-JSON → erro com detalhes
+- [x] Rede offline → erro amigável ("verifique a conexão e o servidor")
+- [x] 1 tentativa apenas — sem retry automático (retry é política do usuário)
+- [x] Toda falha vira rejeição com `Error` de mensagem clara → a `RsTable` captura no caminho oficial (Fase 1) e converte no evento `erro` — a tabela continua viva
+
+#### Testes (Vitest, fetch mockado via `vi.stubGlobal`)
+- [x] LaravelAdapter isolado — 58 testes (interface, tradução de todos os operadores, headers/fetchOptions + mescla, parsing, erros HTTP/timeout — inclusive na leitura do body —/offline/malformada, fetchAll, fetchFilterOptions — inclusive baseUrl com query string)
+- [x] Integração RsTable + LaravelAdapter — 15 testes (fluxo completo, Query→URL, eventos, troca LocalAdapter→LaravelAdapter transparente, erros de rede E timeout viram evento `erro`, tabela sobrevive a erro e volta a funcionar)
+- [x] Falhe Alto com dados sujos do servidor: `{ preco: "grátis" }` em coluna numero → evento `erro` com `{ column, rowIndex, expected, received }`; null aceito; dado aninhado chega plano
+- [x] `packages/nuxt/` sem NENHUMA alteração (`git diff packages/nuxt/` vazio); engine/columns/events/validation do Core intocados
+- **Total: 352 testes passando (73 novos)**
+
+#### Exports
+- [x] `LaravelAdapter`, `OPERADOR_LARAVEL` + tipo `LaravelAdapterOptions` exportados de `@rsdata/core`
+- [x] `npm run build` compila sem erros; `@rsdata/core` continua com zero dependências
+
+---
+
+## DECISÕES TÉCNICAS DA FASE 5
+
+| ID | Decisão | Detalhe |
+|---|---|---|
+| DT-055 | Erros do adapter viajam pela rejeição da Promise, não por eventos próprios | A interface `DataAdapter` não tem canal de eventos e o Render não fala com o Adapter (regra de camadas). O `LaravelAdapter` lança `Error` com mensagem clara; o catch oficial do `fetchData()` da `RsTable` (existente desde a Fase 1) converte em evento `erro`. Zero alteração no Core — a fronteira "falha HTTP → evento" funciona pelo contrato já existente |
+| DT-056 | Operadores traduzidos para inglês URL-safe (aprovado pelo autor) | `=`→`eq`, `>`→`gt`, `<`→`lt`, `>=`→`gte`, `<=`→`lte`, `igual`→`eq`, `contem`→`like`, `comeca_com`→`starts_with`, `termina_com`→`ends_with`, `entre`→`between`, `antes`→`before`, `depois`→`after`. Mapa exportado como `OPERADOR_LARAVEL` (contrato público) |
+| DT-057 | Serialização de valores na URL | Array → vírgula (`between=20,60`), `Date` → ISO 8601, booleano → `1`/`0` (convenção Laravel), demais → `String(valor)`. Documentado no JSDoc do adapter |
+| DT-058 | `fetchAll` usa o mesmo endpoint com `per_page` grande (aprovado pelo autor) | `page=1&per_page=1000000` (configurável via `fetchAllPageSize`). Zero rota nova no Laravel; contrato mais simples que `all=1` ou endpoint separado |
+| DT-059 | `fetchFilterOptions` → `GET {baseUrl}/filter-options/{coluna}` (aprovado pelo autor) | Aceita `{ data: [{ label, value }] }`, array na raiz, itens escalares (viram `{ label: String(v), value: v }`) e objetos sem `label` (usa `String(value)`) |
+| DT-060 | Total obrigatório: `meta.total` com fallback para `total` na raiz; ausente/não-numérico = erro | Falhe Alto (Princípio #7): paginação silenciosamente errada é pior que erro claro. Formato inesperado nunca passa batido |
+| DT-061 | Achatar aninhado com separador `_` recursivo | `{ categoria: { grupo: { id } } }` → `categoria_grupo_id`. Arrays são preservados como valor (não são objetos de navegação). O Core segue R5 (dado sempre plano) |
+| DT-062 | Timeout via `AbortController` + flag própria (`estourouTimeout`) | Distingue timeout de falha de rede sem depender de `DOMException.name` (comportamento varia por ambiente). Default 30s, configurável via `timeout` |
+| DT-063 | Sem retry automático | 1 tentativa. Retry é política do usuário (kickoff da fase) — o dev decide no seu código, escutando o evento `erro` |
+| DT-064 | Busca global (`?search=`) NÃO implementada | O contrato `Query` do Core não tem campo de busca global (gancho já reportado no DT-037/Fase 3). Implementar só no adapter seria mágica sem porta oficial no Core. Fica documentada como extensão futura quando o gancho existir no Query |
+| DT-065 | Headers mesclados com precedência explícita (revisão) | `Accept: application/json` (default) → `fetchOptions.headers` (mesclado, não descartado) → `headers` do adapter. Nomes normalizados em minúsculas via `Headers` nativo (HTTP é case-insensitive). `method: 'GET'` e `signal` do timeout não são sobrescrevíveis (o contrato do adapter é read-only e o timeout é garantido). Documentado no JSDoc de `LaravelAdapterOptions` |
+| DT-066 | Timeout cobre a request inteira, incluindo a leitura do body (revisão) | `clearTimeout` só roda após o parse de `response.json()`/`response.text()` — body lento também estoura o timeout, com o guard `estourouTimeout` distinguindo a mensagem |
+| DT-067 | `fetchFilterOptions` preserva query string da baseUrl (revisão) | `/api/produtos?tenant=1` → `/api/produtos/filter-options/status?tenant=1` (antes gerava URL inválida) |
+
+### ⚠️ Notas sobre o contrato do Adapter (Fase 5)
+
+- O contrato `DataAdapter` da Fase 1 cobriu a Fase 5 **sem nenhum ajuste** — a troca `LocalAdapter` → `LaravelAdapter` é transparente para Core e Render (testado). A arquitetura não furou.
+- O buraco de contrato da Fase 3 permanece: `fetchFilterOptions()` está implementado no adapter, mas a `RsTable` ainda não expõe `getOpcoesFiltro(column)` para o Render consumir. Gancho oficial no Core continua pendente (decisão do autor).
+
+---
+
 ## PRÓXIMOS PASSOS IMEDIATOS
 
-1. **Iniciar a Fase 5:** Adapter Server-side (Laravel)
-2. Implementar `LaravelAdapter` (ou adapter HTTP genérico customizável)
-3. Tradução do contrato Query → parâmetros de request; parsing da resposta → dado plano
-4. Avaliar ganchos oficiais no Core reportados nas Fases 3/4: `getOpcoesFiltro(column)` (opções de filtro via adapter), setter público de pageSize e `actions` tipadas na `ColumnDefinition`
+1. **v1.0 MVP:** usar a RSdata no projeto real do autor (Laravel DDD), substituindo o PowerGrid — validação em produção
+2. Configurar o backend Laravel conforme o contrato documentado no JSDoc do `LaravelAdapter` (request/response)
+3. Avaliar ganchos oficiais no Core reportados nas Fases 3/4/5: `getOpcoesFiltro(column)` (opções de filtro via adapter), setter público de pageSize, `actions` tipadas na `ColumnDefinition` e busca global no `Query`
+4. Fases pós-1.0 (opcionais): exportação CSV/Excel (plugin), seleção de linhas, cache, CI antes do primeiro release público
 
 ---
 
@@ -385,10 +457,10 @@ Nenhum no momento.
 
 ## PRÓXIMA FASE
 
-**Fase 5 — Adapter Server-side (Laravel)**
+**Pós-1.0 (opcional)** — o roadmap do MVP está completo:
 
-Quando a Fase 5 estiver concluída:
-- **v1.0 MVP:** RSdata funcionando no projeto real, substituindo o PowerGrid
+- Fases 0–5 concluídas → **v1.0 MVP**: RSdata pronta para o projeto real, substituindo o PowerGrid
+- Backlog priorizável: exportação (plugin), seleção de linhas, cache, casca React
 
 ---
 
