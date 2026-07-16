@@ -1,13 +1,13 @@
 # CURRENT_PHASE.md — RSdata
 
 > **Status atual do desenvolvimento.** Onde estamos, o que está feito e qual o próximo passo.  
-> **Atualizado em:** 2026-07-14 — após conclusão da Fase 2.
+> **Atualizado em:** 2026-07-16 — após conclusão da Fase 3.
 
 ---
 
-## FASE ATUAL: Fase 3 — Render Engine Nuxt + Theme Default
+## FASE ATUAL: Fase 4 — Actions + Falhe Alto (integrado)
 
-**Status:** ⏳ Em progresso
+**Status:** ⏳ Iniciando
 
 ---
 
@@ -162,6 +162,45 @@
 
 ---
 
+### Checklist da Fase 3 ✅ (CONCLUÍDA)
+
+#### Composable useRsTable() — a ponte Core ↔ Vue
+- [x] Único ponto de contato entre o Core e o Vue (nenhum componente importa o Core em runtime)
+- [x] Aceita instância `RsTable` OU `{ columns, adapter, pageSize }` (modo rápido)
+- [x] Escuta eventos do Core: `dados:carregados`, `erro`, `estado:alterado`
+- [x] Estado reativo: `linhas`, `total`, `paginaAtual`, `totalPaginas`, `ordenacao`, `filtros`, `colunas`, `loading`, `erro`, `erros`
+- [x] Métodos que delegam ao Core: `filtrar()`, `ordenar()`, `irParaPagina()`, `esconderColuna()`, `mostrarColuna()`, `reordenarColunas()`
+- [x] `carregar()` — dispara o primeiro fetch (delega para `irParaPagina` da página atual)
+- [x] `desconectar()` explícito + cleanup automático via `onScopeDispose`
+- [x] Helpers de apresentação: `alinhamento(col)`, `operadorPadrao(col)`
+
+#### Componentes (Render burro — pergunta ao Core, desenha a resposta)
+- [x] `<RsTable>` (export JS: `RsDataTable`) — tabela completa (filtros + table + paginação), HTML semântico
+- [x] `<RsThead>` — cabeçalho clicável com toggle asc/desc e indicador ↑↓, respeita colunas escondidas
+- [x] `<RsTbody>` — células exibem `display` do Core; estados `rs-loading` ("Carregando...") e `rs-empty` ("Nenhum registro")
+- [x] `<RsPagination>` — Anterior/números/Próximo, resumo "Página X de Y — Total: N registros", disabled nos limites
+- [x] `<RsFilters>` — inputs por tipo: texto (input), numero (min/max), data (date início/fim), selecao (select via `col.options`), booleano (select Sim/Não); debounce de 300ms nos inputs de digitação
+
+#### Theme Default
+- [x] `theme/default.css` — CSS puro próprio, zero framework, zero `@import` externo, zero `!important`
+- [x] Classes previsíveis: `.rs-table`, `.rs-thead`, `.rs-tbody`, `.rs-row`, `.rs-cell`, `.rs-pagination`, `.rs-filters`, `.rs-loading`, `.rs-empty`, `.rs-sortable`, `.rs-sorted-asc/desc`, `.rs-align-*`, `.rs-filter-*`, `.rs-page-*`
+- [x] Importável via `import '@rsdata/nuxt/theme/default.css'` (export no package.json)
+
+#### Plugin
+- [x] Plugin `RsData` — `app.use(RsData)` registra os 5 componentes globalmente (Vue e Nuxt via `nuxtApp.vueApp.use`)
+- [x] Exports: `useRsTable`, `RsDataTable`, `RsThead`, `RsTbody`, `RsPagination`, `RsFilters`, `RsData`, `THEME_DEFAULT_CSS` + tipos
+
+#### Testes (Vitest + @vue/test-utils + happy-dom)
+- [x] useRsTable — 18 testes (conexão, eventos, delegação, loading, erro/Falhe Alto, desconexão, mock de adapter)
+- [x] Componentes — 30 testes (renderização, ordenação por clique, paginação, filtros por tipo, debounce, loading/empty, integração completa, plugin)
+- [x] `packages/core/` sem NENHUMA alteração (`git diff packages/core/` vazio)
+- **Total: 242 testes passando (48 novos)**
+
+#### Playground
+- [x] `playground/` — prova visual no navegador (`npx vite playground`), usa vite já presente como dependência transitiva
+
+---
+
 ## O QUE JÁ EXISTE
 
 | Item | Status |
@@ -185,6 +224,11 @@
 | Operadores de filtro | ✅ Todos os 15 operadores implementados |
 | Ordenação local | ✅ Sensível ao tipo do valor |
 | Paginação local | ✅ Fatiamento de array |
+| useRsTable() | ✅ Ponte Core ↔ Vue (eventos → reatividade) |
+| Componentes Render | ✅ RsTable, RsThead, RsTbody, RsPagination, RsFilters |
+| Theme default | ✅ CSS puro próprio, classes .rs-* |
+| Plugin Vue/Nuxt | ✅ app.use(RsData) registra componentes |
+| Playground | ✅ Prova visual (npx vite playground) |
 
 ---
 
@@ -215,14 +259,57 @@
 | DT-016 | `fetchFilterOptions` deduplica por JSON.stringify | Para objetos (ex: Date), usa representação string como chave de deduplicação |
 | DT-017 | Interface `DataAdapter` não precisou de ajuste | O contrato definido na Fase 1 cobriu todos os cenários da Fase 2 sem buracos |
 
+## DECISÕES TÉCNICAS DA FASE 3
+
+| ID | Decisão | Detalhe |
+|---|---|---|
+| DT-018 | Componentes em `.ts` com `defineComponent` + `h()` (sem SFC `.vue`) | Compila com o setup atual sem alterar `build.config.ts`/`vitest.config.ts`/`tsconfig.json`. API pública idêntica (`<RsTable>` etc.) |
+| DT-019 | `useRsTable()` aceita instância `RsTable` OU `{ columns, adapter, pageSize }` | Permite o modo rápido do `<RsTable>` sem que o componente importe o Core (só o composable importa) |
+| DT-020 | Subcomponentes recebem o contexto via prop explícita `contexto` | Sem provide/inject mágico (Princípio #6). Tipos do Core reexportados pelo composable (`import type`, apagado na compilação) |
+| DT-021 | `loading` é estado de UI mantido pelo composable | O Core não emite evento de loading; o composable seta `true` antes de delegar e `false` ao resolver |
+| DT-022 | `carregar()` delega para `irParaPagina(paginaAtual)` | O Core não tem método dedicado de load inicial; usa o caminho oficial existente sem gambiarra |
+| DT-023 | Toggle de ordenação (asc↔desc) vive no `RsThead` | É captura de intenção de clique (UX), não lógica de dado. O Core decide o resto |
+| DT-024 | Helpers `alinhamento()`/`operadorPadrao()` expostos pelo composable | Componentes não importam `ALINHAMENTO_PADRAO`/`OPERADOR_PADRAO` do Core diretamente |
+| DT-025 | Filtro de intervalo parcial: só mínimo → `>=`/`depois`, só máximo → `<=`/`antes`, ambos → `entre` | Usa apenas operadores oficiais do Core por tipo. Nota: `depois`/`antes` são exclusivos (não incluem o próprio dia) |
+| DT-026 | `converterChaveOpcao()` no RsFilters: chave numérica de `options` vira `Number` | Inputs HTML entregam sempre string; o operador `igual` do Core usa igualdade estrita. Conversão de intenção do usuário, não transformação de dado |
+| DT-027 | Filtro de seleção usa `col.options` da definição da coluna | `fetchFilterOptions()` do adapter NÃO é alcançável: o Core não o expõe (ver "buraco de contrato" abaixo) |
+| DT-028 | CSS distribuído cru: export `./theme/default.css` → `src/theme/default.css` | CSS não precisa de build; `files` do package.json inclui o arquivo. `build.config.ts` intocado |
+| DT-029 | `@vue/test-utils` + `happy-dom` como devDependencies do `@rsdata/nuxt` | Só para testes de componente. Ambiente DOM por arquivo via `// @vitest-environment happy-dom` (`vitest.config.ts` intocado) |
+| DT-030 | Cleanup automático de listeners via `onScopeDispose` + `desconectar()` explícito | Dentro de componente desconecta sozinho no unmount; fora de componente o dev chama `desconectar()` |
+| DT-031 | Plugin `RsData` como export nomeado (sem default export) | Explícito (Princípio #6) e evita warning de bundle misto named/default no unbuild |
+| DT-032 | Componente principal exportado como `RsDataTable` (revisão) | Evita colisão de nome com a classe `RsTable` do Core em imports. O nome público no template permanece `<RsTable>` (registrado pelo plugin) |
+| DT-033 | Debounce de 300ms nos inputs de digitação do RsFilters (revisão) | `DEBOUNCE_FILTRO_MS` — setTimeout/clearTimeout puro, zero deps. Evita rajada de requisições com adapter server-side (Fase 5). Selects não usam debounce (mudança discreta). Timers cancelados no unmount |
+| DT-034 | Key de linha do `<RsTbody>` via `chaveLinha()` (revisão) | Índice do array como fallback — adequado hoje (sem animações/transições). Quando o Core fornecer um row identifier oficial (`__rowIndex`), ele será usado automaticamente como key estável |
+
+### ⚠️ Buraco de contrato encontrado (reportar — não corrigido com gambiarra)
+
+O contrato `DataAdapter` define `fetchFilterOptions?(column)`, mas a classe `RsTable` (Core) **não expõe** nenhum método para o Render consumi-lo (o adapter é privado). Como o Render não pode falar com o Adapter diretamente (regra de camadas), o dropdown de seleção da Fase 3 usa `col.options` da definição da coluna. **Sugestão para Fase 4/5:** adicionar ao Core um método oficial (ex.: `RsTable.getOpcoesFiltro(column)`) que delega ao adapter. O Core NÃO foi alterado nesta fase.
+
+## REFINAMENTO VISUAL PREMIUM (pós-aprovação da Fase 3)
+
+Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark mode automático). Decisões:
+
+| ID | Decisão | Detalhe |
+|---|---|---|
+| DT-035 | Toolbar com Filtros (toggle + badge de contagem), Colunas (checkboxes) e Densidade | Estado de UI da sessão, sem persistência. Colunas usa a API oficial do Core (`esconderColuna`/`mostrarColuna`) via composable. `todasColunas` adicionado ao `UseRsTableContext` |
+| DT-036 | Botões "+ Novo" e "Exportar" OMITIDOS (decisão com o autor) | RSdata é read-only e exportação é plugin pós-1.0 — botões sem função violam Princípio #6. Classe `.rs-btn-primary` pronta no CSS para uso futuro |
+| DT-037 | Busca global OMITIDA (decisão com o autor) | O contrato do Core não tem filtro OR entre colunas; o Render não pode filtrar dados. **Gancho a criar no Core** (ex.: busca global no Query) — reportado para o autor |
+| DT-038 | Menu ⋯ de ações ADIADO para a Fase 4 (decisão com o autor) | Não existe API de actions na ColumnDefinition; inventá-la é decisão de arquitetura (R19). CSS do dropdown (`.rs-menu`, `.rs-menu-item--danger`) pronto e dormante |
+| DT-039 | Preferências em localStorage NÃO implementadas (decisão com o autor) | Fora do roadmap; restauração automática é comportamento invisível (Princípio #6). Densidade/colunas são estado de sessão |
+| DT-040 | Badges para colunas `selecao` via `data-rs-badge` + CSS attribute selector | O texto exibido é exatamente o `display` do Core (Linha Sagrada intacta); só estilização. Mapeamentos: Ativo/Inativo/Pendente + badge genérico |
+| DT-041 | Skeleton shimmer no loading (substitui spinner) | 3–8 linhas conforme página anterior; `Carregando...` mantido em `.rs-sr-only` (a11y) |
+| DT-042 | Modo escuro automático via `prefers-color-scheme` no `:root` | Sem toggle manual; todas as cores em custom properties sobrescrevíveis |
+| DT-043 | Indicador de ordenação ▴/▾ + affordance ▾ no hover | Glifos atualizados nos testes |
+| DT-044 | CSS dormante para Fase 4/pós-1.0 | `.rs-row-error`/`.rs-cell-error[data-rs-error]` (Falhe Alto visual), `.rs-row-selected` (seleção), `.rs-menu-item--danger` (ação de perigo) |
+
 ---
 
 ## PRÓXIMOS PASSOS IMEDIATOS
 
-1. **Iniciar a Fase 3:** Render Engine Nuxt + Theme Default
-2. Composable `useRsTable()` — conecta Core ao Vue
-3. Componente `<RsTable>` — primeira tabela visível
-4. Theme default em CSS puro
+1. **Iniciar a Fase 4:** Actions + Falhe Alto integrado
+2. Coluna tipo `acao` renderizando botão configurável + evento com o dado da linha
+3. Falhe Alto no Render: dev (mensagem com localização exata) vs. produção (estado de erro na célula)
+4. Avaliar gancho oficial no Core para `fetchFilterOptions` (buraco de contrato da Fase 3)
 
 ---
 
@@ -234,11 +321,11 @@ Nenhum no momento.
 
 ## PRÓXIMA FASE
 
-**Fase 3 — Render Engine Nuxt + Theme Default**
+**Fase 4 — Actions + Falhe Alto (integrado)**
 
-Quando a Fase 3 estiver concluída, a Fase 4 começa com:
-- Actions (botão gatilho)
-- Falhe Alto integrado ao Render (dev vs produção)
+Quando a Fase 4 estiver concluída, a Fase 5 começa com:
+- Adapter Server-side (Laravel)
+- v1.0 MVP: RSdata no projeto real
 
 ---
 

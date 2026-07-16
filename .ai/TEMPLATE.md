@@ -386,5 +386,270 @@ CRITÉRIO DE CONCLUSÃO:
 AO FINAL:
    - Atualize docs/CURRENT_PHASE.md (marque Fase 2 como ✅, inicie Fase 3)
    - Liste quaisquer decisões técnicas tomadas
-   - Reporte qualquer dificuldade ou buraco encontrado na interface do Adapter
+    - Reporte qualquer dificuldade ou buraco encontrado na interface do Adapter
+```
+
+---
+
+## KICKOFF DA FASE 3
+
+> Gerado após conclusão da Fase 2. A Fase 3 é um divisor de águas: a RSdata ganha rosto.
+> Até agora tudo foi terminal. Aqui a primeira tabela aparece no navegador.
+> Mas com HTML vem o maior risco: contaminar o Core — exatamente o erro do PowerGrid.
+
+```
+Você é um desenvolvedor trabalhando no projeto RSdata.
+
+ANTES DE COMEÇAR, leia estes arquivos na ordem:
+1. .ai/BRAIN.md
+2. docs/CURRENT_PHASE.md
+3. docs/ARCHITECTURE.md — seções "Camada 3 — Render Engine (Casca)", "Headless",
+   "Camada 4 — Theme (Pele)", e "Estrutura do Repositório" (packages/nuxt/)
+4. docs/ROADMAP.md — seção "Fase 3"
+5. docs/FEATURES.md — seção "Fase 3 — Render Engine Nuxt + Theme Default"
+6. docs/PRINCIPLES.md — foco nos princípios #2 (nunca força gambiarra),
+   #4 (híbrido), #5 (customização sem parede), #6 (explícito > mágico)
+7. docs/PROJECT_RULES.md
+8. .ai/AI_GUIDE.md
+
+TAREFA: Implementar a Fase 3 — Render Engine Nuxt + Theme Default.
+
+Esta é a PRIMEIRA fase que mexe em packages/nuxt/. O packages/core/ está pronto
+e NÃO deve ser alterado. A Fase 3 é a prova real da arquitetura headless: se
+funcionar, o sonho "cérebro JS puro + casca Nuxt" está provado.
+
+O QUE IMPLEMENTAR (em packages/nuxt/src/):
+
+1. COMPOSABLE useRsTable() (composables/useRsTable.ts):
+   - ÚNICO ponto de contato entre o Core e o Vue
+   - Recebe uma instância RsTable (do Core) como parâmetro
+   - Escuta eventos do Core ('dados:carregados', 'erro', 'estado:alterado')
+     e traduz para a reatividade do Vue (ref, reactive, computed)
+   - Expõe estado reativo: linhas, total, paginaAtual, totalPaginas,
+     ordenacao, filtros, colunas, loading, erro
+   - Expõe métodos reativos que delegam ao Core: filtrar(), ordenar(),
+     irParaPagina(), esconderColuna(), mostrarColuna(), reordenarColunas()
+   - NENHUM componente Vue importa o Core diretamente — sempre via useRsTable()
+
+2. COMPONENTE <RsTable> (components/RsTable.vue):
+   - Componente principal que renderiza a tabela completa
+   - Props: tabela (instância RsTable) ou columns + adapter (modo rápido)
+   - Usa useRsTable() internamente
+   - Renderiza: cabeçalho + corpo + controles de paginação
+   - Estrutura HTML semântica: <table>, <thead>, <tbody>, <tr>, <th>, <td>
+
+3. COMPONENTE <RsThead> (components/RsThead.vue):
+   - Renderiza a linha de cabeçalho com os nomes das colunas visíveis
+   - Cabeçalho CLICÁVEL: ao clicar, chama ordenar() do useRsTable()
+   - Indicador visual de ordenação (seta ↑↓ ou classe CSS) conforme estado
+   - Respeita colunas escondidas (não renderiza)
+
+4. COMPONENTE <RsTbody> (components/RsTbody.vue):
+   - Renderiza as linhas e células do corpo da tabela
+   - Cada célula exibe o valor de EXIBIÇÃO (display) vindo do Core
+   - Linhas vazias: se getLinhas() retornar [], mostra "Nenhum registro"
+   - Estado de loading: spinner ou texto "Carregando..." enquanto fetch
+
+5. CONTROLES DE PAGINAÇÃO (components/RsPagination.vue):
+   - Botões: Anterior, números de página (ou resumo), Próximo
+   - Mostra "Página X de Y — Total: N registros"
+   - Desabilita Anterior na página 1, Próximo na última página
+
+6. FILTROS VISUAIS (components/RsFilters.vue):
+   - Inputs/dropdowns renderizados por tipo de coluna
+   - Texto: <input> com placeholder "Filtrar..."
+   - Número: dois <input> (mínimo e máximo)
+   - Data: dois <input type="date"> (início e fim)
+   - Seleção: <select> com opções do fetchFilterOptions()
+   - Booleano: <select> com Sim/Não
+   - Ao mudar valor: chama filtrar() do useRsTable()
+
+7. THEME DEFAULT (theme/default.css):
+   - CSS puro próprio — ZERO dependências de Tailwind, Bootstrap, etc.
+   - Estilização mínima funcional: bordas, espaçamento, cores básicas,
+     hover nas linhas, destaque no cabeçalho, paginação alinhada
+   - Estrutura de classes PREVISÍVEL: .rs-table, .rs-thead, .rs-tbody,
+     .rs-row, .rs-cell, .rs-pagination, .rs-filters, .rs-loading, .rs-empty
+   - Fácil de sobrescrever: classes bem nomeadas, sem !important abusivo
+   - NENHUM `@import` de lib externa — é CSS nosso, cru
+
+8. PLUGIN NUXT (index.ts):
+   - Instalação via app.use(): registra os componentes globalmente
+   - Auto-import dos componentes (se possível no ecossistema Nuxt)
+   - Exporta useRsTable para uso programático
+
+9. EXPORTS (index.ts):
+   - Exportar: useRsTable, RsTable, RsThead, RsTbody, RsPagination, RsFilters
+   - Exportar caminho do CSS para import: 'import @rsdata/nuxt/theme/default.css'
+
+ARQUIVOS QUE NÃO DEVEM SER ALTERADOS:
+   - packages/core/ (NENHUMA alteração — o Core está pronto)
+   - build.config.ts, tsconfig.json, vitest.config.ts
+
+REGRAS ESPECÍFICAS DESTA FASE:
+   - NUNCA instalar Tailwind, Bootstrap ou qualquer framework CSS
+   - O Render NUNCA faz lógica de dado — tudo é delegado ao Core via useRsTable()
+   - O Render NUNCA transforma valor, aplica máscara ou formata dados
+   - Componentes são BURROS: perguntam pro Core, o Core responde, o Render desenha
+   - Classes CSS seguem o padrão .rs-* para namespacing
+   - Se algo não estiver claro nos documentos, PERGUNTE antes de decidir
+
+PONTOS CRÍTICOS — NÃO IGNORE:
+
+    1. A PONTE Core ↔ Vue É O CORAÇÃO DA FASE 3 (e o maior risco): o useRsTable()
+       escuta eventos do Core (JS puro) e traduz para reatividade do Vue. Se essa
+       ponte falhar: dados não atualizam, re-renderizacão descontrolada, estado
+       dessincronizado. useRsTable() deve ser o ÚNICO ponto de contato — nenhum
+       componente .vue importa o Core diretamente.
+
+    2. O RENDER NUNCA FAZ LÓGICA DE DADO: filtro, ordenação, transformação
+       (1→"Ativo"), validação — tudo já existe no Core. O Render só exibe o que
+       getLinhas() entrega e captura intenção do usuário (clique) para chamar o
+       Core. Se o Render começar a filtrar array, formatar valor, ou aplicar
+       máscara própria, é um ERRO GRAVE — o mesmo acoplamento do PowerGrid.
+
+    3. THEME EM CSS PURO PRÓPRIO — NADA de framework externo: o CSS é escrito à mão,
+       sem Tailwind, Bootstrap, ou qualquer dependência. Se você sentir vontade de
+       npm install qualquer coisa de CSS, PARE. O CSS é funcional e minimalista —
+       fácil de sobrescrever. Classes previsíveis, sem !important abusivo.
+
+    4. @rsdata/core PERMANECE INTOCÁVEL: a Fase 3 mexe SOMENTE em packages/nuxt/.
+       git diff packages/core/ deve mostrar ZERO alterações ao final. Se você
+       modificar o Core para "facilitar o Render", está ERRADO.
+
+    5. A PRIMEIRA TABELA VISÍVEL É O TESTE DE FOGO DO HEADLESS: se new RsTable() +
+       LocalAdapter + useRsTable() + <RsTable> funcionar no navegador, a promessa
+       "cérebro JS puro + casca Nuxt" está PROVADA. Se não funcionar, é sinal de
+       buraco no Core ou nos eventos — corrija no Core, não com gambiarra no Render.
+
+TESTES (packages/nuxt/test/):
+    - Testar useRsTable(): conecta ao Core, expõe estado reativo, reage a eventos
+    - Testar componentes com mount do Vue Test Utils (se disponível):
+      * RsTable renderiza dados corretamente
+      * Cabeçalho clicável chama ordenar()
+      * Paginação navega entre páginas
+      * Filtros disparam filtrar()
+    - Testar estado de loading e empty
+    - Testar integração: RsTable + LocalAdapter + useRsTable (fluxo completo)
+    - Se Vue Test Utils não funcionar no Nuxt: testar useRsTable() isolado
+      com mock da RsTable
+
+CRITÉRIO DE CONCLUSÃO:
+    - npm test passa em TODOS os cenários
+    - npm run build compila sem erros
+    - NENHUMA dependência nova de CSS ou framework instalada
+    - git diff packages/core/ não mostra alterações
+    - Tabela renderiza dados corretamente no navegador
+    - Cabeçalho clicável ordena, paginação navega, filtros funcionam
+    - CSS é puro, previsível, sem framework externo
+    - Theme default funcional e estilizável (classes nomeadas)
+
+AO FINAL:
+    - Atualize docs/CURRENT_PHASE.md (marque Fase 3 como ✅, inicie Fase 4)
+    - Liste quaisquer decisões técnicas tomadas
+    - Reporte se o Core precisou de ajuste (é sinal de buraco no contrato)
+```
+
+---
+
+## REFINAMENTO DA FASE 3: Identidade Visual (Theme Default)
+
+> Aplicado após aprovação da Fase 3. Substitui o visual básico por um design moderno
+> com identidade visual própria. Nenhuma lógica ou estrutura é alterada — só CSS.
+
+```
+Você é um designer de UI/UX trabalhando no Theme default da RSdata.
+
+A Fase 3 já foi implementada e aprovada — a tabela funciona perfeitamente no
+navegador. Sua tarefa é APENAS refinar o visual. NADA de lógica. NADA de
+estrutura. SÓ CSS e componentes visuais.
+
+ANTES DE COMEÇAR, leia:
+1. packages/nuxt/src/theme/default.css — o CSS atual que você vai substituir
+2. packages/nuxt/src/components/RsDataTable.ts — entenda a estrutura HTML
+3. packages/nuxt/src/components/RsThead.ts — classes do cabeçalho
+4. packages/nuxt/src/components/RsTbody.ts — classes do corpo
+5. packages/nuxt/src/components/RsPagination.ts — classes da paginação
+6. packages/nuxt/src/components/RsFilters.ts — classes dos filtros
+
+TAREFA: Redesenhar o Theme default do RSdata com identidade visual moderna.
+APENAS CSS e ajustes de classe nos componentes. ZERO lógica nova.
+
+IDENTIDADE VISUAL (cores da marca RSdata):
+
+    Azul escuro (fundo principal, cabeçalho):  #1c203f
+    Verde água (ações, links, destaque):       #65ba88
+    Azul claro (hover, linhas alternadas):      #cde9f2
+    Verde claro (sucesso, confirmado):          #66b32e
+
+DIREÇÃO DE DESIGN — referências do mercado (AG Grid, TanStack Table, Linear,
+Vercel Design):
+
+    1. CABEÇALHO: fundo azul escuro (#1c203f), texto branco, borda inferior
+       sutil (verde água #65ba88 2px). Fonte bold, tracking ligeiro. Ícone
+       de ordenação (↑↓) visível e com transição suave.
+
+    2. CORPO: linhas com altura confortável (44-48px). Borda inferior sutil
+       (cinza claro) entre linhas, sem bordas verticais (visual limpo).
+       Linhas alternadas (zebra-striping): fundo azul claro (#cde9f2) com
+       8% opacidade nas linhas pares. Hover: fundo azul claro (#cde9f2) com
+       20% opacidade, transição suave de 150ms.
+
+    3. PAGINAÇÃO: alinhada à direita, altura compacta. Botões com borda sutil,
+       cantos arredondados (6px), hover com verde água (#65ba88). Página ativa
+       com fundo azul escuro (#1c203f) e texto branco. Texto "Página X de Y"
+       discreto, cinza médio.
+
+    4. FILTROS: inputs com borda cinza claro padrão, foco com borda verde água
+       (#65ba88). Placeholder cinza claro. Altura consistente (36-40px).
+       Labels sutis acima de cada input.
+
+    5. ESTADOS:
+       - Loading: spinner centralizado ou skeleton com pulso sutil
+       - Empty: ícone simples + "Nenhum registro encontrado" centralizado,
+         texto cinza médio
+       - Erro (Falhe Alto): célula com fundo vermelho claro (#fef2f2) e
+         borda vermelha sutil, tooltip com detalhes
+
+    6. TIPOGRAFIA: font-family system stack nativa (-apple-system, BlinkMacSystemFont,
+       'Segoe UI', Roboto, sans-serif). Tamanho base 14px. Cabeçalho 13px bold.
+
+    7. GERAL: bordas sutis (1px, cinza claro #e2e8f0). Cantos arredondados
+       onde apropriado (tabela: 8px no container, inputs: 6px). Sombras
+       suaves (box-shadow: 0 1px 3px rgba(0,0,0,0.06) no container).
+       Espaçamento interno das células: 12px horizontal, 10px vertical.
+
+REGRAS:
+    - CSS puro — ZERO Tailwind, Bootstrap, ou qualquer framework
+    - NENHUM @import de lib externa
+    - Classes seguem o padrão .rs-* existente
+    - NENHUM !important (a não ser em caso extremo justificado)
+    - Variáveis CSS (custom properties) para as cores no :root, ex:
+      --rs-primary: #1c203f;
+      --rs-accent: #65ba88;
+      --rs-light: #cde9f2;
+      --rs-success: #66b32e;
+    - O CSS deve ser SOBRESCREVÍVEL — usuário troca as variáveis no :root
+    - NENHUMA alteração em packages/core/
+    - NENHUMA lógica nova nos componentes — só ajuste de classes CSS se necessário
+    - Se um componente precisar de uma classe nova para o design funcionar,
+      adicione APENAS a classe, sem lógica
+
+ARQUIVOS QUE VOCÊ PODE ALTERAR:
+    - packages/nuxt/src/theme/default.css (principal — reescrever)
+    - packages/nuxt/src/components/*.ts (APENAS classes CSS — sem lógica)
+
+CRITÉRIO DE CONCLUSÃO:
+    - npm test continua passando 242+
+    - npm run build compila sem erros
+    - git diff packages/core/ mostra ZERO alterações
+    - O Theme default aplica as 4 cores da identidade visual
+    - A tabela está visualmente moderna e limpa (referência: AG Grid, Linear)
+    - Variáveis CSS expostas no :root para sobrescrita fácil
+    - ZERO dependências novas
+    - Playground exibe o novo visual sem quebras
+
+AO FINAL:
+    - Não commitar
+    - Liste o que foi alterado (arquivos e resumo)
 ```
