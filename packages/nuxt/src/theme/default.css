@@ -589,29 +589,33 @@
   font-size: 0.875rem;
 }
 
-/* ---------- Estado: erro (Falhe Alto — Render liga na Fase 4) ---------- */
+/* ---------- Estado: erro (Falhe Alto) ---------- */
 
-.rs-row-error {
+/* Base (produção, segura): ícone ⚠ sutil + fundo levemente alterado.
+   Não expõe detalhes internos; o resto da tabela funciona normalmente. */
+.rs-cell--error {
   background-color: var(--rs-error-bg);
-  box-shadow: inset 3px 0 0 var(--rs-danger);
 }
 
-.rs-cell-error {
-  background-color: var(--rs-error-bg);
-  box-shadow: inset 0 0 0 1px var(--rs-error-border);
+.rs-cell-error-icon {
+  margin-right: 6px;
+  color: var(--rs-danger);
+  opacity: 0.8;
+}
+
+/* Modo dev (debug): grita — fundo red-50, borda esquerda 3px vermelha e
+   tooltip com a localização exata (coluna, linha, esperado vs. recebido). */
+.rs-cell--error-debug {
+  box-shadow: inset 3px 0 0 var(--rs-danger);
   color: var(--rs-error-text);
 }
 
-.rs-cell-error[data-rs-error] {
+.rs-cell--error-debug[data-rs-error] {
   position: relative;
   cursor: help;
 }
 
-.rs-cell-error[data-rs-error]::before {
-  content: '\26A0 ';
-}
-
-.rs-cell-error[data-rs-error]:hover::after {
+.rs-cell--error-debug[data-rs-error]:hover::after {
   content: attr(data-rs-error);
   position: absolute;
   left: 0;
@@ -626,6 +630,118 @@
   font-weight: 400;
   white-space: normal;
   box-shadow: var(--rs-shadow-menu);
+}
+
+/* Banner do Falhe Alto (modo debug): lista os erros abaixo da toolbar */
+.rs-error-banner {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background-color: var(--rs-error-bg);
+  border: 1px solid var(--rs-error-border);
+  border-left: 3px solid var(--rs-danger);
+  border-radius: var(--rs-radius);
+  color: var(--rs-error-text);
+  font-size: 0.8125rem;
+}
+
+.rs-error-banner-title {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.rs-error-banner-item {
+  padding: 2px 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+}
+
+/* ---------- Actions (gatilhos por linha) ---------- */
+
+.rs-cell-action {
+  white-space: nowrap;
+}
+
+.rs-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 2px 10px;
+  border: 1px solid var(--rs-border);
+  border-radius: var(--rs-radius-sm);
+  background-color: var(--rs-surface);
+  color: var(--rs-text-muted);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--rs-transition), color var(--rs-transition),
+    background-color var(--rs-transition);
+}
+
+.rs-action-btn:hover {
+  border-color: var(--rs-accent);
+  color: var(--rs-accent);
+}
+
+.rs-action-btn:focus-visible {
+  outline: none;
+  border-color: var(--rs-accent);
+  box-shadow: 0 0 0 3px var(--rs-focus-ring);
+}
+
+.rs-action-btn--danger {
+  color: var(--rs-danger);
+}
+
+.rs-action-btn--danger:hover {
+  border-color: var(--rs-danger);
+  background-color: var(--rs-danger-soft);
+  color: var(--rs-danger);
+}
+
+/* Botão ⋯ (múltiplas actions) */
+.rs-action-more {
+  min-width: 28px;
+  padding: 2px 6px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Dropdown de actions — teleportado para o <body>, posicionado via inline
+   top/left calculado a partir do botão ⋯. Alinhado pela borda direita. */
+.rs-action-menu {
+  position: absolute;
+  right: auto;
+  transform: translateX(-100%);
+  font-family: var(--rs-font);
+  font-size: 0.875rem;
+  color: var(--rs-text);
+  animation: rs-action-menu-in var(--rs-transition);
+}
+
+@keyframes rs-action-menu-in {
+  from {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-100%) scale(1);
+  }
+}
+
+/* Itens do dropdown de actions são <button> — reset + layout do menu */
+.rs-menu-action {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 /* ---------- Paginação ---------- */

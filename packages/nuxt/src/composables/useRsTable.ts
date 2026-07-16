@@ -1,6 +1,6 @@
 import { computed, ref, shallowRef, getCurrentScope, onScopeDispose } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
-import { RsTable, ALINHAMENTO_PADRAO, OPERADOR_PADRAO } from '@rsdata/core'
+import { RsTable, ALINHAMENTO_PADRAO, OPERADOR_PADRAO, coluna } from '@rsdata/core'
 import type {
   ColumnAlignment,
   ColumnDefinition,
@@ -25,10 +25,96 @@ export type {
 
 export type { RsTable } from '@rsdata/core'
 
+/**
+ * Definição declarativa de uma action (gatilho).
+ *
+ * A RSdata renderiza o botão e emite o evento com o dado da linha — a lógica
+ * do que acontece depois (API, exclusão, navegação) é 100% do usuário.
+ * A RSdata é o transportador; o usuário traz a arma.
+ */
+export interface RsActionDefinition {
+  /** Identificador da action, entregue no evento 'action' */
+  key: string
+  /** Texto do botão / item do menu */
+  label: string
+  /** Ação destrutiva — ganha destaque visual de perigo (vermelho) */
+  danger?: boolean
+}
+
+/** Payload do evento 'action': qual action e a linha completa (raw + display) */
+export interface RsActionEvent {
+  key: string
+  row: TransformedRow
+}
+
+/**
+ * Helper para definir uma coluna do tipo 'acao' com actions tipadas.
+ *
+ * O contrato do Core guarda as actions em `options.actions` (a ColumnDefinition
+ * do Core tipa `options` como Record<string, string> — ver "buraco de contrato"
+ * reportado no CURRENT_PHASE.md). Este helper vive no Render e produz uma
+ * ColumnDefinition válida sem exigir cast no código do usuário.
+ */
+export function colunaAcao(
+  key: string,
+  config: { label?: string; actions: RsActionDefinition[] },
+): ColumnDefinition {
+  const def = coluna(key, { type: 'acao', label: config.label })
+  def.options = { actions: config.actions } as unknown as ColumnDefinition['options']
+  return def
+}
+
+/**
+ * Preferências de exibição persistidas em localStorage.
+ * Estado de UI (nunca dado) — lógica 100% do composable, zero no Core.
+ */
+export interface RsPreferencias {
+  /** Colunas visíveis, na ordem de exibição */
+  colunasVisiveis: string[]
+  /** Tamanho de página */
+  pageSize: number
+}
+
+const PREFIXO_STORAGE = 'rsdata:'
+
+export function lerPreferencias(chave: string): RsPreferencias | null {
+  if (typeof localStorage === 'undefined') return null
+  try {
+    const bruto = localStorage.getItem(PREFIXO_STORAGE + chave)
+    if (!bruto) return null
+    const dados = JSON.parse(bruto) as Partial<RsPreferencias>
+    if (!Array.isArray(dados.colunasVisiveis)) return null
+    return {
+      colunasVisiveis: dados.colunasVisiveis.filter((k): k is string => typeof k === 'string'),
+      pageSize: typeof dados.pageSize === 'number' ? dados.pageSize : 0,
+    }
+  } catch {
+    return null
+  }
+}
+
+export function salvarPreferencias(chave: string, prefs: RsPreferencias): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    localStorage.setItem(PREFIXO_STORAGE + chave, JSON.stringify(prefs))
+  } catch {
+    /* storage cheio ou indisponível — preferências são conveniência, não dado */
+  }
+}
+
 export interface UseRsTableOptions {
   columns: ColumnDefinition[]
   adapter: DataAdapter
   pageSize?: number
+}
+
+export interface UseRsTableExtras {
+  /**
+   * Chave de persistência de preferências (colunas visíveis, ordem, pageSize)
+   * em localStorage. Sem a chave, nada é salvo nem restaurado — comportamento
+   * explícito, visível no código de uso (Princípio #6).
+   */
+  persistencia?: string
 }
 
 export interface UseRsTableContext {
@@ -71,14 +157,48 @@ export interface UseRsTableContext {
   /** Remove os listeners registrados no Core (chamado automaticamente no unmount) */
   desconectar: () => void
 
+  /**
+   * Escuta eventos do Render. Hoje o único evento é 'action': disparado quando
+   * o usuário clica em um botão de ação de uma linha. O evento NÃO executa
+   * nada — apenas notifica ({ key, row }). A lógica é do consumidor.
+   */
+  on: (evento: 'action', callback: (payload: RsActionEvent) => void) => void
+  /** Remove um listener registrado com on() */
+  off: (evento: 'action', callback: (payload: RsActionEvent) => void) => void
+  /**
+   * Dispara o evento 'action' para os listeners registrados. Chamado pelos
+   * componentes de Render (RsTbody/RsActions) ao capturar o clique — nunca
+   * executa lógica de negócio.
+   */
+  emitirAcao: (payload: RsActionEvent) => void
+
   /** Alinhamento efetivo de uma coluna (customizado ou padrão do tipo) */
   alinhamento: (col: ColumnDefinition) => ColumnAlignment
   /** Operador de filtro efetivo de uma coluna (customizado ou padrão do tipo) */
   operadorPadrao: (col: ColumnDefinition) => string
 }
 
-export function useRsTable(fonte: RsTable | UseRsTableOptions): UseRsTableContext {
-  const tabela = fonte instanceof RsTable ? fonte : criarTabela(fonte)
+export function useRsTable(
+  fonte: RsTable | UseRsTableOptions,
+  extras: UseRsTableExtras = {},
+): UseRsTableContext {
+  const chavePersistencia = extras.persistencia
+  const preferencias = chavePersistencia ? lerPreferencias(chavePersistencia) : null
+
+  const tabela = fonte instanceof RsTable ? fonte : criarTabela(fonte, preferencias)
+
+  /* Restaura colunas visíveis e ordem via API oficial do Core */
+  if (preferencias && preferencias.colunasVisiveis.length > 0) {
+    const definidas = new Set(tabela.getEstado().columns.map((c) => c.key))
+    const salvas = preferencias.colunasVisiveis.filter((k) => definidas.has(k))
+    if (salvas.length > 0) {
+      for (const key of salvas) tabela.mostrarColuna(key)
+      for (const key of definidas) {
+        if (!salvas.includes(key)) tabela.esconderColuna(key)
+      }
+      tabela.reordenarColunas(salvas)
+    }
+  }
 
   const estadoInicial = tabela.getEstado()
 
@@ -123,16 +243,39 @@ export function useRsTable(fonte: RsTable | UseRsTableOptions): UseRsTableContex
     filtros.value = estado.filters
     definicoes.value = estado.columns
     chavesVisiveis.value = estado.visibleColumns
+
+    if (chavePersistencia) {
+      salvarPreferencias(chavePersistencia, {
+        colunasVisiveis: estado.visibleColumns,
+        pageSize: estado.pageSize,
+      })
+    }
   }
 
   tabela.on('dados:carregados', aoCarregarDados)
   tabela.on('erro', aoErro)
   tabela.on('estado:alterado', aoEstadoAlterado)
 
+  /* Listeners de action (Render → consumidor). Gatilho, nunca executor. */
+  const listenersAcao = new Set<(payload: RsActionEvent) => void>()
+
+  function on(evento: 'action', callback: (payload: RsActionEvent) => void): void {
+    if (evento === 'action') listenersAcao.add(callback)
+  }
+
+  function off(evento: 'action', callback: (payload: RsActionEvent) => void): void {
+    if (evento === 'action') listenersAcao.delete(callback)
+  }
+
+  function emitirAcao(payload: RsActionEvent): void {
+    for (const listener of [...listenersAcao]) listener(payload)
+  }
+
   function desconectar(): void {
     tabela.off('dados:carregados', aoCarregarDados)
     tabela.off('erro', aoErro)
     tabela.off('estado:alterado', aoEstadoAlterado)
+    listenersAcao.clear()
   }
 
   if (getCurrentScope()) {
@@ -171,15 +314,23 @@ export function useRsTable(fonte: RsTable | UseRsTableOptions): UseRsTableContex
     reordenarColunas: (keys) => tabela.reordenarColunas(keys),
     carregar: () => executar(() => tabela.irParaPagina(paginaAtual.value)),
     desconectar,
+    on,
+    off,
+    emitirAcao,
     alinhamento: (col) => col.alignment ?? ALINHAMENTO_PADRAO[col.type],
     operadorPadrao: (col) => col.defaultOperator ?? OPERADOR_PADRAO[col.type],
   }
 }
 
-function criarTabela(options: UseRsTableOptions): RsTable {
+function criarTabela(
+  options: UseRsTableOptions,
+  preferencias: RsPreferencias | null,
+): RsTable {
+  const pageSizeSalvo =
+    preferencias && preferencias.pageSize > 0 ? preferencias.pageSize : undefined
   const tabela = new RsTable({
     columns: options.columns,
-    pageSize: options.pageSize,
+    pageSize: pageSizeSalvo ?? options.pageSize,
   })
   tabela.usarAdapter(options.adapter)
   return tabela

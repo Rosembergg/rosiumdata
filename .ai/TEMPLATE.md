@@ -653,3 +653,166 @@ AO FINAL:
     - Não commitar
     - Liste o que foi alterado (arquivos e resumo)
 ```
+
+---
+
+## KICKOFF DA FASE 4
+
+> Gerado após conclusão da Fase 3. A Fase 4 fecha o ciclo de interação: o usuário
+> AGE sobre os dados (actions) e a RSdata DENUNCIA dados ruins (Falhe Alto visual).
+> O Core permanece intocado — tudo é consumo de eventos e renderização.
+
+```
+Você é um desenvolvedor trabalhando no projeto RSdata.
+
+ANTES DE COMEÇAR, leia estes arquivos na ordem:
+1. .ai/BRAIN.md
+2. docs/CURRENT_PHASE.md
+3. docs/ARCHITECTURE.md — seções "Actions (botão gatilho)" e "Valor: dois aspectos
+   separados", além do fluxo completo das 4 camadas
+4. docs/ROADMAP.md — seção "Fase 4"
+5. docs/FEATURES.md — seção "Fase 4 — Actions + Falhe Alto integrado"
+6. docs/PRINCIPLES.md — foco nos princípios #2, #5, #6, #7
+7. docs/PROJECT_RULES.md
+8. .ai/AI_GUIDE.md
+
+TAREFA: Implementar a Fase 4 — Actions + Falhe Alto integrado.
+
+A Fase 4 fecha o ciclo de interação. Até agora a tabela mostra dados e responde
+a filtro/ordenação/paginação. Aqui o usuário AGE sobre os dados (actions) e a
+RSdata DENUNCIA dados ruins (Falhe Alto visual no navegador).
+O Core NÃO será alterado — tudo é consumo do que já existe desde a Fase 1.
+
+O QUE IMPLEMENTAR:
+
+1. ACTIONS — COLUNA TIPO 'acao' NO RENDER (packages/nuxt/src/components/):
+
+   a. Botão de ação única (components/RsAction.vue OU em RsTbody.ts):
+      - Coluna do tipo 'acao' renderiza botão por linha
+      - Define action via col.options.actions: [{ key, label, danger? }]
+      - Ao clicar: emite evento 'action' com { key, row } (Princípio read-only —
+        a RSdata é o transportador, o usuário traz a arma)
+      - O evento NÃO executa nada — apenas notifica o pai
+
+   b. Múltiplas actions → Menu ⋯ (ADIADO DA FASE 3):
+      - Se col.options.actions tem 1 item: renderiza botão direto
+      - Se tem 2+ itens: renderiza ícone ⋯ (tres-pontos) que abre dropdown
+      - Dropdown: card branco, borda sutil, sombra, animação 150ms ease-out
+      - Cada item do dropdown: padding 8px 16px, hover fundo slate-50
+      - Ação danger (danger: true): texto vermelho, hover fundo red-50
+      - Clique fora OU tecla Escape fecha o dropdown
+      - Menu fecha após clique em uma ação
+      - HTML do dropdown renderizado no corpo (teleport/append-to-body ou portal)
+
+   c. Callback de ação no useRsTable():
+      - Tabela expõe .on('action', ({ key, row }) => { ... })
+      - useRsTable() propaga o evento para o consumidor Vue
+
+2. FALHE ALTO — VISUAL (packages/nuxt/src/components/):
+
+   a. Consumir evento 'erro' do Core:
+      - useRsTable() já escuta 'erro' e expõe erros[] como ref reativo
+      - Cada erro contém: { column, row, expected, received }
+
+   b. Modo DEV (grita alto):
+      - Célula com erro: fundo #fef2f2 (red-50), borda esquerda 3px vermelha
+      - Banner/tooltip visível com: "Coluna `preco`, linha 42, esperava `number`,
+        recebeu `null`"
+      - O banner pode ser um elemento abaixo da toolbar ou tooltip na célula
+      - Controle via prop: :debug="true" OU detecta import.meta.env.DEV
+
+   c. Modo PRODUÇÃO (seguro):
+      - Célula com erro: ícone ⚠ sutil + fundo levemente alterado
+      - NÃO derruba a tela — resto da tabela funciona normalmente
+      - NÃO expõe detalhes internos para o usuário final
+      - Controle via prop: :debug="false" (padrão em produção)
+
+   d. Erro e action NA MESMA LINHA:
+      - O cenário mais delicado: uma linha tem célula com erro E botão de action
+      - Layout não quebra — coluna de erro mostra indicador, coluna de action
+        mostra botão/menu. Ambos convivem sem se sobrepor
+
+3. PREFERÊNCIAS PERSISTENTES (useRsTable.ts):
+   - Salvar em localStorage: colunas visíveis, ordem de colunas, pageSize
+   - Ao montar: restaurar preferências salvas (ou usar defaults)
+   - Menu "Colunas" na toolbar: dropdown com checkboxes mostrar/esconder colunas
+   - Lógica 100% no composable, zero no Core
+
+ARQUIVOS QUE VOCÊ PODE ALTERAR:
+    - packages/nuxt/src/components/RsTbody.ts (renderização de actions e erros)
+    - packages/nuxt/src/components/RsThead.ts (menu colunas)
+    - packages/nuxt/src/components/RsDataTable.ts (toolbar, banner de erros)
+    - packages/nuxt/src/components/RsPagination.ts (ajustes visuais se necessário)
+    - packages/nuxt/src/components/RsFilters.ts (menu colunas integrado)
+    - packages/nuxt/src/composables/useRsTable.ts (actions, erros, preferências)
+    - packages/nuxt/src/theme/default.css (estilos de erro, dropdown, badges)
+    - packages/nuxt/src/index.ts (novos exports se necessário)
+
+ARQUIVOS QUE NÃO DEVEM SER ALTERADOS:
+    - packages/core/ (NENHUMA alteração — Core intocado desde a Fase 1)
+    - build.config.ts, tsconfig.json, vitest.config.ts
+
+REGRAS ESPECÍFICAS DESTA FASE:
+    - Core NÃO é alterado — git diff packages/core/ = VAZIO
+    - Actions são GATILHOS, nunca executores (read-only — Princípio)
+    - Falhe Alto no Render é CONSUMIDOR de eventos do Core, nunca produtor
+    - ZERO novas dependências
+    - ZERO lógica de validação nova — o Core já valida desde a Fase 1
+    - Todo comportamento visível no código de uso (Princípio #6)
+    - Se algo não estiver claro, PERGUNTE antes de decidir
+
+PONTOS CRÍTICOS — NÃO IGNORE:
+
+    1. ACTIONS SÃO GATILHOS, NUNCA EXECUTORES: o Core já trata a coluna tipo
+       'acao'. No Render, cada botão EMITE um evento com { key, row }. A lógica
+       do que acontece depois (chamar API, excluir, redirecionar) é 100% DO
+       USUÁRIO. Se o componente tentar fazer fetch() ou axios.delete() dentro
+       do botão, está ERRADO. A RSdata é o transportador; o usuário traz a arma.
+
+    2. FALHE ALTO: MODO DEV vs MODO PRODUÇÃO: o Core já emite 'erro' com
+       { column, row, expected, received }. No Render: DEV grita (badge
+       vermelho, localização exata visível). PRODUÇÃO é seguro (ícone sutil,
+       sem expor detalhes, resto da tabela funciona). O modo é controlado
+       por prop :debug="true|false" ou import.meta.env.DEV como default.
+
+    3. ACTIONS E ERRO CONVIVEM NA MESMA LINHA: o cenário mais delicado. Uma
+       linha pode ter célula com Falhe Alto E botão de action simultaneamente.
+       Layout não quebra. Coluna de erro: indicador visual. Coluna de action:
+       botão/menu. Ambos independentes, sem sobreposição.
+
+    4. CORE PERMANECE INTOCADO: a validação já existe desde a Fase 1. O sistema
+       de eventos também. A Fase 4 NÃO adiciona nada ao Core. Só consome.
+       git diff packages/core/ deve mostrar ZERO alterações. Se o Falhe Alto
+       não tiver todas as informações que o Render precisa, AVISE — já deveriam
+       estar lá desde a Fase 1.
+
+    5. MENU ⋯ (ADIADO DA FASE 3): múltiplas actions → dropdown com três pontos.
+       Dropdown: card branco, sombra, animação. Click fora ou ESC fecha.
+       Uma action só? Botão direto (sem dropdown desnecessário).
+
+TESTES (packages/nuxt/test/):
+    - Testar coluna 'acao' com 1 ação: botão renderiza, clique emite evento
+    - Testar coluna 'acao' com 3 ações: menu ⋯ renderiza, dropdown abre/fecha
+    - Testar ação danger: destaque visual (classe CSS)
+    - Testar Falhe Alto visual: célula com erro tem classe .rs-cell--error
+    - Testar banner de erros no modo debug
+    - Testar modo produção: sem banner, indicador sutil apenas
+    - Testar ação + erro na mesma linha: layout não quebra
+    - Testar preferências: salvar/restaurar localStorage
+    - Testar menu colunas: checkboxes mostram/escondem colunas
+
+CRITÉRIO DE CONCLUSÃO:
+    - npm test passa com TODOS os cenários acima
+    - npm run build compila sem erros
+    - git diff packages/core/ mostra ZERO alterações
+    - Actions emitem eventos, NÃO executam lógica
+    - Falhe Alto visual funciona em modo dev e produção
+    - Menu ⋯ funcional com clique fora e ESC para fechar
+    - Preferências persistem em localStorage
+    - ZERO dependências novas
+
+AO FINAL:
+    - Atualize docs/CURRENT_PHASE.md (marque Fase 4 como ✅, inicie Fase 5)
+    - Liste quaisquer decisões técnicas tomadas
+    - NÃO commitar
+```
