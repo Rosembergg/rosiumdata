@@ -816,3 +816,166 @@ AO FINAL:
     - Liste quaisquer decisões técnicas tomadas
     - NÃO commitar
 ```
+
+---
+
+## KICKOFF DA FASE 5
+
+> Gerado após conclusão da Fase 4. A Fase 5 é a prova de fogo: a RSdata substitui
+> o PowerGrid no projeto DDD real. Não é mais array local — é HTTP, latência,
+> erro de rede e dados de verdade vindos do servidor Laravel.
+
+```
+Você é um desenvolvedor trabalhando no projeto RSdata.
+
+ANTES DE COMEÇAR, leia estes arquivos na ordem:
+1. .ai/BRAIN.md
+2. docs/CURRENT_PHASE.md
+3. docs/ARCHITECTURE.md — seções "Camada 1 — Data Source (Adapter)",
+   "Servidor-side por padrão", "Contrato do Adapter (interface)",
+   "Dado sempre plano (flat)"
+4. docs/ROADMAP.md — seção "Fase 5"
+5. docs/FEATURES.md — seção "Fase 5 — Adapter Server-side (Laravel)"
+6. docs/PRINCIPLES.md — foco nos princípios #2, #3, #5, #7
+7. docs/PROJECT_RULES.md
+8. .ai/AI_GUIDE.md
+
+TAREFA: Implementar a Fase 5 — Adapter Server-side (Laravel).
+
+A Fase 5 é a PROVA DE FOGO. Até agora a RSdata foi testada com dados locais
+(array em memória). Aqui ela se conecta ao backend Laravel do projeto DDD real.
+É o momento em que a arquitetura headless prova seu valor: trocar LocalAdapter
+por LaravelAdapter NÃO exige mudar nada no Core nem no Render.
+
+O QUE IMPLEMENTAR:
+
+1. LARAVEL ADAPTER (packages/core/src/adapter/laravel.ts):
+   - Classe LaravelAdapter que implementa DataAdapter (mesma interface do LocalAdapter)
+   - Construtor recebe: baseUrl (string) e opcionalmente headers/fetchOptions
+   - fetch(query): traduz Query → query params Laravel → faz fetch → parse response
+   - fetchAll(query): mesmo que fetch mas sem paginação (pageSize grande ou endpoint separado)
+   - fetchFilterOptions(column): faz request para endpoint de opções do Laravel
+   - fetch() sempre retorna Promise<FetchResult> (assíncrono — rede)
+
+2. TRADUÇÃO Query → LARAVEL (packages/core/src/adapter/laravel.ts):
+   - Filtros → query params no formato Laravel: filter[coluna][operador]=valor
+     Ex: Query { filters: [{ column: 'preco', operator: 'gt', value: 50 }] }
+     → ?filter[preco][gt]=50
+   - Ordenação → ?sort=nome (asc) ou ?sort=-nome (desc)
+   - Paginação → ?page=3&per_page=20
+   - Múltiplos filtros → &filter[preco][gt]=50&filter[status][eq]=Ativo
+   - Busca global → ?search=termo (se suportado)
+
+3. PARSING RESPONSE LARAVEL → FetchResult:
+   - Esperado do Laravel: { data: [...], meta: { current_page, total, per_page } }
+     OU { data: [...], total: 100 } (formato simplificado)
+   - Extrair rows de 'data', total de 'meta.total' (com fallback para 'total' raiz)
+   - Garantir que rows é sempre um array (defensivo)
+   - Se o formato for inesperado: emitir erro, não quebrar
+
+4. TRATAMENTO DE ERROS DE REDE:
+   - Timeout: configurável (default 30s), emite evento 'erro' com mensagem clara
+   - HTTP 4xx/5xx: emite 'erro' com status code e body
+   - Resposta não-JSON: emite 'erro' com detalhes
+   - Rede offline: emite 'erro' amigável
+   - O adapter NUNCA quebra — todo erro vira evento, a RsTable continua viva
+   - Faz 1 tentativa apenas (sem retry automático — isso é política do usuário)
+
+5. CONTRATO DO BACKEND LARAVEL (documentado no adapter):
+   - Documentar (em comentários JSDoc no código ou README do adapter) o formato
+     exato que o Laravel precisa seguir para o adapter funcionar
+   - Exemplo de request: GET /api/produtos?filter[preco][gt]=50&sort=nome&page=1&per_page=20
+   - Exemplo de response: { "data": [...], "meta": { "current_page": 1, "total": 100 } }
+   - Isso é CONTRATO PÚBLICO — o usuário precisa saber como configurar o Laravel
+
+6. EXPORTS (atualizar packages/core/src/index.ts):
+   - Exportar LaravelAdapter
+
+ARQUIVOS QUE VOCÊ PODE ALTERAR:
+    - packages/core/src/adapter/laravel.ts (NOVO — principal)
+    - packages/core/src/adapter/index.ts (se precisar re-exportar)
+    - packages/core/src/index.ts (export público)
+
+ARQUIVOS QUE NÃO DEVEM SER ALTERADOS:
+    - packages/core/src/engine/ (RsTable NÃO muda)
+    - packages/core/src/columns/ (colunas NÃO mudam)
+    - packages/core/src/events/ (eventos NÃO mudam)
+    - packages/core/src/validation/ (Falhe Alto NÃO muda)
+    - packages/nuxt/ (NENHUMA alteração — o Render já funciona)
+    - build.config.ts, tsconfig.json, vitest.config.ts
+
+REGRAS ESPECÍFICAS DESTA FASE:
+    - LaravelAdapter implementa a MESMA interface DataAdapter do LocalAdapter
+    - Core NÃO sabe a diferença entre local e remoto (transparente)
+    - ZERO dependências novas — fetch() é nativo do Node 18+ e navegadores
+    - Se fetch nativo não estiver disponível no ambiente de teste, usar polyfill
+      mínimo ou mock
+    - Dado que chega do servidor é PLANO — se vier aninhado, o adapter achata
+    - O adapter NUNCA transforma valor (1→"Ativo") — isso é Data Engine
+    - NADA de axios, ky, got ou qualquer lib HTTP — fetch nativo basta
+    - Se algo não estiver claro, PERGUNTE antes de decidir
+
+PONTOS CRÍTICOS — NÃO IGNORE:
+
+    1. O ADAPTER É SÓ MAIS UM ADAPTER — O CORE NÃO SABE A DIFERENÇA: o
+       LaravelAdapter implementa a MESMA interface que o LocalAdapter. Para a
+       RsTable, é transparente — ela chama adapter.fetch(query) e recebe
+       { rows, total }. Trocar de LocalAdapter para LaravelAdapter NÃO exige
+       mudar NADA no Core nem no Render. Se algo quebrar, a arquitetura furou —
+       a culpa é do contrato, não do adapter.
+
+    2. TRADUÇÃO Query → LARAVEL É A ALMA DO ADAPTER: o Core envia Query
+       (filtros, ordenação, página) num formato agnóstico. O adapter traduz
+       para query params Laravel. Se a tradução estiver errada, o servidor
+       não entende o pedido. O formato precisa ser documentado para o usuário
+       saber como configurar o backend dele.
+
+    3. DADO DO SERVIDOR PODE VIR SUJO — FALHE ALTO EM AÇÃO: diferente do
+       LocalAdapter (dados controlados), o servidor pode mandar null onde
+       esperava number, data em formato errado, campo faltando. O Falhe Alto
+       (Fase 1) PRECISA funcionar com dados reais. Teste: servidor retorna
+       { preco: "grátis" } numa coluna numero → Falhe Alto denuncia → Render
+       exibe erro (Fase 4). Circuito completo: Adapter → Engine → Render.
+
+    4. TRATAMENTO DE ERROS HTTP — A REDE FALHA: diferentemente do LocalAdapter,
+       o adapter server-side lida com timeout, 4xx/5xx, resposta malformada,
+       rede offline. O adapter traduz falhas de rede em eventos que o Core
+       entende. A RsTable não sabe o que é HTTP 500 — mas sabe o que é um
+       evento 'erro'. O adapter é a fronteira que converte falha HTTP em
+       evento do Core. NUNCA quebrar — todo erro vira evento.
+
+    5. O CONTRATO DO BACKEND É DOCUMENTAÇÃO PÚBLICA: o LaravelAdapter pressupõe
+       um formato de request e response. Esse formato é CONTRATO PÚBLICO da
+       RSdata. Documente via JSDoc no código do adapter: qual URL o adapter
+       chama, quais query params envia, qual JSON espera de volta. O usuário
+       precisa saber como configurar o Laravel dele para o adapter funcionar.
+
+TESTES (packages/core/test/):
+    - Testar LaravelAdapter isolado com mock de fetch (vitest.fn)
+    - Testar tradução Query → query params Laravel (todos os operadores)
+    - Testar parsing response Laravel → FetchResult
+    - Testar erros HTTP: 400, 404, 500 → evento 'erro' emitido
+    - Testar timeout → evento 'erro' emitido
+    - Testar resposta malformada → não quebra, emite erro
+    - Testar rede offline → erro amigável
+    - Testar INTEGRAÇÃO: RsTable + LaravelAdapter (com mock de fetch)
+      — o mesmo teste de integração da Fase 2, mas com LaravelAdapter
+    - Testar Falhe Alto com dados sujos vindos do servidor (mock simula
+      resposta com dado inválido → RsTable detecta → evento 'erro')
+
+CRITÉRIO DE CONCLUSÃO:
+    - npm test passa com TODOS os cenários acima
+    - npm run build compila sem erros
+    - LaravelAdapter implementa exatamente a interface DataAdapter
+    - git diff packages/nuxt/ mostra ZERO alterações
+    - ZERO dependências novas (fetch nativo, sem axios/ky/got)
+    - Tradução Query → Laravel cobre todos os operadores da Fase 1
+    - Erros de rede não quebram — viram eventos
+    - Contrato do backend documentado via JSDoc
+
+AO FINAL:
+    - Atualize docs/CURRENT_PHASE.md (marque Fase 5 como ✅, Fase 6 opcional)
+    - Liste quaisquer decisões técnicas tomadas
+    - Reporte qualquer dificuldade com o contrato do Adapter
+    - NÃO commitar
+```

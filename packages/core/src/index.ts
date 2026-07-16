@@ -14,6 +14,9 @@ export type {
 
 export { LocalAdapter } from './adapter/local'
 
+export { LaravelAdapter, OPERADOR_LARAVEL } from './adapter/laravel'
+export type { LaravelAdapterOptions } from './adapter/laravel'
+
 export {
   coluna,
   formatarValorPadrao,
