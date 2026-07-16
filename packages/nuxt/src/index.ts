@@ -14,6 +14,7 @@ export type {
   UseRsTableOptions,
   UseRsTableExtras,
   RsActionDefinition,
+  ActionDefinition,
   RsActionEvent,
   RsPreferencias,
   ColumnAlignment,

@@ -27,6 +27,7 @@ export type {
   ColumnAlignment,
   ColumnDefinition,
   ColumnConfig,
+  ActionDefinition,
 } from './columns'
 
 export { RsTable } from './engine'

@@ -2,14 +2,19 @@ export type ColumnType = 'texto' | 'numero' | 'data' | 'data-hora' | 'booleano' 
 
 export type ColumnAlignment = 'left' | 'center' | 'right'
 
+export interface ActionDefinition {
+  key: string
+  label: string
+  danger?: boolean
+}
+
 export interface ColumnDefinition {
   key: string
   type: ColumnType
   label?: string
   mask?: string
   transform?: (value: unknown) => unknown
-  options?: Record<string | number, string>
-
+  options?: Record<string, unknown> & { actions?: ActionDefinition[] }
   filterOperators?: string[]
   defaultOperator?: string
   alignment?: ColumnAlignment
@@ -24,7 +29,7 @@ export interface ColumnConfig {
   label?: string
   mask?: string
   transform?: (value: unknown) => unknown
-  options?: Record<string | number, string>
+  options?: Record<string, unknown> & { actions?: ActionDefinition[] }
   filterOperators?: string[]
   defaultOperator?: string
   alignment?: ColumnAlignment
