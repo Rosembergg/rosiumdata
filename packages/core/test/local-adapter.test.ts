@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { LocalAdapter, column, RsTable } from '@rosiumdata/core'
+import { LocalAdapter, column, RosiumTable } from '@rosiumdata/core'
 import type { Row, Query } from '@rosiumdata/core'
 
 const dados: Row[] = [

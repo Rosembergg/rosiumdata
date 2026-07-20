@@ -1,6 +1,6 @@
 import { defineComponent, h, onUnmounted, reactive } from 'vue'
 import type { PropType, VNode } from 'vue'
-import type { ColumnDefinition, UseRsTableContext } from '../composables/useRsTable'
+import type { ColumnDefinition, UseRosiumTableContext } from '../composables/useRosiumTable'
 
 interface LocalRange {
   min: string
@@ -23,11 +23,11 @@ export function convertOptionKey(key: string): string | number {
   return key
 }
 
-export const RsFilters = defineComponent({
-  name: 'RsFilters',
+export const RosiumFilters = defineComponent({
+  name: 'RosiumFilters',
   props: {
     contexto: {
-      type: Object as PropType<UseRsTableContext>,
+      type: Object as PropType<UseRosiumTableContext>,
       required: true,
     },
   },
@@ -114,7 +114,7 @@ export const RsFilters = defineComponent({
     function textInput(col: ColumnDefinition): VNode {
       return h('input', {
         type: 'text',
-        class: 'rs-filter-input',
+        class: 'rosium-filter-input',
         placeholder: 'Filter...',
         onInput: (e: Event) => {
           const value = (e.target as HTMLInputElement).value
@@ -127,7 +127,7 @@ export const RsFilters = defineComponent({
       return [
         h('input', {
           type: 'number',
-          class: 'rs-filter-input rs-filter-min',
+          class: 'rosium-filter-input rs-filter-min',
           placeholder: 'Min',
           value: rangeValue(col.key).min,
           onInput: (e: Event) => {
@@ -137,7 +137,7 @@ export const RsFilters = defineComponent({
         }),
         h('input', {
           type: 'number',
-          class: 'rs-filter-input rs-filter-max',
+          class: 'rosium-filter-input rs-filter-max',
           placeholder: 'Max',
           value: rangeValue(col.key).max,
           onInput: (e: Event) => {
@@ -152,7 +152,7 @@ export const RsFilters = defineComponent({
       return [
         h('input', {
           type: 'date',
-          class: 'rs-filter-input rs-filter-min',
+          class: 'rosium-filter-input rs-filter-min',
           'aria-label': 'Start',
           value: rangeValue(col.key).min,
           onInput: (e: Event) => {
@@ -162,7 +162,7 @@ export const RsFilters = defineComponent({
         }),
         h('input', {
           type: 'date',
-          class: 'rs-filter-input rs-filter-max',
+          class: 'rosium-filter-input rs-filter-max',
           'aria-label': 'End',
           value: rangeValue(col.key).max,
           onInput: (e: Event) => {
@@ -180,7 +180,7 @@ export const RsFilters = defineComponent({
       return h(
         'select',
         {
-          class: 'rs-filter-input rs-filter-select',
+          class: 'rosium-filter-input rs-filter-select',
           onChange: (e: Event) => filterSelect(col, (e.target as HTMLSelectElement).value),
         },
         [h('option', { value: '' }, 'All'), ...options],
@@ -191,7 +191,7 @@ export const RsFilters = defineComponent({
       return h(
         'select',
         {
-          class: 'rs-filter-input rs-filter-select',
+          class: 'rosium-filter-input rs-filter-select',
           onChange: (e: Event) => filterBoolean(col, (e.target as HTMLSelectElement).value),
         },
         [
@@ -221,15 +221,15 @@ export const RsFilters = defineComponent({
     return () =>
       h(
         'div',
-        { class: 'rs-filters' },
+        { class: 'rosium-filters' },
         props.contexto.columns.value.filter(isFilterable).map((col) =>
-          h('div', { key: col.key, class: ['rs-filter', `rs-filter-${col.type}`] }, [
-            h('label', { class: 'rs-filter-label' }, col.label ?? col.key),
-            h('div', { class: 'rs-filter-fields' }, fieldsByType(col)),
+          h('div', { key: col.key, class: ['rosium-filter', `rs-filter-${col.type}`] }, [
+            h('label', { class: 'rosium-filter-label' }, col.label ?? col.key),
+            h('div', { class: 'rosium-filter-fields' }, fieldsByType(col)),
           ]),
         ),
       )
   },
 })
 
-export default RsFilters
+export default RosiumFilters

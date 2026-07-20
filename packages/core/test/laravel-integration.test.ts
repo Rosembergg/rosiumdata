@@ -1,8 +1,8 @@
-// Integração RsTable + LaravelAdapter — a PROVA DE FOGO da arquitetura headless:
+// Integração RosiumTable + LaravelAdapter — a PROVA DE FOGO da arquitetura headless:
 // trocar LocalAdapter por LaravelAdapter NÃO exige mudar nada no Core.
 // O mesmo fluxo da Fase 2, agora com o dado vindo "da rede" (fetch mockado).
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { RsTable, column, LaravelAdapter } from '@rosiumdata/core'
+import { RosiumTable, column, LaravelAdapter } from '@rosiumdata/core'
 import type { ColumnDefinition, Row } from '@rosiumdata/core'
 
 const colunas: ColumnDefinition[] = [
@@ -41,11 +41,11 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
+describe('Integracao RosiumTable + LaravelAdapter — fluxo completo', () => {
   it('deve carregar dados do servidor e retornar linhas transformadas', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => respostaLaravel(dados)))
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
     await tabela.goToPage(1)
 
@@ -64,7 +64,7 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
     const fetchMock = vi.fn(async () => respostaLaravel([dados[0]!, dados[1]!], 2))
     vi.stubGlobal('fetch', fetchMock)
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
     await tabela.filter({ column: 'nome', operator: 'contains', value: 'Produto' })
 
@@ -78,7 +78,7 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
     const fetchMock = vi.fn(async () => respostaLaravel(dados))
     vi.stubGlobal('fetch', fetchMock)
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
     await tabela.sort('preco', 'desc')
 
@@ -90,7 +90,7 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
     const fetchMock = vi.fn(async () => respostaLaravel([dados[2]!], 41))
     vi.stubGlobal('fetch', fetchMock)
 
-    const tabela = new RsTable({ columns: colunas, pageSize: 20 })
+    const tabela = new RosiumTable({ columns: colunas, pageSize: 20 })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
     await tabela.goToPage(1)
 
@@ -105,7 +105,7 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
   it('deve emitir dados:carregados com dados do servidor', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => respostaLaravel(dados)))
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
@@ -119,7 +119,7 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
     const { LocalAdapter } = await import('@rosiumdata/core')
     vi.stubGlobal('fetch', vi.fn(async () => respostaLaravel(dados)))
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
 
     tabela.useAdapter(new LocalAdapter(dados.slice(0, 1)))
     await tabela.goToPage(1)
@@ -131,11 +131,11 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
   })
 })
 
-describe('Integracao — erros de rede viram evento `erro` (RsTable continua viva)', () => {
+describe('Integracao — erros de rede viram evento `erro` (RosiumTable continua viva)', () => {
   it('HTTP 500 → evento erro com a mensagem do adapter', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => respostaJson({ message: 'Server Error' }, 500)))
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
@@ -151,7 +151,7 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
   it('HTTP 404 → evento erro, sem exception não-tratada', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => respostaJson('Not Found', 404)))
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
@@ -168,7 +168,7 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
       throw new TypeError('fetch failed')
     }))
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
@@ -183,7 +183,7 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
   it('resposta malformada → evento erro, não quebra', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => respostaJson({ qualquer: 'coisa' })))
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
@@ -209,7 +209,7 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos', { timeout: 1000 }))
 
     const handler = vi.fn()
@@ -237,7 +237,7 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
       .mockResolvedValue(respostaLaravel(dados))
     vi.stubGlobal('fetch', fetchMock)
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const erros = vi.fn()
@@ -262,7 +262,7 @@ describe('Integracao — Falhe Alto com dados sujos vindos do servidor', () => {
       ])
     ))
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
@@ -289,7 +289,7 @@ describe('Integracao — Falhe Alto com dados sujos vindos do servidor', () => {
       ])
     ))
 
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
@@ -309,7 +309,7 @@ describe('Integracao — Falhe Alto com dados sujos vindos do servidor', () => {
       respostaLaravel([{ id: 1, categoria: { nome: 'Bebidas' } }])
     ))
 
-    const tabela = new RsTable({ columns: colunasComCategoria })
+    const tabela = new RosiumTable({ columns: colunasComCategoria })
     tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()

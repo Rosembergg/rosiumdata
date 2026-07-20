@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import { RsTable, LocalAdapter, column } from '@rosiumdata/core'
+import { RosiumTable, LocalAdapter, column } from '@rosiumdata/core'
 import type { DataAdapter, Query, Row } from '@rosiumdata/core'
-import { useRsTable } from '@rosiumdata/nuxt'
+import { useRosiumTable } from '@rosiumdata/nuxt'
 
 const DADOS: Row[] = [
   { id: 1, nome: 'Coca-Cola', preco: 5.99, ativo: true, status: 1 },
@@ -20,13 +20,13 @@ const COLUNAS = [
 ]
 
 function criarContexto(pageSize = 2) {
-  const table = new RsTable({ columns: COLUNAS, pageSize })
+  const table = new RosiumTable({ columns: COLUNAS, pageSize })
   table.useAdapter(new LocalAdapter(DADOS))
-  return useRsTable(table)
+  return useRosiumTable(table)
 }
 
-describe('useRsTable — conexão com o Core', () => {
-  it('aceita uma instância RsTable e expõe o estado inicial', () => {
+describe('useRosiumTable — conexão com o Core', () => {
+  it('aceita uma instância RosiumTable e expõe o estado inicial', () => {
     const ctx = criarContexto()
     expect(ctx.rows.value).toEqual([])
     expect(ctx.total.value).toBe(0)
@@ -38,7 +38,7 @@ describe('useRsTable — conexão com o Core', () => {
   })
 
   it('aceita { columns, adapter } no modo rápido e cria a instância', async () => {
-    const ctx = useRsTable({
+    const ctx = useRosiumTable({
       columns: COLUNAS,
       adapter: new LocalAdapter(DADOS),
       pageSize: 3,
@@ -67,11 +67,11 @@ describe('useRsTable — conexão com o Core', () => {
   })
 })
 
-describe('useRsTable — reage a eventos do Core', () => {
+describe('useRosiumTable — reage a eventos do Core', () => {
   it('atualiza linhas quando o Core emite dados:carregados (chamada direta no Core)', async () => {
-    const table = new RsTable({ columns: COLUNAS, pageSize: 10 })
+    const table = new RosiumTable({ columns: COLUNAS, pageSize: 10 })
     table.useAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(table)
+    const ctx = useRosiumTable(table)
 
     await table.goToPage(1)
 
@@ -94,9 +94,9 @@ describe('useRsTable — reage a eventos do Core', () => {
   })
 
   it('captura evento erro do Core (Falhe Alto)', async () => {
-    const table = new RsTable({ columns: COLUNAS, pageSize: 10 })
+    const table = new RosiumTable({ columns: COLUNAS, pageSize: 10 })
     table.useAdapter(new LocalAdapter([{ id: 1, nome: 123, preco: 1, ativo: true, status: 1 }]))
-    const ctx = useRsTable(table)
+    const ctx = useRosiumTable(table)
 
     await ctx.load()
 
@@ -107,8 +107,8 @@ describe('useRsTable — reage a eventos do Core', () => {
   })
 
   it('emite erro quando não há adapter configurado', async () => {
-    const table = new RsTable({ columns: COLUNAS })
-    const ctx = useRsTable(table)
+    const table = new RosiumTable({ columns: COLUNAS })
+    const ctx = useRosiumTable(table)
 
     await ctx.load()
 
@@ -117,7 +117,7 @@ describe('useRsTable — reage a eventos do Core', () => {
   })
 })
 
-describe('useRsTable — métodos delegam ao Core', () => {
+describe('useRosiumTable — métodos delegam ao Core', () => {
   it('filtrar() delega e atualiza linhas/filtros', async () => {
     const ctx = criarContexto(10)
     await ctx.load()
@@ -164,16 +164,16 @@ describe('useRsTable — métodos delegam ao Core', () => {
   })
 })
 
-describe('useRsTable — loading', () => {
+describe('useRosiumTable — loading', () => {
   it('loading fica true durante o fetch e false ao terminar', async () => {
     let resolver!: (value: { rows: Row[]; total: number }) => void
     const adapterLento: DataAdapter = {
       fetch: (_query: Query) => new Promise((resolve) => { resolver = resolve }),
       fetchAll: async () => [],
     }
-    const table = new RsTable({ columns: COLUNAS })
+    const table = new RosiumTable({ columns: COLUNAS })
     table.useAdapter(adapterLento)
-    const ctx = useRsTable(table)
+    const ctx = useRosiumTable(table)
 
     const pendente = ctx.load()
     expect(ctx.loading.value).toBe(true)
@@ -185,7 +185,7 @@ describe('useRsTable — loading', () => {
   })
 })
 
-describe('useRsTable — helpers de apresentação', () => {
+describe('useRosiumTable — helpers de apresentação', () => {
   it('alinhamento() usa o padrão do tipo ou o customizado', () => {
     const ctx = criarContexto()
     expect(ctx.alignment(column('n', { type: 'number' }))).toBe('right')
@@ -202,11 +202,11 @@ describe('useRsTable — helpers de apresentação', () => {
   })
 })
 
-describe('useRsTable — desconectar', () => {
+describe('useRosiumTable — desconectar', () => {
   it('remove os listeners do Core', async () => {
-    const table = new RsTable({ columns: COLUNAS, pageSize: 10 })
+    const table = new RosiumTable({ columns: COLUNAS, pageSize: 10 })
     table.useAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(table)
+    const ctx = useRosiumTable(table)
 
     await ctx.load()
     expect(ctx.rows.value).toHaveLength(5)
@@ -219,10 +219,10 @@ describe('useRsTable — desconectar', () => {
   })
 
   it('dois consumidores da mesma instância não conflitam', async () => {
-    const table = new RsTable({ columns: COLUNAS, pageSize: 10 })
+    const table = new RosiumTable({ columns: COLUNAS, pageSize: 10 })
     table.useAdapter(new LocalAdapter(DADOS))
-    const a = useRsTable(table)
-    const b = useRsTable(table)
+    const a = useRosiumTable(table)
+    const b = useRosiumTable(table)
 
     await a.load()
     expect(a.rows.value).toHaveLength(5)
@@ -230,12 +230,12 @@ describe('useRsTable — desconectar', () => {
   })
 })
 
-describe('useRsTable — mock da RsTable (isolamento do Render)', () => {
+describe('useRosiumTable — mock da RosiumTable (isolamento do Render)', () => {
   it('escuta eventos sem depender do adapter real', async () => {
-    const table = new RsTable({ columns: COLUNAS })
+    const table = new RosiumTable({ columns: COLUNAS })
     const fetchMock = vi.fn().mockResolvedValue({ rows: [DADOS[0]], total: 1 })
     table.useAdapter({ fetch: fetchMock, fetchAll: async () => [] })
-    const ctx = useRsTable(table)
+    const ctx = useRosiumTable(table)
 
     await ctx.filter({ column: 'nome', operator: 'contains', value: 'coca' })
 

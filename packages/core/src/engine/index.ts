@@ -13,7 +13,7 @@ export interface TransformedCell {
 
 export type TransformedRow = Record<string, TransformedCell>
 
-export interface RsTableState {
+export interface RosiumTableState {
   columns: ColumnDefinition[]
   filters: Filter[]
   sort?: { column: string; direction: 'asc' | 'desc' }
@@ -27,7 +27,7 @@ export interface RsTableState {
   locale: string
 }
 
-export class RsTable {
+export class RosiumTable {
   private adapter: DataAdapter | null = null
   private columns: ColumnDefinition[]
   private filters: Filter[] = []
@@ -109,7 +109,7 @@ export class RsTable {
     return this.totalRows
   }
 
-  getState(): RsTableState {
+  getState(): RosiumTableState {
     return {
       columns: this.columns,
       filters: [...this.filters],

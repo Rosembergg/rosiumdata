@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { RsTable, column, LocalAdapter } from '@rosiumdata/core'
+import { RosiumTable, column, LocalAdapter } from '@rosiumdata/core'
 import type { ColumnDefinition, Row } from '@rosiumdata/core'
 
 const colunas: ColumnDefinition[] = [
@@ -20,10 +20,10 @@ const dados: Row[] = [
   { id: 5, nome: 'Item E', preco: 15.0, ativo: false, criadoEm: '2024-02-14', status: 2 },
 ]
 
-describe('Integracao RsTable + LocalAdapter — fluxo completo', () => {
+describe('Integracao RosiumTable + LocalAdapter — fluxo completo', () => {
   it('deve carregar dados e retornar linhas transformadas', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -39,9 +39,9 @@ describe('Integracao RsTable + LocalAdapter — fluxo completo', () => {
     expect(linhas[0]!.status!.display).toBe('Ativo')
   })
 
-  it('deve filtrar via RsTable.filtrar e refletir no adapter', async () => {
+  it('deve filtrar via RosiumTable.filtrar e refletir no adapter', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -52,9 +52,9 @@ describe('Integracao RsTable + LocalAdapter — fluxo completo', () => {
     expect(tabela.getTotal()).toBe(2)
   })
 
-  it('deve ordenar via RsTable.ordenar e refletir no adapter', async () => {
+  it('deve ordenar via RosiumTable.ordenar e refletir no adapter', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.sort('preco', 'asc')
@@ -64,9 +64,9 @@ describe('Integracao RsTable + LocalAdapter — fluxo completo', () => {
     expect(linhas[4]!.preco!.raw).toBe(99.9)
   })
 
-  it('deve paginar via RsTable.irParaPagina', async () => {
+  it('deve paginar via RosiumTable.irParaPagina', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas, pageSize: 2 })
+    const tabela = new RosiumTable({ columns: colunas, pageSize: 2 })
     tabela.useAdapter(adapter)
 
     await tabela.goToPage(1)
@@ -81,7 +81,7 @@ describe('Integracao RsTable + LocalAdapter — fluxo completo', () => {
 
   it('fluxo: filtrar → ordenar → paginar', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas, pageSize: 2 })
+    const tabela = new RosiumTable({ columns: colunas, pageSize: 2 })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'ativo', operator: 'equals', value: true })
@@ -103,7 +103,7 @@ describe('Integracao RsTable + LocalAdapter — fluxo completo', () => {
 
   it('tabela vazia funciona', async () => {
     const adapter = new LocalAdapter([])
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.goToPage(1)
@@ -113,7 +113,7 @@ describe('Integracao RsTable + LocalAdapter — fluxo completo', () => {
 
   it('deve emitir dados:carregados com dados do adapter', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -125,7 +125,7 @@ describe('Integracao RsTable + LocalAdapter — fluxo completo', () => {
 
   it('deve emitir estado:alterado apos operacoes', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -148,7 +148,7 @@ describe('Integracao — Falhe Alto com dados do adapter', () => {
       column('nome', { type: 'text' }),
       column('preco', { type: 'number' }),
     ]
-    const tabela = new RsTable({ columns: colunasValidacao })
+    const tabela = new RosiumTable({ columns: colunasValidacao })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -170,7 +170,7 @@ describe('Integracao — Falhe Alto com dados do adapter', () => {
 
   it('nao deve emitir erro para dados validos', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -181,7 +181,7 @@ describe('Integracao — Falhe Alto com dados do adapter', () => {
   })
 
   it('deve emitir erro quando adapter nao configurado', async () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
 
     const handler = vi.fn()
     tabela.on('error', handler)
@@ -194,7 +194,7 @@ describe('Integracao — Falhe Alto com dados do adapter', () => {
 describe('Integracao — getEstado com LocalAdapter', () => {
   it('estado deve refletir dados do adapter', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas, pageSize: 2 })
+    const tabela = new RosiumTable({ columns: colunas, pageSize: 2 })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'ativo', operator: 'equals', value: true })
@@ -213,7 +213,7 @@ describe('Integracao — getEstado com LocalAdapter', () => {
 
   it('estado com filtro sem match', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'nome', operator: 'contains', value: 'Inexistente' })
@@ -229,7 +229,7 @@ describe('Integracao — getEstado com LocalAdapter', () => {
 describe('Integracao — colunas gerenciadas com LocalAdapter', () => {
   it('esconder/mostrar coluna nao afeta os dados', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -246,7 +246,7 @@ describe('Integracao — colunas gerenciadas com LocalAdapter', () => {
 describe('Integracao — operadores de filtro especificos com dados reais', () => {
   it('filtro de data — entre', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'criadoEm', operator: 'between', value: ['2024-01-01', '2024-03-31'] })
@@ -259,7 +259,7 @@ describe('Integracao — operadores de filtro especificos com dados reais', () =
 
   it('filtro de data — antes', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'criadoEm', operator: 'before', value: '2024-03-01' })
@@ -270,7 +270,7 @@ describe('Integracao — operadores de filtro especificos com dados reais', () =
 
   it('filtro de data — depois', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'criadoEm', operator: 'after', value: '2024-05-01' })
@@ -281,7 +281,7 @@ describe('Integracao — operadores de filtro especificos com dados reais', () =
 
   it('filtro numero — entre', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'preco', operator: 'between', value: [20, 60] })
@@ -292,7 +292,7 @@ describe('Integracao — operadores de filtro especificos com dados reais', () =
 
   it('filtros multiplos AND — numero + booleano', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'preco', operator: '>', value: 20 })
@@ -304,7 +304,7 @@ describe('Integracao — operadores de filtro especificos com dados reais', () =
 
   it('filtro removido por valor vazio', async () => {
     const adapter = new LocalAdapter(dados)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'nome', operator: 'contains', value: 'Produto' })
@@ -325,7 +325,7 @@ describe('Integracao — troca de adapter', () => {
       column('nome', { type: 'text' }),
     ]
 
-    const tabela = new RsTable({ columns: colunasSimples })
+    const tabela = new RosiumTable({ columns: colunasSimples })
     tabela.useAdapter(adapter1)
     await tabela.goToPage(1)
     expect(tabela.getTotal()).toBe(1)

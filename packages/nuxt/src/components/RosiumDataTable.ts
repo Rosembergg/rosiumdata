@@ -1,23 +1,23 @@
 import { defineComponent, h, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import type { PropType, VNode } from 'vue'
-import { useRsTable } from '../composables/useRsTable'
+import { useRosiumTable } from '../composables/useRosiumTable'
 import type {
   ColumnDefinition,
   DataAdapter,
-  RsActionEvent,
-  RsTable as RsTableCore,
-  UseRsTableContext,
-} from '../composables/useRsTable'
-import { RsThead } from './RsThead'
-import { RsTbody, errorMessage } from './RsTbody'
-import { RsPagination } from './RsPagination'
-import { RsFilters } from './RsFilters'
+  RosiumActionEvent,
+  RosiumTable as RosiumTableCore,
+  UseRosiumTableContext,
+} from '../composables/useRosiumTable'
+import { RosiumThead } from './RosiumThead'
+import { RosiumTbody, errorMessage } from './RosiumTbody'
+import { RosiumPagination } from './RosiumPagination'
+import { RosiumFilters } from './RosiumFilters'
 
 function icone(d: string): VNode {
   return h(
     'svg',
     {
-      class: 'rs-icon',
+      class: 'rosium-icon',
       viewBox: '0 0 24 24',
       fill: 'none',
       stroke: 'currentColor',
@@ -51,16 +51,16 @@ export function isDevEnvironment(): boolean {
 }
 
 /**
- * Componente principal da tabela. Chama-se rosiumdataTable para não colidir com a
- * classe RsTable do Core em imports. No template, o nome público registrado
- * pelo plugin continua sendo <RsTable>.
+ * Componente principal da tabela. Chama-se RosiumDataTable para não colidir com a
+ * classe RosiumTable do Core em imports. No template, o nome público registrado
+ * pelo plugin continua sendo <RosiumTable>.
  */
-export const rosiumdataTable = defineComponent({
-  name: 'rosiumdataTable',
+export const RosiumDataTable = defineComponent({
+  name: 'RosiumDataTable',
   props: {
-    /** RsTable Core instance (full control mode) */
+    /** RosiumTable Core instance (full control mode) */
     table: {
-      type: Object as PropType<RsTableCore>,
+      type: Object as PropType<RosiumTableCore>,
       default: undefined,
     },
     /** Column definition (quick mode, together with adapter) */
@@ -98,15 +98,15 @@ export const rosiumdataTable = defineComponent({
   },
   emits: {
     /** Action trigger: { key, row }. rosiumdata never executes anything. */
-    action: (payload: RsActionEvent) => payload !== undefined,
+    action: (payload: RosiumActionEvent) => payload !== undefined,
   },
   setup(props, { emit }) {
-    let contexto: UseRsTableContext
+    let contexto: UseRosiumTableContext
 
     if (props.table) {
-      contexto = useRsTable(props.table, { persistence: props.persistence })
+      contexto = useRosiumTable(props.table, { persistence: props.persistence })
     } else if (props.columns && props.adapter) {
-      contexto = useRsTable(
+      contexto = useRosiumTable(
         {
           columns: props.columns,
           adapter: props.adapter,
@@ -116,7 +116,7 @@ export const rosiumdataTable = defineComponent({
       )
     } else {
       throw new Error(
-        '[rosiumdata] <RsTable> needs prop "table" (RsTable instance) OR props "columns" + "adapter".',
+        '[rosiumdata] <RosiumTable> needs prop "table" (RosiumTable instance) OR props "columns" + "adapter".',
       )
     }
 
@@ -152,7 +152,7 @@ export const rosiumdataTable = defineComponent({
       document.addEventListener('click', aoClicarFora)
       document.addEventListener('keydown', aoTeclar)
       void contexto.load()
-      /* Debug real: only after SSR hydration — avoids mismatch in data-rs-error */
+      /* Debug real: only after SSR hydration — avoids mismatch in data-rosium-error */
       void nextTick(() => {
         debugEfetivo.value = props.debug ?? isDevEnvironment()
       })
@@ -181,7 +181,7 @@ export const rosiumdataTable = defineComponent({
         'button',
         {
           type: 'button',
-          class: ['rs-btn', { 'rs-btn-active': filtrosAbertos.value }],
+          class: ['rosium-btn', { 'rosium-btn-active': filtrosAbertos.value }],
           'aria-expanded': String(filtrosAbertos.value),
           onClick: () => {
             filtrosAbertos.value = !filtrosAbertos.value
@@ -189,8 +189,8 @@ export const rosiumdataTable = defineComponent({
         },
         [
           icone(ICONE_FILTRO),
-          h('span', { class: 'rs-btn-label' }, 'Filters'),
-          active > 0 ? h('span', { class: 'rs-badge-count' }, String(active)) : null,
+          h('span', { class: 'rosium-btn-label' }, 'Filters'),
+          active > 0 ? h('span', { class: 'rosium-badge-count' }, String(active)) : null,
         ],
       )
     }
@@ -198,30 +198,30 @@ export const rosiumdataTable = defineComponent({
     function columnsMenu(): VNode {
       return h(
         'div',
-        { class: 'rs-toolbar-menu', ref: menuColunasEl },
+        { class: 'rosium-toolbar-menu', ref: menuColunasEl },
         [
           h(
             'button',
             {
               type: 'button',
-              class: ['rs-btn', { 'rs-btn-active': menuColunasAberto.value }],
+              class: ['rosium-btn', { 'rosium-btn-active': menuColunasAberto.value }],
               'aria-expanded': String(menuColunasAberto.value),
               'aria-haspopup': 'true',
               onClick: () => {
                 menuColunasAberto.value = !menuColunasAberto.value
               },
             },
-            [icone(ICONE_COLUNAS), h('span', { class: 'rs-btn-label' }, 'Columns')],
+            [icone(ICONE_COLUNAS), h('span', { class: 'rosium-btn-label' }, 'Columns')],
           ),
           menuColunasAberto.value
             ? h(
                 'div',
-                { class: 'rs-menu', role: 'menu' },
+                { class: 'rosium-menu', role: 'menu' },
                 contexto.allColumns.value.map((col) =>
-                  h('label', { key: col.key, class: 'rs-menu-item' }, [
+                  h('label', { key: col.key, class: 'rosium-menu-item' }, [
                     h('input', {
                       type: 'checkbox',
-                      class: 'rs-menu-check',
+                      class: 'rosium-menu-check',
                       checked: columnIsVisible(col.key),
                       onChange: () => toggleColumn(col.key),
                     }),
@@ -239,14 +239,14 @@ export const rosiumdataTable = defineComponent({
         'button',
         {
           type: 'button',
-          class: ['rs-btn', { 'rs-btn-active': densidadeCompacta.value }],
+          class: ['rosium-btn', { 'rosium-btn-active': densidadeCompacta.value }],
           'aria-pressed': String(densidadeCompacta.value),
           title: densidadeCompacta.value ? 'Density: compact' : 'Density: comfortable',
           onClick: () => {
             densidadeCompacta.value = !densidadeCompacta.value
           },
         },
-        [icone(ICONE_DENSIDADE), h('span', { class: 'rs-btn-label' }, 'Density')],
+        [icone(ICONE_DENSIDADE), h('span', { class: 'rosium-btn-label' }, 'Density')],
       )
     }
 
@@ -257,12 +257,12 @@ export const rosiumdataTable = defineComponent({
      */
     function errorBanner(): VNode | null {
       if (!debugEfetivo.value || contexto.errors.value.length === 0) return null
-      return h('div', { class: 'rs-error-banner', role: 'alert' }, [
-        h('strong', { class: 'rs-error-banner-title' }, [
+      return h('div', { class: 'rosium-error-banner', role: 'alert' }, [
+        h('strong', { class: 'rosium-error-banner-title' }, [
           `Fail Loud: ${contexto.errors.value.length} invalid data`,
         ]),
         ...contexto.errors.value.map((err, i) =>
-          h('div', { key: i, class: 'rs-error-banner-item' }, errorMessage(err)),
+          h('div', { key: i, class: 'rosium-error-banner-item' }, errorMessage(err)),
         ),
       ])
     }
@@ -271,31 +271,31 @@ export const rosiumdataTable = defineComponent({
       h(
         'div',
         {
-          class: ['rs-table-container', { 'rs-density-compact': densidadeCompacta.value }],
+          class: ['rosium-table-container', { 'rosium-density-compact': densidadeCompacta.value }],
         },
         [
-          h('div', { class: 'rs-card' }, [
-            h('div', { class: 'rs-toolbar' }, [
-              h('div', { class: 'rs-toolbar-left' }, [filterButton()]),
-              h('div', { class: 'rs-toolbar-right' }, [columnsMenu(), densityButton()]),
+          h('div', { class: 'rosium-card' }, [
+            h('div', { class: 'rosium-toolbar' }, [
+              h('div', { class: 'rosium-toolbar-left' }, [filterButton()]),
+              h('div', { class: 'rosium-toolbar-right' }, [columnsMenu(), densityButton()]),
             ]),
             errorBanner(),
             h(
               'div',
-              { class: ['rs-filters-panel', { 'rs-filters-open': filtrosAbertos.value }] },
-              [h(RsFilters, { contexto })],
+              { class: ['rosium-filters-panel', { 'rosium-filters-open': filtrosAbertos.value }] },
+              [h(RosiumFilters, { contexto })],
             ),
-            h('div', { class: 'rs-table-wrap' }, [
-              h('table', { class: 'rs-table' }, [
-                h(RsThead, { contexto }),
-                h(RsTbody, { contexto, debug: debugEfetivo.value }),
+            h('div', { class: 'rosium-table-wrap' }, [
+              h('table', { class: 'rosium-table' }, [
+                h(RosiumThead, { contexto }),
+                h(RosiumTbody, { contexto, debug: debugEfetivo.value }),
               ]),
             ]),
-            h(RsPagination, { contexto }),
+            h(RosiumPagination, { contexto }),
           ]),
         ],
       )
   },
 })
 
-export default rosiumdataTable
+export default RosiumDataTable

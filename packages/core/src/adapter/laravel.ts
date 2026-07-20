@@ -3,7 +3,7 @@ import type { DataAdapter, Query, FetchResult, Row, FilterOption, Filter } from 
 /**
  * # LaravelAdapter — adapter server-side para backends Laravel
  *
- * Implementa a MESMA interface `DataAdapter` do `LocalAdapter`. Para a RsTable
+ * Implementa a MESMA interface `DataAdapter` do `LocalAdapter`. Para a RosiumTable
  * a troca é transparente: ela chama `adapter.fetch(query)` e recebe
  * `{ rows, total }` — nunca sabe se o dado veio da memória ou da rede.
  *
@@ -106,7 +106,7 @@ import type { DataAdapter, Query, FetchResult, Row, FilterOption, Filter } from 
  *
  * Toda falha (timeout, HTTP 4xx/5xx, resposta não-JSON, formato inesperado,
  * rede offline) vira um `Error` com mensagem clara, propagado pela rejeição
- * da Promise. A `RsTable` (Core) captura essa rejeição no caminho oficial e a
+ * da Promise. A `RosiumTable` (Core) captura essa rejeição no caminho oficial e a
  * converte no evento `erro` — a tabela continua viva. O adapter faz **1
  * tentativa apenas** (retry é política do usuário, não da lib).
  *
@@ -299,7 +299,7 @@ export class LaravelAdapter implements DataAdapter {
   /**
    * Faz a request HTTP com fetch() nativo. 1 tentativa, sem retry.
    * O timeout cobre a request inteira, incluindo a leitura do body.
-   * Toda falha vira Error com mensagem clara (a RsTable converte em evento `erro`).
+   * Toda falha vira Error com mensagem clara (a RosiumTable converte em evento `erro`).
    */
   private async request(url: string): Promise<unknown> {
     const controller = new AbortController()

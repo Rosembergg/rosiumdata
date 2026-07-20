@@ -30,8 +30,8 @@ export type {
   ActionDefinition,
 } from './columns'
 
-export { RsTable } from './engine'
-export type { TransformedCell, TransformedRow, RsTableState } from './engine'
+export { RosiumTable } from './engine'
+export type { TransformedCell, TransformedRow, RosiumTableState } from './engine'
 
 export {
   DEFAULT_OPERATORS,

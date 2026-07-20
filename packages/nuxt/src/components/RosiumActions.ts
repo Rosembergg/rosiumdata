@@ -1,6 +1,6 @@
 import { defineComponent, h, onUnmounted, ref, Teleport } from 'vue'
 import type { PropType, VNode } from 'vue'
-import type { ColumnDefinition, ActionDefinition, TransformedRow } from '../composables/useRsTable'
+import type { ColumnDefinition, ActionDefinition, TransformedRow } from '../composables/useRosiumTable'
 
 /**
  * Extrai as actions declaradas em uma coluna do tipo 'acao'.
@@ -27,8 +27,8 @@ const DESLOCAMENTO_MENU = 6
  * On click, emits ONLY the 'action' event with { key, row }. No fetch,
  * no deletion, no navigation — logic is 100% the consumer's.
  */
-export const RsActions = defineComponent({
-  name: 'RsActions',
+export const RosiumActions = defineComponent({
+  name: 'RosiumActions',
   props: {
     actions: {
       type: Array as PropType<ActionDefinition[]>,
@@ -92,7 +92,7 @@ export const RsActions = defineComponent({
         'button',
         {
           type: 'button',
-          class: ['rs-action-btn', { 'rs-action-btn--danger': action.danger === true }],
+          class: ['rosium-action-btn', { 'rosium-action-btn--danger': action.danger === true }],
           onClick: () => trigger(action),
         },
         action.label,
@@ -105,7 +105,7 @@ export const RsActions = defineComponent({
         {
           ref: buttonEl,
           type: 'button',
-          class: ['rs-action-btn', 'rs-action-more', { 'rs-btn-active': open.value }],
+          class: ['rosium-action-btn', 'rosium-action-more', { 'rosium-btn-active': open.value }],
           'aria-haspopup': 'menu',
           'aria-expanded': String(open.value),
           'aria-label': 'Actions',
@@ -121,7 +121,7 @@ export const RsActions = defineComponent({
           'div',
           {
             ref: menuEl,
-            class: 'rs-menu rs-action-menu',
+            class: 'rosium-menu rosium-action-menu',
             role: 'menu',
             style: {
               top: `${position.value.top}px`,
@@ -134,7 +134,7 @@ export const RsActions = defineComponent({
               {
                 key: action.key,
                 type: 'button',
-                class: ['rs-menu-item', 'rs-menu-action', { 'rs-menu-item--danger': action.danger === true }],
+                class: ['rosium-menu-item', 'rosium-menu-action', { 'rosium-menu-item--danger': action.danger === true }],
                 role: 'menuitem',
                 onClick: () => trigger(action),
               },
@@ -148,9 +148,9 @@ export const RsActions = defineComponent({
     return () => {
       if (props.actions.length === 0) return null
       if (props.actions.length === 1) return singleButton(props.actions[0]!)
-      return h('span', { class: 'rs-actions' }, [menuButton(), open.value ? dropdown() : null])
+      return h('span', { class: 'rosium-actions' }, [menuButton(), open.value ? dropdown() : null])
     }
   },
 })
 
-export default RsActions
+export default RosiumActions

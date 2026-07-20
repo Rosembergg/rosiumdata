@@ -1,10 +1,10 @@
-export { useRsTable, colunaAcao, lerPreferencias, salvarPreferencias } from './useRsTable'
+export { useRosiumTable, colunaAcao, lerPreferencias, salvarPreferencias } from './useRosiumTable'
 export type {
-  UseRsTableContext,
-  UseRsTableOptions,
-  UseRsTableExtras,
-  RsActionDefinition,
+  UseRosiumTableContext,
+  UseRosiumTableOptions,
+  UseRosiumTableExtras,
+  RosiumActionDefinition,
   ActionDefinition,
-  RsActionEvent,
-  RsPreferencias,
-} from './useRsTable'
+  RosiumActionEvent,
+  RosiumPreferencias,
+} from './useRosiumTable'

@@ -1,12 +1,12 @@
 import { defineComponent, h } from 'vue'
 import type { PropType, VNode } from 'vue'
-import type { ColumnDefinition, UseRsTableContext } from '../composables/useRsTable'
+import type { ColumnDefinition, UseRosiumTableContext } from '../composables/useRosiumTable'
 
-export const RsThead = defineComponent({
-  name: 'RsThead',
+export const RosiumThead = defineComponent({
+  name: 'RosiumThead',
   props: {
     contexto: {
-      type: Object as PropType<UseRsTableContext>,
+      type: Object as PropType<UseRosiumTableContext>,
       required: true,
     },
   },
@@ -28,16 +28,16 @@ export const RsThead = defineComponent({
       if (!current || current.column !== col.key) return null
       return h(
         'span',
-        { class: 'rs-sort-indicator', 'aria-hidden': 'true' },
+        { class: 'rosium-sort-indicator', 'aria-hidden': 'true' },
         current.direction === 'asc' ? ' \u25B4' : ' \u25BE',
       )
     }
 
     return () =>
-      h('thead', { class: 'rs-thead' }, [
+      h('thead', { class: 'rosium-thead' }, [
         h(
           'tr',
-          { class: 'rs-row rs-row-header' },
+          { class: 'rosium-row rs-row-header' },
           props.contexto.columns.value.map((col) => {
             const current = props.contexto.sortState.value
             return h(
@@ -45,14 +45,14 @@ export const RsThead = defineComponent({
               {
                 key: col.key,
                 class: [
-                  'rs-cell',
-                  'rs-cell-header',
-                  `rs-align-${props.contexto.alignment(col)}`,
+                  'rosium-cell',
+                  'rosium-cell-header',
+                  `rosium-align-${props.contexto.alignment(col)}`,
                   {
-                    'rs-sortable': sortable(col),
-                    'rs-sorted-asc':
+                    'rosium-sortable': sortable(col),
+                    'rosium-sorted-asc':
                       current?.column === col.key && current?.direction === 'asc',
-                    'rs-sorted-desc':
+                    'rosium-sorted-desc':
                       current?.column === col.key && current?.direction === 'desc',
                   },
                 ],
@@ -67,4 +67,4 @@ export const RsThead = defineComponent({
   },
 })
 
-export default RsThead
+export default RosiumThead

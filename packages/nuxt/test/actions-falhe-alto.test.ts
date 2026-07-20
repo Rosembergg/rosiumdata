@@ -1,19 +1,19 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { RsTable, LocalAdapter, column } from '@rosiumdata/core'
+import { RosiumTable, LocalAdapter, column } from '@rosiumdata/core'
 import type { Row } from '@rosiumdata/core'
 import {
-  rosiumdataTable,
-  RsTbody,
-  RsActions,
-  useRsTable,
+  RosiumDataTable,
+  RosiumTbody,
+  RosiumActions,
+  useRosiumTable,
   actionColumn,
   columnActions,
   errorMessage,
   readPreferences,
 } from '@rosiumdata/nuxt'
-import type { ActionDefinition, RsActionEvent } from '@rosiumdata/nuxt'
+import type { ActionDefinition, RosiumActionEvent } from '@rosiumdata/nuxt'
 
 const DADOS: Row[] = [
   { id: 1, nome: 'Coca-Cola', preco: 5.99, status: 1 },
@@ -44,9 +44,9 @@ function montarTabela(opcoes: {
   debug?: boolean
   attach?: boolean
 } = {}) {
-  const table = new RsTable({ columns: criarColunas(opcoes.actions), pageSize: 10 })
+  const table = new RosiumTable({ columns: criarColunas(opcoes.actions), pageSize: 10 })
   table.useAdapter(new LocalAdapter(opcoes.dados ?? DADOS))
-  const wrapper = mount(rosiumdataTable, {
+  const wrapper = mount(RosiumDataTable, {
     props: { table, debug: opcoes.debug },
     ...(opcoes.attach ? { attachTo: document.body } : {}),
   })
@@ -78,37 +78,37 @@ describe('Actions — ação única (botão direto)', () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    const botoes = wrapper.findAll('.rs-action-btn')
+    const botoes = wrapper.findAll('.rosium-action-btn')
     expect(botoes).toHaveLength(3)
     expect(botoes[0]!.text()).toBe('Editar')
-    expect(wrapper.find('.rs-action-more').exists()).toBe(false)
+    expect(wrapper.find('.rosium-action-more').exists()).toBe(false)
   })
 
   it('clique emite o evento action com { key, row } — e NÃO executa nada', async () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    await wrapper.findAll('.rs-action-btn')[1]!.trigger('click')
+    await wrapper.findAll('.rosium-action-btn')[1]!.trigger('click')
 
     const emitidos = wrapper.emitted('action')
     expect(emitidos).toHaveLength(1)
-    const payload = emitidos![0]![0] as RsActionEvent
+    const payload = emitidos![0]![0] as RosiumActionEvent
     expect(payload.key).toBe('editar')
     expect(payload.row.id!.raw).toBe(2)
     expect(payload.row.nome!.raw).toBe('Guarana')
   })
 
-  it('useRsTable propaga o evento via contexto.on("action")', async () => {
-    const table = new RsTable({ columns: criarColunas(), pageSize: 10 })
+  it('useRosiumTable propaga o evento via contexto.on("action")', async () => {
+    const table = new RosiumTable({ columns: criarColunas(), pageSize: 10 })
     table.useAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(table)
+    const ctx = useRosiumTable(table)
     await ctx.load()
 
     const handler = vi.fn()
     ctx.on('action', handler)
 
-    const wrapper = mount(RsTbody, { props: { contexto: ctx } })
-    await wrapper.findAll('.rs-action-btn')[0]!.trigger('click')
+    const wrapper = mount(RosiumTbody, { props: { contexto: ctx } })
+    await wrapper.findAll('.rosium-action-btn')[0]!.trigger('click')
 
     expect(handler).toHaveBeenCalledTimes(1)
     expect(handler).toHaveBeenCalledWith(
@@ -116,7 +116,7 @@ describe('Actions — ação única (botão direto)', () => {
     )
 
     ctx.off('action', handler)
-    await wrapper.findAll('.rs-action-btn')[0]!.trigger('click')
+    await wrapper.findAll('.rosium-action-btn')[0]!.trigger('click')
     expect(handler).toHaveBeenCalledTimes(1)
   })
 
@@ -126,7 +126,7 @@ describe('Actions — ação única (botão direto)', () => {
     })
     await flushPromises()
 
-    expect(wrapper.findAll('.rs-action-btn')[0]!.classes()).toContain('rs-action-btn--danger')
+    expect(wrapper.findAll('.rosium-action-btn')[0]!.classes()).toContain('rosium-action-btn--danger')
   })
 })
 
@@ -135,7 +135,7 @@ describe('Actions — múltiplas ações (menu ⋯)', () => {
     const { wrapper } = montarTabela({ actions: TRES_ACOES, attach: true })
     await flushPromises()
 
-    const mais = wrapper.findAll('.rs-action-more')
+    const mais = wrapper.findAll('.rosium-action-more')
     expect(mais).toHaveLength(3)
     expect(mais[0]!.text()).toBe('⋯')
     wrapper.unmount()
@@ -145,13 +145,13 @@ describe('Actions — múltiplas ações (menu ⋯)', () => {
     const { wrapper } = montarTabela({ actions: TRES_ACOES, attach: true })
     await flushPromises()
 
-    expect(document.body.querySelector('.rs-action-menu')).toBeNull()
+    expect(document.body.querySelector('.rosium-action-menu')).toBeNull()
 
-    await wrapper.find('.rs-action-more').trigger('click')
+    await wrapper.find('.rosium-action-more').trigger('click')
 
-    const menu = document.body.querySelector('.rs-action-menu')
+    const menu = document.body.querySelector('.rosium-action-menu')
     expect(menu).not.toBeNull()
-    const itens = menu!.querySelectorAll('.rs-menu-action')
+    const itens = menu!.querySelectorAll('.rosium-menu-action')
     expect(itens).toHaveLength(3)
     expect(itens[0]!.textContent).toBe('Ver detalhes')
     wrapper.unmount()
@@ -161,11 +161,11 @@ describe('Actions — múltiplas ações (menu ⋯)', () => {
     const { wrapper } = montarTabela({ actions: TRES_ACOES, attach: true })
     await flushPromises()
 
-    await wrapper.find('.rs-action-more').trigger('click')
+    await wrapper.find('.rosium-action-more').trigger('click')
 
-    const itens = document.body.querySelectorAll('.rs-menu-action')
-    expect(itens[2]!.classList.contains('rs-menu-item--danger')).toBe(true)
-    expect(itens[0]!.classList.contains('rs-menu-item--danger')).toBe(false)
+    const itens = document.body.querySelectorAll('.rosium-menu-action')
+    expect(itens[2]!.classList.contains('rosium-menu-item--danger')).toBe(true)
+    expect(itens[0]!.classList.contains('rosium-menu-item--danger')).toBe(false)
     wrapper.unmount()
   })
 
@@ -173,17 +173,17 @@ describe('Actions — múltiplas ações (menu ⋯)', () => {
     const { wrapper } = montarTabela({ actions: TRES_ACOES, attach: true })
     await flushPromises()
 
-    await wrapper.find('.rs-action-more').trigger('click')
-    const item = document.body.querySelectorAll('.rs-menu-action')[2] as HTMLElement
+    await wrapper.find('.rosium-action-more').trigger('click')
+    const item = document.body.querySelectorAll('.rosium-menu-action')[2] as HTMLElement
     item.click()
     await wrapper.vm.$nextTick()
 
     const emitidos = wrapper.emitted('action')
     expect(emitidos).toHaveLength(1)
-    const payload = emitidos![0]![0] as RsActionEvent
+    const payload = emitidos![0]![0] as RosiumActionEvent
     expect(payload.key).toBe('excluir')
     expect(payload.row.id!.raw).toBe(1)
-    expect(document.body.querySelector('.rs-action-menu')).toBeNull()
+    expect(document.body.querySelector('.rosium-action-menu')).toBeNull()
     wrapper.unmount()
   })
 
@@ -191,13 +191,13 @@ describe('Actions — múltiplas ações (menu ⋯)', () => {
     const { wrapper } = montarTabela({ actions: TRES_ACOES, attach: true })
     await flushPromises()
 
-    await wrapper.find('.rs-action-more').trigger('click')
-    expect(document.body.querySelector('.rs-action-menu')).not.toBeNull()
+    await wrapper.find('.rosium-action-more').trigger('click')
+    expect(document.body.querySelector('.rosium-action-menu')).not.toBeNull()
 
     document.body.click()
     await wrapper.vm.$nextTick()
 
-    expect(document.body.querySelector('.rs-action-menu')).toBeNull()
+    expect(document.body.querySelector('.rosium-action-menu')).toBeNull()
     expect(wrapper.emitted('action')).toBeUndefined()
     wrapper.unmount()
   })
@@ -206,13 +206,13 @@ describe('Actions — múltiplas ações (menu ⋯)', () => {
     const { wrapper } = montarTabela({ actions: TRES_ACOES, attach: true })
     await flushPromises()
 
-    await wrapper.find('.rs-action-more').trigger('click')
-    expect(document.body.querySelector('.rs-action-menu')).not.toBeNull()
+    await wrapper.find('.rosium-action-more').trigger('click')
+    expect(document.body.querySelector('.rosium-action-menu')).not.toBeNull()
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
     await wrapper.vm.$nextTick()
 
-    expect(document.body.querySelector('.rs-action-menu')).toBeNull()
+    expect(document.body.querySelector('.rosium-action-menu')).toBeNull()
     wrapper.unmount()
   })
 
@@ -220,14 +220,14 @@ describe('Actions — múltiplas ações (menu ⋯)', () => {
     const { wrapper } = montarTabela({ actions: TRES_ACOES, attach: true })
     await flushPromises()
 
-    await wrapper.find('.rs-action-more').trigger('click')
+    await wrapper.find('.rosium-action-more').trigger('click')
     wrapper.unmount()
 
-    expect(document.body.querySelector('.rs-action-menu')).toBeNull()
+    expect(document.body.querySelector('.rosium-action-menu')).toBeNull()
   })
 
-  it('RsActions sem nenhuma action não renderiza nada', () => {
-    const wrapper = mount(RsActions, {
+  it('RosiumActions sem nenhuma action não renderiza nada', () => {
+    const wrapper = mount(RosiumActions, {
       props: { actions: [], row: {} },
     })
     expect(wrapper.find('button').exists()).toBe(false)
@@ -240,21 +240,21 @@ describe('Falhe Alto — modo dev (debug: true)', () => {
     { id: 2, nome: 'Guarana', preco: 4.5, status: 1 },
   ]
 
-  it('célula com erro ganha .rs-cell--error e .rs-cell--error-debug', async () => {
+  it('célula com erro ganha .rosium-cell--error e .rosium-cell--error-debug', async () => {
     const { wrapper } = montarTabela({ dados: DADOS_RUINS, debug: true })
     await flushPromises()
 
-    const celulasComErro = wrapper.findAll('.rs-cell--error')
+    const celulasComErro = wrapper.findAll('.rosium-cell--error')
     expect(celulasComErro).toHaveLength(1)
-    expect(celulasComErro[0]!.classes()).toContain('rs-cell--error-debug')
+    expect(celulasComErro[0]!.classes()).toContain('rosium-cell--error-debug')
   })
 
-  it('célula com erro expõe a localização exata via data-rs-error (tooltip)', async () => {
+  it('célula com erro expõe a localização exata via data-rosium-error (tooltip)', async () => {
     const { wrapper } = montarTabela({ dados: DADOS_RUINS, debug: true })
     await flushPromises()
 
-    const celula = wrapper.find('.rs-cell--error')
-    expect(celula.attributes('data-rs-error')).toBe(
+    const celula = wrapper.find('.rosium-cell--error')
+    expect(celula.attributes('data-rosium-error')).toBe(
       'Column `nome`, row 0, expected `text`, received `123`',
     )
   })
@@ -263,7 +263,7 @@ describe('Falhe Alto — modo dev (debug: true)', () => {
     const { wrapper } = montarTabela({ dados: DADOS_RUINS, debug: true })
     await flushPromises()
 
-    const banner = wrapper.find('.rs-error-banner')
+    const banner = wrapper.find('.rosium-error-banner')
     expect(banner.exists()).toBe(true)
     expect(banner.text()).toContain('Fail Loud: 1 invalid data')
     expect(banner.text()).toContain('Column `nome`, row 0, expected `text`, received `123`')
@@ -273,8 +273,8 @@ describe('Falhe Alto — modo dev (debug: true)', () => {
     const { wrapper } = montarTabela({ debug: true })
     await flushPromises()
 
-    expect(wrapper.find('.rs-error-banner').exists()).toBe(false)
-    expect(wrapper.find('.rs-cell--error').exists()).toBe(false)
+    expect(wrapper.find('.rosium-error-banner').exists()).toBe(false)
+    expect(wrapper.find('.rosium-cell--error').exists()).toBe(false)
   })
 
   it('errorMessage formata erro de célula e erro geral (sem coluna/linha)', () => {
@@ -297,23 +297,23 @@ describe('Falhe Alto — modo produção (debug: false)', () => {
     const { wrapper } = montarTabela({ dados: DADOS_RUINS, debug: false })
     await flushPromises()
 
-    const celula = wrapper.find('.rs-cell--error')
+    const celula = wrapper.find('.rosium-cell--error')
     expect(celula.exists()).toBe(true)
-    expect(celula.classes()).not.toContain('rs-cell--error-debug')
-    expect(celula.attributes('data-rs-error')).toBeUndefined()
-    expect(celula.find('.rs-cell-error-icon').text()).toBe('⚠')
+    expect(celula.classes()).not.toContain('rosium-cell--error-debug')
+    expect(celula.attributes('data-rosium-error')).toBeUndefined()
+    expect(celula.find('.rosium-cell-error-icon').text()).toBe('⚠')
   })
 
   it('não exibe banner e o resto da tabela continua funcionando', async () => {
     const { wrapper } = montarTabela({ dados: DADOS_RUINS, debug: false })
     await flushPromises()
 
-    expect(wrapper.find('.rs-error-banner').exists()).toBe(false)
+    expect(wrapper.find('.rosium-error-banner').exists()).toBe(false)
 
     const linhas = wrapper.findAll('tbody tr')
     expect(linhas).toHaveLength(2)
     expect(linhas[1]!.text()).toContain('Guarana')
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Total: 2 records')
+    expect(wrapper.find('.rosium-pagination-info').text()).toContain('Total: 2 records')
   })
 })
 
@@ -327,16 +327,16 @@ describe('Falhe Alto + Action na mesma linha', () => {
     const celulas = linha.findAll('td')
     expect(celulas).toHaveLength(4)
 
-    const celulaErro = linha.find('.rs-cell--error')
-    const celulaAcao = linha.find('.rs-cell-action')
+    const celulaErro = linha.find('.rosium-cell--error')
+    const celulaAcao = linha.find('.rosium-cell-action')
     expect(celulaErro.exists()).toBe(true)
     expect(celulaAcao.exists()).toBe(true)
     expect(celulaErro.element).not.toBe(celulaAcao.element)
-    expect(celulaAcao.classes()).not.toContain('rs-cell--error')
-    expect(celulaErro.find('.rs-action-btn').exists()).toBe(false)
+    expect(celulaAcao.classes()).not.toContain('rosium-cell--error')
+    expect(celulaErro.find('.rosium-action-btn').exists()).toBe(false)
 
-    await celulaAcao.find('.rs-action-btn').trigger('click')
-    const payload = wrapper.emitted('action')![0]![0] as RsActionEvent
+    await celulaAcao.find('.rosium-action-btn').trigger('click')
+    const payload = wrapper.emitted('action')![0]![0] as RosiumActionEvent
     expect(payload.key).toBe('editar')
     expect(payload.row.id!.raw).toBe(1)
   })
@@ -344,9 +344,9 @@ describe('Falhe Alto + Action na mesma linha', () => {
 
 describe('Preferências persistentes (localStorage)', () => {
   it('salva colunas visíveis, ordem e pageSize ao alterar o estado', async () => {
-    const table = new RsTable({ columns: criarColunas(), pageSize: 10 })
+    const table = new RosiumTable({ columns: criarColunas(), pageSize: 10 })
     table.useAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(table, { persistence: 'produtos' })
+    const ctx = useRosiumTable(table, { persistence: 'produtos' })
     await ctx.load()
 
     ctx.hideColumn('id')
@@ -363,7 +363,7 @@ describe('Preferências persistentes (localStorage)', () => {
       JSON.stringify({ visibleColumns: ['preco', 'nome'], pageSize: 2 }),
     )
 
-    const ctx = useRsTable(
+    const ctx = useRosiumTable(
       { columns: criarColunas(), adapter: new LocalAdapter(DADOS), pageSize: 10 },
       { persistence: 'produtos' },
     )
@@ -375,7 +375,7 @@ describe('Preferências persistentes (localStorage)', () => {
   })
 
   it('sem chave de persistência, nada é salvo (comportamento explícito)', async () => {
-    const ctx = useRsTable({
+    const ctx = useRosiumTable({
       columns: criarColunas(),
       adapter: new LocalAdapter(DADOS),
       pageSize: 10,
@@ -394,7 +394,7 @@ describe('Preferências persistentes (localStorage)', () => {
       'rosiumdata:fantasma',
       JSON.stringify({ visibleColumns: ['coluna_que_nao_existe'], pageSize: 5 }),
     )
-    const ctx = useRsTable(
+    const ctx = useRosiumTable(
       { columns: criarColunas(), adapter: new LocalAdapter(DADOS), pageSize: 10 },
       { persistence: 'fantasma' },
     )
@@ -403,8 +403,8 @@ describe('Preferências persistentes (localStorage)', () => {
     expect(ctx.columns.value.map((c) => c.key)).toEqual(['id', 'nome', 'preco', 'actions'])
   })
 
-  it('<RsTable> com prop persistence: menu Colunas salva e outra montagem restaura', async () => {
-    const wrapperA = mount(rosiumdataTable, {
+  it('<RosiumTable> com prop persistence: menu Colunas salva e outra montagem restaura', async () => {
+    const wrapperA = mount(RosiumDataTable, {
       props: {
         columns: criarColunas(),
         adapter: new LocalAdapter(DADOS),
@@ -414,15 +414,15 @@ describe('Preferências persistentes (localStorage)', () => {
     })
     await flushPromises()
 
-    const botao = wrapperA.findAll('.rs-btn').find((b) => b.text().includes('Columns'))!
+    const botao = wrapperA.findAll('.rosium-btn').find((b) => b.text().includes('Columns'))!
     await botao.trigger('click')
-    await wrapperA.findAll('.rs-menu-item')[0]!.find('input').trigger('change')
+    await wrapperA.findAll('.rosium-menu-item')[0]!.find('input').trigger('change')
 
     expect(wrapperA.findAll('th').map((th) => th.text())).not.toContain('id')
     expect(readPreferences('tela-produtos')!.visibleColumns).not.toContain('id')
     wrapperA.unmount()
 
-    const wrapperB = mount(rosiumdataTable, {
+    const wrapperB = mount(RosiumDataTable, {
       props: {
         columns: criarColunas(),
         adapter: new LocalAdapter(DADOS),
@@ -440,10 +440,10 @@ describe('Preferências persistentes (localStorage)', () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Columns'))!
+    const botao = wrapper.findAll('.rosium-btn').find((b) => b.text().includes('Columns'))!
     await botao.trigger('click')
 
-    const itens = wrapper.findAll('.rs-menu-item')
+    const itens = wrapper.findAll('.rosium-menu-item')
     expect(itens).toHaveLength(4)
 
     await itens[1]!.find('input').trigger('change')

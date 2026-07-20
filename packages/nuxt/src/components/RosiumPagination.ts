@@ -1,6 +1,6 @@
 import { defineComponent, h } from 'vue'
 import type { PropType, VNode } from 'vue'
-import type { UseRsTableContext } from '../composables/useRsTable'
+import type { UseRosiumTableContext } from '../composables/useRosiumTable'
 
 /**
  * Calculates which pages to display: first, last, and a window around
@@ -23,11 +23,11 @@ export function visiblePages(current: number, total: number): (number | '...')[]
   return pages
 }
 
-export const RsPagination = defineComponent({
-  name: 'RsPagination',
+export const RosiumPagination = defineComponent({
+  name: 'RosiumPagination',
   props: {
     contexto: {
-      type: Object as PropType<UseRsTableContext>,
+      type: Object as PropType<UseRosiumTableContext>,
       required: true,
     },
   },
@@ -42,7 +42,7 @@ export const RsPagination = defineComponent({
           'button',
           {
             type: 'button',
-            class: 'rs-page-btn rs-page-prev',
+            class: 'rosium-page-btn rs-page-prev',
             disabled: current <= 1,
             onClick: () => void goToPage(current - 1),
           },
@@ -52,14 +52,14 @@ export const RsPagination = defineComponent({
 
       for (const p of visiblePages(current, totalPgs)) {
         if (p === '...') {
-          buttons.push(h('span', { class: 'rs-page-ellipsis' }, '\u2026'))
+          buttons.push(h('span', { class: 'rosium-page-ellipsis' }, '\u2026'))
         } else {
           buttons.push(
             h(
               'button',
               {
                 type: 'button',
-                class: ['rs-page-btn', 'rs-page-number', { 'rs-page-current': p === current }],
+                class: ['rosium-page-btn', 'rosium-page-number', { 'rosium-page-current': p === current }],
                 disabled: p === current,
                 onClick: () => void goToPage(p),
               },
@@ -74,7 +74,7 @@ export const RsPagination = defineComponent({
           'button',
           {
             type: 'button',
-            class: 'rs-page-btn rs-page-next',
+            class: 'rosium-page-btn rs-page-next',
             disabled: current >= totalPgs,
             onClick: () => void goToPage(current + 1),
           },
@@ -82,11 +82,11 @@ export const RsPagination = defineComponent({
         ),
       )
 
-      return h('nav', { class: 'rs-pagination', 'aria-label': 'Pagination' }, [
-        h('div', { class: 'rs-pagination-buttons' }, buttons),
+      return h('nav', { class: 'rosium-pagination', 'aria-label': 'Pagination' }, [
+        h('div', { class: 'rosium-pagination-buttons' }, buttons),
         h(
           'span',
-          { class: 'rs-pagination-info' },
+          { class: 'rosium-pagination-info' },
           `Page ${current} of ${totalPgs} — Total: ${total.value} records`,
         ),
       ])
@@ -94,4 +94,4 @@ export const RsPagination = defineComponent({
   },
 })
 
-export default RsPagination
+export default RosiumPagination

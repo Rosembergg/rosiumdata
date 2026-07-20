@@ -23,7 +23,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
 ```vue
 <template>
-  <RsTable :columns="columns" :adapter="adapter" />
+  <RosiumTable :columns="columns" :adapter="adapter" />
 </template>
 
 <script setup>

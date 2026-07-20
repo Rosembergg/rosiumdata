@@ -2,12 +2,12 @@ import { defineComponent, h } from 'vue'
 import type { PropType, VNode } from 'vue'
 import type {
   ColumnDefinition,
-  RsActionEvent,
+  RosiumActionEvent,
   TransformedRow,
-  UseRsTableContext,
+  UseRosiumTableContext,
   ValidationError,
-} from '../composables/useRsTable'
-import { RsActions, columnActions } from './RsActions'
+} from '../composables/useRosiumTable'
+import { RosiumActions, columnActions } from './RosiumActions'
 
 /**
  * Row key for Vue DOM element tracking.
@@ -38,17 +38,17 @@ export function errorMessage(err: ValidationError): string {
   return `Column \`${err.column}\`, row ${err.rowIndex}, expected \`${err.expected}\`, received \`${received}\``
 }
 
-export const RsTbody = defineComponent({
-  name: 'RsTbody',
+export const RosiumTbody = defineComponent({
+  name: 'RosiumTbody',
   props: {
     contexto: {
-      type: Object as PropType<UseRsTableContext>,
+      type: Object as PropType<UseRosiumTableContext>,
       required: true,
     },
     /**
      * Falhe Alto: true = modo dev (grita: fundo vermelho, borda, tooltip com
      * localização exata); false = modo produção (ícone ⚠ sutil, sem detalhes
-     * internos). O rosiumdataTable resolve o padrão via import.meta.env.DEV.
+     * internos). O RosiumDataTable resolve o padrão via import.meta.env.DEV.
      */
     debug: {
       type: Boolean,
@@ -56,7 +56,7 @@ export const RsTbody = defineComponent({
     },
   },
   emits: {
-    action: (payload: RsActionEvent) => payload !== undefined,
+    action: (payload: RosiumActionEvent) => payload !== undefined,
   },
   setup(props, { emit }) {
     /**
@@ -68,7 +68,7 @@ export const RsTbody = defineComponent({
     function cell(col: ColumnDefinition, row: TransformedRow): VNode | string {
       const display = row[col.key]?.display ?? ''
       if (col.type === 'select' && display !== '') {
-        return h('span', { class: 'rs-badge', 'data-rs-badge': display }, display)
+        return h('span', { class: 'rosium-badge', 'data-rosium-badge': display }, display)
       }
       return display
     }
@@ -78,10 +78,10 @@ export const RsTbody = defineComponent({
      * ({ key, row }) to the context and parent. Never executes logic.
      */
     function actionCell(col: ColumnDefinition, row: TransformedRow): VNode {
-      return h(RsActions, {
+      return h(RosiumActions, {
         actions: columnActions(col),
         row,
-        onAction: (payload: RsActionEvent) => {
+        onAction: (payload: RosiumActionEvent) => {
           props.contexto.emitAction(payload)
           emit('action', payload)
         },
@@ -106,24 +106,24 @@ export const RsTbody = defineComponent({
         )
         return h(
           'tbody',
-          { class: 'rs-tbody', 'aria-busy': 'true' },
+          { class: 'rosium-tbody', 'aria-busy': 'true' },
           Array.from({ length: numRows }, (_, i) =>
             h(
               'tr',
-              { key: `skeleton-${i}`, class: 'rs-row rs-loading' },
+              { key: `skeleton-${i}`, class: 'rosium-row rosium-loading' },
               columns.value.length > 0
                 ? columns.value.map((col, c) =>
-                    h('td', { key: col.key, class: 'rs-cell' }, [
-                      h('span', { class: 'rs-skeleton' }),
+                    h('td', { key: col.key, class: 'rosium-cell' }, [
+                      h('span', { class: 'rosium-skeleton' }),
                       i === 0 && c === 0
-                        ? h('span', { class: 'rs-sr-only' }, 'Loading...')
+                        ? h('span', { class: 'rosium-sr-only' }, 'Loading...')
                         : null,
                     ]),
                   )
                 : [
-                    h('td', { class: 'rs-cell', colspan: numCols }, [
-                      h('span', { class: 'rs-skeleton' }),
-                      i === 0 ? h('span', { class: 'rs-sr-only' }, 'Loading...') : null,
+                    h('td', { class: 'rosium-cell', colspan: numCols }, [
+                      h('span', { class: 'rosium-skeleton' }),
+                      i === 0 ? h('span', { class: 'rosium-sr-only' }, 'Loading...') : null,
                     ]),
                   ],
             ),
@@ -132,14 +132,14 @@ export const RsTbody = defineComponent({
       }
 
       if (rows.value.length === 0) {
-        return h('tbody', { class: 'rs-tbody' }, [
-          h('tr', { class: 'rs-row rs-empty' }, [
-            h('td', { class: 'rs-cell', colspan: numCols }, [
-              h('div', { class: 'rs-empty-icon', 'aria-hidden': 'true' }),
-              h('div', { class: 'rs-empty-title' }, 'No records found'),
+        return h('tbody', { class: 'rosium-tbody' }, [
+          h('tr', { class: 'rosium-row rosium-empty' }, [
+            h('td', { class: 'rosium-cell', colspan: numCols }, [
+              h('div', { class: 'rosium-empty-icon', 'aria-hidden': 'true' }),
+              h('div', { class: 'rosium-empty-title' }, 'No records found'),
               h(
                 'div',
-                { class: 'rs-empty-desc' },
+                { class: 'rosium-empty-desc' },
                 'Try adjusting filters or clearing search.',
               ),
             ]),
@@ -149,18 +149,18 @@ export const RsTbody = defineComponent({
 
       return h(
         'tbody',
-        { class: 'rs-tbody' },
+        { class: 'rosium-tbody' },
         rows.value.map((row, index) =>
           h(
             'tr',
-            { key: rowKey(row, index), class: 'rs-row' },
+            { key: rowKey(row, index), class: 'rosium-row' },
             columns.value.map((col) => {
               if (col.type === 'action') {
                 return h(
                   'td',
                   {
                     key: col.key,
-                    class: ['rs-cell', 'rs-cell-action', `rs-align-${props.contexto.alignment(col)}`],
+                    class: ['rosium-cell', 'rosium-cell-action', `rosium-align-${props.contexto.alignment(col)}`],
                   },
                   [actionCell(col, row)],
                 )
@@ -172,22 +172,22 @@ export const RsTbody = defineComponent({
                 {
                   key: col.key,
                   class: [
-                    'rs-cell',
-                    `rs-align-${props.contexto.alignment(col)}`,
+                    'rosium-cell',
+                    `rosium-align-${props.contexto.alignment(col)}`,
                     {
-                      'rs-cell--error': err !== undefined,
-                      'rs-cell--error-debug': err !== undefined && props.debug,
+                      'rosium-cell--error': err !== undefined,
+                      'rosium-cell--error-debug': err !== undefined && props.debug,
                     },
                   ],
                   /* Error details only in debug mode — production does not expose internals */
-                  'data-rs-error': err && props.debug ? errorMessage(err) : undefined,
+                  'data-rosium-error': err && props.debug ? errorMessage(err) : undefined,
                 },
                 [
                   err
                     ? h(
                         'span',
                         {
-                          class: 'rs-cell-error-icon',
+                          class: 'rosium-cell-error-icon',
                           role: 'img',
                           'aria-label': 'Invalid data',
                         },
@@ -205,4 +205,4 @@ export const RsTbody = defineComponent({
   },
 })
 
-export default RsTbody
+export default RosiumTbody

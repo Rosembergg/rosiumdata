@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { RsTable, column } from '@rosiumdata/core'
+import { RosiumTable, column } from '@rosiumdata/core'
 import type { DataAdapter, ColumnDefinition, Filter, FetchResult, Row, Query } from '@rosiumdata/core'
 
 function criarMockAdapter(dados: Row[]): DataAdapter {
@@ -32,30 +32,30 @@ const dadosMock = [
   { id: 3, nome: 'Servico C', preco: 99.9, ativo: true, criadoEm: new Date('2024-06-01'), status: 1 },
 ]
 
-describe('RsTable — instancia viva com estado', () => {
+describe('RosiumTable — instancia viva com estado', () => {
   it('deve ser instanciavel', () => {
-    const tabela = new RsTable({ columns: colunas })
-    expect(tabela).toBeInstanceOf(RsTable)
+    const tabela = new RosiumTable({ columns: colunas })
+    expect(tabela).toBeInstanceOf(RosiumTable)
   })
 
   it('deve aceitar pageSize customizado', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas, pageSize: 10 })
+    const tabela = new RosiumTable({ columns: colunas, pageSize: 10 })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
     expect(tabela.getState().pageSize).toBe(10)
   })
 })
 
-describe('RsTable — getLinhas() e transformacao de dados', () => {
+describe('RosiumTable — getLinhas() e transformacao de dados', () => {
   it('deve retornar array vazio antes de carregar dados', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     expect(tabela.getRows()).toEqual([])
   })
 
   it('deve retornar dados transformados apos fetch', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -74,7 +74,7 @@ describe('RsTable — getLinhas() e transformacao de dados', () => {
 
   it('deve mapear selecao para valor de exibicao', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -89,7 +89,7 @@ describe('RsTable — getLinhas() e transformacao de dados', () => {
       column('nome', { type: 'text', transform: (v) => 'Transformado: ' + String(v) }),
     ]
     const adapter = criarMockAdapter([{ nome: 'Original' }])
-    const tabela = new RsTable({ columns: colunasComTransform })
+    const tabela = new RosiumTable({ columns: colunasComTransform })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -100,7 +100,7 @@ describe('RsTable — getLinhas() e transformacao de dados', () => {
 
   it('cada celula deve ter raw e display', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -114,15 +114,15 @@ describe('RsTable — getLinhas() e transformacao de dados', () => {
   })
 })
 
-describe('RsTable — getTotal()', () => {
+describe('RosiumTable — getTotal()', () => {
   it('deve retornar 0 antes de carregar dados', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     expect(tabela.getTotal()).toBe(0)
   })
 
   it('deve retornar total apos fetch', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -130,10 +130,10 @@ describe('RsTable — getTotal()', () => {
   })
 })
 
-describe('RsTable — getEstado()', () => {
+describe('RosiumTable — getEstado()', () => {
   it('deve retornar snapshot completo do estado', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas, pageSize: 20 })
+    const tabela = new RosiumTable({ columns: colunas, pageSize: 20 })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -150,10 +150,10 @@ describe('RsTable — getEstado()', () => {
   })
 })
 
-describe('RsTable — sistema de eventos', () => {
+describe('RosiumTable — sistema de eventos', () => {
   it('deve emitir dados:carregados apos fetch', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -167,7 +167,7 @@ describe('RsTable — sistema de eventos', () => {
 
   it('deve emitir estado:alterado apos fetch', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -181,7 +181,7 @@ describe('RsTable — sistema de eventos', () => {
   })
 
   it('deve emitir estado:alterado ao esconder coluna', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
 
     const handler = vi.fn()
     tabela.on('state:changed', handler)
@@ -191,7 +191,7 @@ describe('RsTable — sistema de eventos', () => {
   })
 
   it('deve emitir estado:alterado ao mostrar coluna', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.hideColumn('id')
 
     const handler = vi.fn()
@@ -202,7 +202,7 @@ describe('RsTable — sistema de eventos', () => {
   })
 
   it('deve emitir estado:alterado ao reordenar colunas', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
 
     const handler = vi.fn()
     tabela.on('state:changed', handler)
@@ -212,7 +212,7 @@ describe('RsTable — sistema de eventos', () => {
   })
 
   it('deve emitir erro quando adapter nao configurado', async () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
 
     const handler = vi.fn()
     tabela.on('error', handler)
@@ -225,7 +225,7 @@ describe('RsTable — sistema de eventos', () => {
   })
 })
 
-describe('RsTable — Falhe Alto integrado', () => {
+describe('RosiumTable — Falhe Alto integrado', () => {
   it('deve emitir evento erro para dados invalidos', async () => {
     const dadosInvalidos = [
       { nome: 'OK', preco: 'nao-e-numero' },
@@ -235,7 +235,7 @@ describe('RsTable — Falhe Alto integrado', () => {
       column('preco', { type: 'number' }),
     ]
     const adapter = criarMockAdapter(dadosInvalidos)
-    const tabela = new RsTable({ columns: colunasValidacao })
+    const tabela = new RosiumTable({ columns: colunasValidacao })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -264,7 +264,7 @@ describe('RsTable — Falhe Alto integrado', () => {
       column('preco', { type: 'number' }),
     ]
     const adapter = criarMockAdapter(dadosValidos)
-    const tabela = new RsTable({ columns: colunasValidacao })
+    const tabela = new RosiumTable({ columns: colunasValidacao })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -276,9 +276,9 @@ describe('RsTable — Falhe Alto integrado', () => {
   })
 })
 
-describe('RsTable — gerenciamento de colunas', () => {
+describe('RosiumTable — gerenciamento de colunas', () => {
   it('deve esconder coluna', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.hideColumn('id')
 
     const estado = tabela.getState()
@@ -287,7 +287,7 @@ describe('RsTable — gerenciamento de colunas', () => {
   })
 
   it('deve mostrar coluna', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.hideColumn('id')
     tabela.showColumn('id')
 
@@ -296,7 +296,7 @@ describe('RsTable — gerenciamento de colunas', () => {
   })
 
   it('deve reordenar colunas preservando nao-listadas', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.reorderColumns(['nome', 'preco', 'id'])
 
     const estado = tabela.getState()
@@ -311,7 +311,7 @@ describe('RsTable — gerenciamento de colunas', () => {
   })
 
   it('deve preservar colunas visiveis nao listadas na reordenacao', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.reorderColumns(['nome', 'preco'])
 
     const estado = tabela.getState()
@@ -321,7 +321,7 @@ describe('RsTable — gerenciamento de colunas', () => {
   })
 
   it('deve ignorar chaves inexistentes e preservar resto', () => {
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.reorderColumns(['nome', 'chave-inexistente', 'preco'])
 
     const estado = tabela.getState()
@@ -336,7 +336,7 @@ describe('RsTable — gerenciamento de colunas', () => {
       column('nome', { type: 'text' }),
       column('id', { type: 'number', visible: false }),
     ]
-    const tabela = new RsTable({ columns: colunasComInvisivel })
+    const tabela = new RosiumTable({ columns: colunasComInvisivel })
 
     const estado = tabela.getState()
     expect(estado.visibleColumns).toEqual(['nome'])
@@ -344,10 +344,10 @@ describe('RsTable — gerenciamento de colunas', () => {
   })
 })
 
-describe('RsTable — filtros (API .filtrar)', () => {
+describe('RosiumTable — filtros (API .filtrar)', () => {
   it('deve adicionar filtro e resetar pagina para 1', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.goToPage(1)
@@ -366,7 +366,7 @@ describe('RsTable — filtros (API .filtrar)', () => {
 
   it('deve substituir filtro existente para mesma coluna', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'nome', operator: 'contains', value: 'Produto' })
@@ -383,7 +383,7 @@ describe('RsTable — filtros (API .filtrar)', () => {
 
   it('deve acumular multiplos filtros em AND', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'nome', operator: 'contains', value: 'Produto' })
@@ -399,7 +399,7 @@ describe('RsTable — filtros (API .filtrar)', () => {
 
   it('deve remover filtro com valor vazio', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.filter({ column: 'nome', operator: 'contains', value: 'Produto' })
@@ -414,10 +414,10 @@ describe('RsTable — filtros (API .filtrar)', () => {
   })
 })
 
-describe('RsTable — ordenacao (API .ordenar)', () => {
+describe('RosiumTable — ordenacao (API .ordenar)', () => {
   it('deve configurar ordenacao e resetar pagina', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     const fetchSpy = vi.spyOn(adapter, 'fetch')
@@ -430,7 +430,7 @@ describe('RsTable — ordenacao (API .ordenar)', () => {
 
   it('deve alternar entre asc e desc', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     await tabela.sort('nome', 'asc')
@@ -443,10 +443,10 @@ describe('RsTable — ordenacao (API .ordenar)', () => {
   })
 })
 
-describe('RsTable — paginacao (API .irParaPagina)', () => {
+describe('RosiumTable — paginacao (API .irParaPagina)', () => {
   it('deve navegar para pagina especifica', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas, pageSize: 1 })
+    const tabela = new RosiumTable({ columns: colunas, pageSize: 1 })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -460,7 +460,7 @@ describe('RsTable — paginacao (API .irParaPagina)', () => {
 
   it('deve limitar pagina ao maximo disponivel', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas, pageSize: 1 })
+    const tabela = new RosiumTable({ columns: colunas, pageSize: 1 })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -473,7 +473,7 @@ describe('RsTable — paginacao (API .irParaPagina)', () => {
 
   it('deve limitar pagina ao minimo 1', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -485,10 +485,10 @@ describe('RsTable — paginacao (API .irParaPagina)', () => {
   })
 })
 
-describe('RsTable — casos de borda', () => {
+describe('RosiumTable — casos de borda', () => {
   it('tabela vazia — deve funcionar sem dados', async () => {
     const adapter = criarMockAdapter([])
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -498,7 +498,7 @@ describe('RsTable — casos de borda', () => {
 
   it('deve emitir dados:carregados mesmo com resultado vazio', async () => {
     const adapter = criarMockAdapter([])
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -512,7 +512,7 @@ describe('RsTable — casos de borda', () => {
 
   it('deve permitir off para remover listener', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
 
     const handler = vi.fn()
@@ -525,7 +525,7 @@ describe('RsTable — casos de borda', () => {
 
   it('estado do getEstado() deve ser imutavel (snapshot)', async () => {
     const adapter = criarMockAdapter(dadosMock)
-    const tabela = new RsTable({ columns: colunas })
+    const tabela = new RosiumTable({ columns: colunas })
     tabela.useAdapter(adapter)
     await tabela.goToPage(1)
 
@@ -538,20 +538,20 @@ describe('RsTable — casos de borda', () => {
   })
 })
 
-describe('RsTable — locale', () => {
+describe('RosiumTable — locale', () => {
   it('default locale is pt-BR', () => {
-    const tabela = new RsTable({ columns: [column('x', { type: 'number' })] })
+    const tabela = new RosiumTable({ columns: [column('x', { type: 'number' })] })
     expect(tabela.getState().locale).toBe('pt-BR')
   })
 
   it('custom locale is stored and exposed', () => {
-    const tabela = new RsTable({ columns: [column('x', { type: 'number' })], locale: 'en-US' })
+    const tabela = new RosiumTable({ columns: [column('x', { type: 'number' })], locale: 'en-US' })
     expect(tabela.getState().locale).toBe('en-US')
   })
 
   it('formats numbers in pt-BR by default', async () => {
     const adapter = criarMockAdapter([{ preco: 1500.5 }])
-    const tabela = new RsTable({
+    const tabela = new RosiumTable({
       columns: [column('preco', { type: 'number' })],
     })
     tabela.useAdapter(adapter)
@@ -563,7 +563,7 @@ describe('RsTable — locale', () => {
 
   it('formats numbers in en-US when configured', async () => {
     const adapter = criarMockAdapter([{ preco: 1500.5 }])
-    const tabela = new RsTable({
+    const tabela = new RosiumTable({
       columns: [column('preco', { type: 'number' })],
       locale: 'en-US',
     })
@@ -576,7 +576,7 @@ describe('RsTable — locale', () => {
 
   it('formats numbers in de-DE when configured', async () => {
     const adapter = criarMockAdapter([{ preco: 1500.5 }])
-    const tabela = new RsTable({
+    const tabela = new RosiumTable({
       columns: [column('preco', { type: 'number' })],
       locale: 'de-DE',
     })
@@ -589,7 +589,7 @@ describe('RsTable — locale', () => {
 
   it('column locale overrides table locale', async () => {
     const adapter = criarMockAdapter([{ preco: 1500.5 }])
-    const tabela = new RsTable({
+    const tabela = new RosiumTable({
       columns: [column('preco', { type: 'number', locale: 'en-US' })],
       locale: 'pt-BR',
     })
@@ -602,7 +602,7 @@ describe('RsTable — locale', () => {
 
   it('formats dates in pt-BR by default', async () => {
     const adapter = criarMockAdapter([{ data: new Date(2024, 11, 25) }])
-    const tabela = new RsTable({
+    const tabela = new RosiumTable({
       columns: [column('data', { type: 'date' })],
     })
     tabela.useAdapter(adapter)
@@ -614,7 +614,7 @@ describe('RsTable — locale', () => {
 
   it('formats dates in en-US when configured', async () => {
     const adapter = criarMockAdapter([{ data: new Date(2024, 11, 25) }])
-    const tabela = new RsTable({
+    const tabela = new RosiumTable({
       columns: [column('data', { type: 'date' })],
       locale: 'en-US',
     })

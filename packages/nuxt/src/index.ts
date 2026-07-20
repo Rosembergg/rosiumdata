@@ -1,59 +1,59 @@
 import type { App, Plugin } from 'vue'
-import { rosiumdataTable } from './components/rosiumdataTable'
-import { RsThead } from './components/RsThead'
-import { RsTbody } from './components/RsTbody'
-import { RsActions } from './components/RsActions'
-import { RsPagination } from './components/RsPagination'
-import { RsFilters } from './components/RsFilters'
+import { RosiumDataTable } from './components/RosiumDataTable'
+import { RosiumThead } from './components/RosiumThead'
+import { RosiumTbody } from './components/RosiumTbody'
+import { RosiumActions } from './components/RosiumActions'
+import { RosiumPagination } from './components/RosiumPagination'
+import { RosiumFilters } from './components/RosiumFilters'
 
 export { VERSION, NAME } from './meta'
 
-export { useRsTable, actionColumn, readPreferences, savePreferences } from './composables/useRsTable'
+export { useRosiumTable, actionColumn, readPreferences, savePreferences } from './composables/useRosiumTable'
 export type {
-  UseRsTableContext,
-  UseRsTableOptions,
-  UseRsTableExtras,
-  RsActionDefinition,
+  UseRosiumTableContext,
+  UseRosiumTableOptions,
+  UseRosiumTableExtras,
+  RosiumActionDefinition,
   ActionDefinition,
-  RsActionEvent,
-  RsPreferences,
+  RosiumActionEvent,
+  RosiumPreferences,
   ColumnAlignment,
   ColumnDefinition,
   DataAdapter,
   Filter,
-  RsTableState,
+  RosiumTableState,
   SortDirection,
   TransformedRow,
   ValidationError,
-} from './composables/useRsTable'
+} from './composables/useRosiumTable'
 
-export { rosiumdataTable, RsThead, RsTbody, RsActions, RsPagination, RsFilters }
-export { columnActions } from './components/RsActions'
-export { errorMessage } from './components/RsTbody'
-export { isDevEnvironment } from './components/rosiumdataTable'
+export { RosiumDataTable, RosiumThead, RosiumTbody, RosiumActions, RosiumPagination, RosiumFilters }
+export { columnActions } from './components/RosiumActions'
+export { errorMessage } from './components/RosiumTbody'
+export { isDevEnvironment } from './components/RosiumDataTable'
 
 export { THEME_DEFAULT_CSS } from './theme'
 
 /**
  * Plugin Vue/Nuxt: registra os componentes globalmente.
  *
- * Vue:  app.use(rosiumdata)
+ * Vue:  app.use(RosiumData)
  * Nuxt: defineNuxtPlugin((nuxtApp) => { nuxtApp.vueApp.use(rosiumdata) })
  *
- * O componente principal exporta-se como rosiumdataTable (evita colisão com a
- * classe RsTable do Core em imports), mas o nome público no template
- * permanece <RsTable>.
+ * O componente principal exporta-se como RosiumDataTable (evita colisão com a
+ * classe RosiumTable do Core em imports), mas o nome público no template
+ * permanece <RosiumTable>.
  *
  * O theme é opcional e importado separadamente:
  * import '@rosiumdata/nuxt/theme/default.css'
  */
-export const rosiumdata: Plugin = {
+export const RosiumData: Plugin = {
   install(app: App) {
-    app.component('RsTable', rosiumdataTable)
-    app.component('RsThead', RsThead)
-    app.component('RsTbody', RsTbody)
-    app.component('RsActions', RsActions)
-    app.component('RsPagination', RsPagination)
-    app.component('RsFilters', RsFilters)
+    app.component('RosiumTable', RosiumDataTable)
+    app.component('RosiumThead', RosiumThead)
+    app.component('RosiumTbody', RosiumTbody)
+    app.component('RosiumActions', RosiumActions)
+    app.component('RosiumPagination', RosiumPagination)
+    app.component('RosiumFilters', RosiumFilters)
   },
 }

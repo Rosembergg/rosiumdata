@@ -1,19 +1,19 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { RsTable, LocalAdapter, column } from '@rosiumdata/core'
+import { RosiumTable, LocalAdapter, column } from '@rosiumdata/core'
 import type { DataAdapter, Row } from '@rosiumdata/core'
 import {
-  rosiumdataTable,
-  RsThead,
-  RsTbody,
-  RsPagination,
-  RsFilters,
-  useRsTable,
-  rosiumdata,
+  RosiumDataTable,
+  RosiumThead,
+  RosiumTbody,
+  RosiumPagination,
+  RosiumFilters,
+  useRosiumTable,
+  RosiumData,
 } from '@rosiumdata/nuxt'
-import { visiblePages } from '../src/components/RsPagination'
-import { convertOptionKey, FILTER_DEBOUNCE_MS } from '../src/components/RsFilters'
+import { visiblePages } from '../src/components/RosiumPagination'
+import { convertOptionKey, FILTER_DEBOUNCE_MS } from '../src/components/RosiumFilters'
 import { createApp, defineComponent, h } from 'vue'
 
 const DADOS: Row[] = [
@@ -35,9 +35,9 @@ function criarColunas() {
 }
 
 function montarTabela(dados: Row[] = DADOS, pageSize = 2) {
-  const table = new RsTable({ columns: criarColunas(), pageSize })
+  const table = new RosiumTable({ columns: criarColunas(), pageSize })
   table.useAdapter(new LocalAdapter(dados))
-  const wrapper = mount(rosiumdataTable, { props: { table } })
+  const wrapper = mount(RosiumDataTable, { props: { table } })
   return { table, wrapper }
 }
 
@@ -45,16 +45,16 @@ function aguardarDebounce(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, FILTER_DEBOUNCE_MS + 20))
 }
 
-describe('<RsTable> — renderização', () => {
+describe('<RosiumTable> — renderização', () => {
   it('renderiza estrutura semântica: table, thead, tbody', async () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    expect(wrapper.find('table.rs-table').exists()).toBe(true)
-    expect(wrapper.find('thead.rs-thead').exists()).toBe(true)
-    expect(wrapper.find('tbody.rs-tbody').exists()).toBe(true)
-    expect(wrapper.find('.rs-pagination').exists()).toBe(true)
-    expect(wrapper.find('.rs-filters').exists()).toBe(true)
+    expect(wrapper.find('table.rosium-table').exists()).toBe(true)
+    expect(wrapper.find('thead.rosium-thead').exists()).toBe(true)
+    expect(wrapper.find('tbody.rosium-tbody').exists()).toBe(true)
+    expect(wrapper.find('.rosium-pagination').exists()).toBe(true)
+    expect(wrapper.find('.rosium-filters').exists()).toBe(true)
   })
 
   it('renderiza os dados da primeira página após o mount', async () => {
@@ -79,7 +79,7 @@ describe('<RsTable> — renderização', () => {
   })
 
   it('funciona no modo rápido (columns + adapter)', async () => {
-    const wrapper = mount(rosiumdataTable, {
+    const wrapper = mount(RosiumDataTable, {
       props: {
         columns: criarColunas(),
         adapter: new LocalAdapter(DADOS),
@@ -92,14 +92,14 @@ describe('<RsTable> — renderização', () => {
   })
 
   it('lança erro explícito sem tabela nem columns+adapter', () => {
-    expect(() => mount(rosiumdataTable)).toThrow(/table/)
+    expect(() => mount(RosiumDataTable)).toThrow(/table/)
   })
 
   it('respeita colunas escondidas', async () => {
-    const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
+    const table = new RosiumTable({ columns: criarColunas(), pageSize: 2 })
     table.useAdapter(new LocalAdapter(DADOS))
     table.hideColumn('id')
-    const wrapper = mount(rosiumdataTable, { props: { table } })
+    const wrapper = mount(RosiumDataTable, { props: { table } })
     await flushPromises()
 
     const headers = wrapper.findAll('th').map((th) => th.text())
@@ -108,7 +108,7 @@ describe('<RsTable> — renderização', () => {
   })
 })
 
-describe('<RsThead> — cabeçalho clicável', () => {
+describe('<RosiumThead> — cabeçalho clicável', () => {
   it('clique ordena asc e o Core reordena os dados', async () => {
     const { wrapper } = montarTabela(DADOS, 10)
     await flushPromises()
@@ -119,8 +119,8 @@ describe('<RsThead> — cabeçalho clicável', () => {
 
     const primeiraLinha = wrapper.findAll('tbody tr')[0]!
     expect(primeiraLinha.text()).toContain('Agua')
-    expect(thPreco.classes()).toContain('rs-sorted-asc')
-    expect(thPreco.find('.rs-sort-indicator').text()).toContain('▴')
+    expect(thPreco.classes()).toContain('rosium-sorted-asc')
+    expect(thPreco.find('.rosium-sort-indicator').text()).toContain('▴')
   })
 
   it('segundo clique inverte para desc', async () => {
@@ -134,8 +134,8 @@ describe('<RsThead> — cabeçalho clicável', () => {
     await flushPromises()
 
     expect(wrapper.findAll('tbody tr')[0]!.text()).toContain('Cerveja')
-    expect(thPreco.classes()).toContain('rs-sorted-desc')
-    expect(thPreco.find('.rs-sort-indicator').text()).toContain('▾')
+    expect(thPreco.classes()).toContain('rosium-sorted-desc')
+    expect(thPreco.find('.rosium-sort-indicator').text()).toContain('▾')
   })
 
   it('coluna com sortable: false não ordena', async () => {
@@ -143,24 +143,24 @@ describe('<RsThead> — cabeçalho clicável', () => {
       column('id', { type: 'number' }),
       column('nome', { type: 'text', sortable: false }),
     ]
-    const table = new RsTable({ columns: colunas, pageSize: 10 })
+    const table = new RosiumTable({ columns: colunas, pageSize: 10 })
     table.useAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(table)
-    const wrapper = mount(RsThead, { props: { contexto: ctx } })
+    const ctx = useRosiumTable(table)
+    const wrapper = mount(RosiumThead, { props: { contexto: ctx } })
 
     const thNome = wrapper.findAll('th')[1]!
-    expect(thNome.classes()).not.toContain('rs-sortable')
+    expect(thNome.classes()).not.toContain('rosium-sortable')
     await thNome.trigger('click')
     expect(ctx.sortState.value).toBeUndefined()
   })
 })
 
-describe('<RsTbody> — estados', () => {
+describe('<RosiumTbody> — estados', () => {
   it('mostra "Nenhum registro" quando não há linhas', async () => {
     const { wrapper } = montarTabela([])
     await flushPromises()
 
-    const vazio = wrapper.find('tr.rs-empty')
+    const vazio = wrapper.find('tr.rosium-empty')
     expect(vazio.exists()).toBe(true)
     expect(vazio.text()).toContain('No records')
   })
@@ -171,29 +171,29 @@ describe('<RsTbody> — estados', () => {
       fetch: () => new Promise((resolve) => { resolver = resolve }),
       fetchAll: async () => [],
     }
-    const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
+    const table = new RosiumTable({ columns: criarColunas(), pageSize: 2 })
     table.useAdapter(adapterLento)
-    const wrapper = mount(rosiumdataTable, { props: { table } })
+    const wrapper = mount(RosiumDataTable, { props: { table } })
     await wrapper.vm.$nextTick()
 
-    const loading = wrapper.find('tr.rs-loading')
+    const loading = wrapper.find('tr.rosium-loading')
     expect(loading.exists()).toBe(true)
     expect(loading.text()).toContain('Loading...')
 
     resolver({ rows: DADOS.slice(0, 2), total: 5 })
     await flushPromises()
 
-    expect(wrapper.find('tr.rs-loading').exists()).toBe(false)
+    expect(wrapper.find('tr.rosium-loading').exists()).toBe(false)
     expect(wrapper.findAll('tbody tr')).toHaveLength(2)
   })
 })
 
-describe('<RsPagination> — navegação', () => {
+describe('<RosiumPagination> — navegação', () => {
   it('mostra resumo "Página X de Y — Total: N registros"', async () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    expect(wrapper.find('.rs-pagination-info').text()).toBe(
+    expect(wrapper.find('.rosium-pagination-info').text()).toBe(
       'Page 1 of 3 — Total: 5 records',
     )
   })
@@ -202,24 +202,24 @@ describe('<RsPagination> — navegação', () => {
     const { wrapper, table } = montarTabela()
     await flushPromises()
 
-    expect(wrapper.find('.rs-page-prev').attributes('disabled')).toBeDefined()
-    expect(wrapper.find('.rs-page-next').attributes('disabled')).toBeUndefined()
+    expect(wrapper.find('.rosium-page-prev').attributes('disabled')).toBeDefined()
+    expect(wrapper.find('.rosium-page-next').attributes('disabled')).toBeUndefined()
 
     await table.goToPage(3)
     await flushPromises()
 
-    expect(wrapper.find('.rs-page-prev').attributes('disabled')).toBeUndefined()
-    expect(wrapper.find('.rs-page-next').attributes('disabled')).toBeDefined()
+    expect(wrapper.find('.rosium-page-prev').attributes('disabled')).toBeUndefined()
+    expect(wrapper.find('.rosium-page-next').attributes('disabled')).toBeDefined()
   })
 
   it('clique em Próximo navega para a página seguinte', async () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    await wrapper.find('.rs-page-next').trigger('click')
+    await wrapper.find('.rosium-page-next').trigger('click')
     await flushPromises()
 
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Page 2 of 3')
+    expect(wrapper.find('.rosium-pagination-info').text()).toContain('Page 2 of 3')
     expect(wrapper.findAll('tbody tr')[0]!.text()).toContain('Agua')
   })
 
@@ -228,12 +228,12 @@ describe('<RsPagination> — navegação', () => {
     await flushPromises()
 
     const botao3 = wrapper
-      .findAll('.rs-page-number')
+      .findAll('.rosium-page-number')
       .find((b) => b.text() === '3')!
     await botao3.trigger('click')
     await flushPromises()
 
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Page 3 of 3')
+    expect(wrapper.find('.rosium-pagination-info').text()).toContain('Page 3 of 3')
     expect(wrapper.findAll('tbody tr')[0]!.text()).toContain('Cerveja')
   })
 
@@ -246,16 +246,16 @@ describe('<RsPagination> — navegação', () => {
   })
 })
 
-describe('<RsFilters> — filtros por tipo', () => {
+describe('<RosiumFilters> — filtros por tipo', () => {
   it('renderiza o campo certo para cada tipo de coluna', async () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    const filtros = wrapper.find('.rs-filters')
-    expect(filtros.find('.rs-filter-text input[type="text"]').exists()).toBe(true)
-    expect(filtros.findAll('.rs-filter-number input[type="number"]').length).toBe(4)
-    expect(filtros.find('.rs-filter-select select').exists()).toBe(true)
-    expect(filtros.find('.rs-filter-boolean select').exists()).toBe(true)
+    const filtros = wrapper.find('.rosium-filters')
+    expect(filtros.find('.rosium-filter-text input[type="text"]').exists()).toBe(true)
+    expect(filtros.findAll('.rosium-filter-number input[type="number"]').length).toBe(4)
+    expect(filtros.find('.rosium-filter-select select').exists()).toBe(true)
+    expect(filtros.find('.rosium-filter-boolean select').exists()).toBe(true)
   })
 
   it('não renderiza filtro para coluna filterable: false', async () => {
@@ -263,20 +263,20 @@ describe('<RsFilters> — filtros por tipo', () => {
       column('id', { type: 'number', filterable: false }),
       column('nome', { type: 'text' }),
     ]
-    const table = new RsTable({ columns: colunas, pageSize: 10 })
+    const table = new RosiumTable({ columns: colunas, pageSize: 10 })
     table.useAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(table)
-    const wrapper = mount(RsFilters, { props: { contexto: ctx } })
+    const ctx = useRosiumTable(table)
+    const wrapper = mount(RosiumFilters, { props: { contexto: ctx } })
 
-    expect(wrapper.findAll('.rs-filter')).toHaveLength(1)
-    expect(wrapper.find('.rs-filter-label').text()).toBe('nome')
+    expect(wrapper.findAll('.rosium-filter')).toHaveLength(1)
+    expect(wrapper.find('.rosium-filter-label').text()).toBe('nome')
   })
 
   it('input de texto dispara filtrar() com operador padrão (após debounce)', async () => {
     const { wrapper, table } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const input = wrapper.find('.rs-filter-text input')
+    const input = wrapper.find('.rosium-filter-text input')
     await input.setValue('co')
 
     expect(table.getState().filters).toEqual([])
@@ -286,14 +286,14 @@ describe('<RsFilters> — filtros por tipo', () => {
 
     const linhas = wrapper.findAll('tbody tr')
     expect(linhas).toHaveLength(2)
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Total: 2 records')
+    expect(wrapper.find('.rosium-pagination-info').text()).toContain('Total: 2 records')
   })
 
   it('limpar o input de texto remove o filtro', async () => {
     const { wrapper } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const input = wrapper.find('.rs-filter-text input')
+    const input = wrapper.find('.rosium-filter-text input')
     await input.setValue('co')
     await aguardarDebounce()
     await flushPromises()
@@ -308,10 +308,10 @@ describe('<RsFilters> — filtros por tipo', () => {
     const { wrapper, table } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const campos = wrapper.findAll('.rs-filter-number')
+    const campos = wrapper.findAll('.rosium-filter-number')
     const filtroPreco = campos.find((c) => c.text().includes('Preço'))!
-    await filtroPreco.find('.rs-filter-min').setValue('4')
-    await filtroPreco.find('.rs-filter-max').setValue('6')
+    await filtroPreco.find('.rosium-filter-min').setValue('4')
+    await filtroPreco.find('.rosium-filter-max').setValue('6')
     await aguardarDebounce()
     await flushPromises()
 
@@ -329,9 +329,9 @@ describe('<RsFilters> — filtros por tipo', () => {
     await flushPromises()
 
     const filtroPreco = wrapper
-      .findAll('.rs-filter-number')
+      .findAll('.rosium-filter-number')
       .find((c) => c.text().includes('Preço'))!
-    await filtroPreco.find('.rs-filter-min').setValue('7')
+    await filtroPreco.find('.rosium-filter-min').setValue('7')
     await aguardarDebounce()
     await flushPromises()
 
@@ -345,7 +345,7 @@ describe('<RsFilters> — filtros por tipo', () => {
     const { wrapper } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const select = wrapper.find('.rs-filter-select select')
+    const select = wrapper.find('.rosium-filter-select select')
     await select.setValue('2')
     await flushPromises()
 
@@ -359,7 +359,7 @@ describe('<RsFilters> — filtros por tipo', () => {
     const { wrapper } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const select = wrapper.find('.rs-filter-boolean select')
+    const select = wrapper.find('.rosium-filter-boolean select')
     await select.setValue('false')
     await flushPromises()
 
@@ -378,12 +378,12 @@ describe('<RsFilters> — filtros por tipo', () => {
 
   it('debounce agrupa digitação rápida em uma única chamada de fetch', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ rows: [], total: 0 })
-    const table = new RsTable({ columns: criarColunas(), pageSize: 10 })
+    const table = new RosiumTable({ columns: criarColunas(), pageSize: 10 })
     table.useAdapter({ fetch: fetchMock, fetchAll: async () => [] })
-    const ctx = useRsTable(table)
-    const wrapper = mount(RsFilters, { props: { contexto: ctx } })
+    const ctx = useRosiumTable(table)
+    const wrapper = mount(RosiumFilters, { props: { contexto: ctx } })
 
-    const input = wrapper.find('.rs-filter-text input')
+    const input = wrapper.find('.rosium-filter-text input')
     await input.setValue('c')
     await input.setValue('co')
     await input.setValue('coc')
@@ -403,12 +403,12 @@ describe('<RsFilters> — filtros por tipo', () => {
 
   it('unmount cancela debounce pendente', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ rows: [], total: 0 })
-    const table = new RsTable({ columns: criarColunas(), pageSize: 10 })
+    const table = new RosiumTable({ columns: criarColunas(), pageSize: 10 })
     table.useAdapter({ fetch: fetchMock, fetchAll: async () => [] })
-    const ctx = useRsTable(table)
-    const wrapper = mount(RsFilters, { props: { contexto: ctx } })
+    const ctx = useRosiumTable(table)
+    const wrapper = mount(RosiumFilters, { props: { contexto: ctx } })
 
-    await wrapper.find('.rs-filter-text input').setValue('co')
+    await wrapper.find('.rosium-filter-text input').setValue('co')
     wrapper.unmount()
 
     await aguardarDebounce()
@@ -423,20 +423,20 @@ describe('Integração — fluxo completo (filtro + ordenação + paginação)',
     const { wrapper } = montarTabela(DADOS, 2)
     await flushPromises()
 
-    const inputNome = wrapper.find('.rs-filter-text input')
+    const inputNome = wrapper.find('.rosium-filter-text input')
     await inputNome.setValue('a')
     await aguardarDebounce()
     await flushPromises()
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Total: 4 records')
+    expect(wrapper.find('.rosium-pagination-info').text()).toContain('Total: 4 records')
 
     const thPreco = wrapper.findAll('th').find((th) => th.text().includes('Preço'))!
     await thPreco.trigger('click')
     await flushPromises()
     expect(wrapper.findAll('tbody tr')[0]!.text()).toContain('Agua')
 
-    await wrapper.find('.rs-page-next').trigger('click')
+    await wrapper.find('.rosium-page-next').trigger('click')
     await flushPromises()
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Page 2 of 2')
+    expect(wrapper.find('.rosium-pagination-info').text()).toContain('Page 2 of 2')
     const linhas = wrapper.findAll('tbody tr')
     expect(linhas[0]!.text()).toContain('Coca-Cola')
     expect(linhas[1]!.text()).toContain('Cerveja')
@@ -455,16 +455,16 @@ describe('Integração — fluxo completo (filtro + ordenação + paginação)',
   })
 })
 
-describe('Plugin rosiumdata', () => {
+describe('Plugin RosiumData', () => {
   it('registra os componentes globalmente via app.use()', () => {
     const app = createApp(defineComponent({ render: () => h('div') }))
-    app.use(rosiumdata)
+    app.use(RosiumData)
 
-    expect(app.component('RsTable')).toBeTruthy()
-    expect(app.component('RsThead')).toBeTruthy()
-    expect(app.component('RsTbody')).toBeTruthy()
-    expect(app.component('RsPagination')).toBeTruthy()
-    expect(app.component('RsFilters')).toBeTruthy()
+    expect(app.component('RosiumTable')).toBeTruthy()
+    expect(app.component('RosiumThead')).toBeTruthy()
+    expect(app.component('RosiumTbody')).toBeTruthy()
+    expect(app.component('RosiumPagination')).toBeTruthy()
+    expect(app.component('RosiumFilters')).toBeTruthy()
   })
 })
 
@@ -473,28 +473,28 @@ describe('Toolbar — filtros expansíveis', () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    const painel = wrapper.find('.rs-filters-panel')
+    const painel = wrapper.find('.rosium-filters-panel')
     expect(painel.exists()).toBe(true)
-    expect(painel.classes()).not.toContain('rs-filters-open')
+    expect(painel.classes()).not.toContain('rosium-filters-open')
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Filters'))!
+    const botao = wrapper.findAll('.rosium-btn').find((b) => b.text().includes('Filters'))!
     await botao.trigger('click')
-    expect(painel.classes()).toContain('rs-filters-open')
+    expect(painel.classes()).toContain('rosium-filters-open')
 
     await botao.trigger('click')
-    expect(painel.classes()).not.toContain('rs-filters-open')
+    expect(painel.classes()).not.toContain('rosium-filters-open')
   })
 
   it('badge de contagem mostra o número de filtros ativos', async () => {
     const { wrapper, table } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    expect(wrapper.find('.rs-badge-count').exists()).toBe(false)
+    expect(wrapper.find('.rosium-badge-count').exists()).toBe(false)
 
     await table.filter({ column: 'nome', operator: 'contains', value: 'co' })
     await flushPromises()
 
-    expect(wrapper.find('.rs-badge-count').text()).toBe('1')
+    expect(wrapper.find('.rosium-badge-count').text()).toBe('1')
   })
 })
 
@@ -503,10 +503,10 @@ describe('Toolbar — menu de colunas', () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Columns'))!
+    const botao = wrapper.findAll('.rosium-btn').find((b) => b.text().includes('Columns'))!
     await botao.trigger('click')
 
-    const itens = wrapper.findAll('.rs-menu-item')
+    const itens = wrapper.findAll('.rosium-menu-item')
     expect(itens).toHaveLength(5)
 
     const checkId = itens[0]!.find('input')
@@ -520,19 +520,19 @@ describe('Toolbar — menu de colunas', () => {
   })
 
   it('clique fora fecha o menu de colunas', async () => {
-    const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
+    const table = new RosiumTable({ columns: criarColunas(), pageSize: 2 })
     table.useAdapter(new LocalAdapter(DADOS))
-    const wrapper = mount(rosiumdataTable, { props: { table }, attachTo: document.body })
+    const wrapper = mount(RosiumDataTable, { props: { table }, attachTo: document.body })
     await flushPromises()
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Columns'))!
+    const botao = wrapper.findAll('.rosium-btn').find((b) => b.text().includes('Columns'))!
     await botao.trigger('click')
-    expect(wrapper.find('.rs-menu').exists()).toBe(true)
+    expect(wrapper.find('.rosium-menu').exists()).toBe(true)
 
     document.body.click()
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.find('.rs-menu').exists()).toBe(false)
+    expect(wrapper.find('.rosium-menu').exists()).toBe(false)
     wrapper.unmount()
   })
 })
@@ -542,14 +542,14 @@ describe('Toolbar — densidade', () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    expect(wrapper.find('.rs-table-container').classes()).not.toContain('rs-density-compact')
+    expect(wrapper.find('.rosium-table-container').classes()).not.toContain('rosium-density-compact')
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Density'))!
+    const botao = wrapper.findAll('.rosium-btn').find((b) => b.text().includes('Density'))!
     await botao.trigger('click')
-    expect(wrapper.find('.rs-table-container').classes()).toContain('rs-density-compact')
+    expect(wrapper.find('.rosium-table-container').classes()).toContain('rosium-density-compact')
 
     await botao.trigger('click')
-    expect(wrapper.find('.rs-table-container').classes()).not.toContain('rs-density-compact')
+    expect(wrapper.find('.rosium-table-container').classes()).not.toContain('rosium-density-compact')
   })
 })
 
@@ -558,10 +558,10 @@ describe('Badges — colunas de seleção', () => {
     const { wrapper } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const badges = wrapper.findAll('.rs-badge')
+    const badges = wrapper.findAll('.rosium-badge')
     expect(badges.length).toBeGreaterThan(0)
     expect(badges[0]!.text()).toBe('Ativo')
-    expect(badges[0]!.attributes('data-rs-badge')).toBe('Ativo')
+    expect(badges[0]!.attributes('data-rosium-badge')).toBe('Ativo')
   })
 
   it('colunas não-seleção continuam texto puro', async () => {
@@ -570,7 +570,7 @@ describe('Badges — colunas de seleção', () => {
 
     const primeira = wrapper.findAll('tbody tr')[0]!
     const celulaNome = primeira.findAll('td')[1]!
-    expect(celulaNome.find('.rs-badge').exists()).toBe(false)
+    expect(celulaNome.find('.rosium-badge').exists()).toBe(false)
     expect(celulaNome.text()).toBe('Coca-Cola')
   })
 })
@@ -582,18 +582,18 @@ describe('Skeleton loading', () => {
       fetch: () => new Promise((resolve) => { resolver = resolve }),
       fetchAll: async () => [],
     }
-    const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
+    const table = new RosiumTable({ columns: criarColunas(), pageSize: 2 })
     table.useAdapter(adapterLento)
-    const wrapper = mount(rosiumdataTable, { props: { table } })
+    const wrapper = mount(RosiumDataTable, { props: { table } })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.findAll('.rs-skeleton').length).toBeGreaterThan(0)
-    expect(wrapper.findAll('tr.rs-loading').length).toBeGreaterThanOrEqual(3)
+    expect(wrapper.findAll('.rosium-skeleton').length).toBeGreaterThan(0)
+    expect(wrapper.findAll('tr.rosium-loading').length).toBeGreaterThanOrEqual(3)
 
     resolver({ rows: DADOS.slice(0, 2), total: 5 })
     await flushPromises()
 
-    expect(wrapper.findAll('.rs-skeleton')).toHaveLength(0)
+    expect(wrapper.findAll('.rosium-skeleton')).toHaveLength(0)
   })
 })
 
@@ -602,11 +602,11 @@ describe('Empty state', () => {
     const { wrapper } = montarTabela([])
     await flushPromises()
 
-    const vazio = wrapper.find('tr.rs-empty')
-    expect(vazio.find('.rs-empty-title').text()).toBe('No records found')
-    expect(vazio.find('.rs-empty-desc').text()).toBe(
+    const vazio = wrapper.find('tr.rosium-empty')
+    expect(vazio.find('.rosium-empty-title').text()).toBe('No records found')
+    expect(vazio.find('.rosium-empty-desc').text()).toBe(
       'Try adjusting filters or clearing search.',
     )
-    expect(vazio.find('.rs-empty-icon').exists()).toBe(true)
+    expect(vazio.find('.rosium-empty-icon').exists()).toBe(true)
   })
 })

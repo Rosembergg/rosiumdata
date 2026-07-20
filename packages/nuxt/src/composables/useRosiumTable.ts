@@ -1,13 +1,13 @@
 import { computed, ref, shallowRef, getCurrentScope, onScopeDispose } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
-import { RsTable, DEFAULT_ALIGNMENT, DEFAULT_OPERATOR, column } from '@rosiumdata/core'
+import { RosiumTable, DEFAULT_ALIGNMENT, DEFAULT_OPERATOR, column } from '@rosiumdata/core'
 import type {
   ActionDefinition,
   ColumnAlignment,
   ColumnDefinition,
   DataAdapter,
   Filter,
-  RsTableState,
+  RosiumTableState,
   SortDirection,
   TransformedRow,
   ValidationError,
@@ -18,13 +18,13 @@ export type {
   ColumnDefinition,
   DataAdapter,
   Filter,
-  RsTableState,
+  RosiumTableState,
   SortDirection,
   TransformedRow,
   ValidationError,
 }
 
-export type { RsTable } from '@rosiumdata/core'
+export type { RosiumTable } from '@rosiumdata/core'
 
 /**
  * Definição declarativa de uma action (gatilho).
@@ -33,11 +33,11 @@ export type { RsTable } from '@rosiumdata/core'
  * do que acontece depois (API, exclusão, navegação) é 100% do usuário.
  * A rosiumdata é o transportador; o usuário traz a arma.
  */
-export type { ActionDefinition as RsActionDefinition }
+export type { ActionDefinition as RosiumActionDefinition }
 export type { ActionDefinition }
 
 /** Payload do evento 'action': qual action e a linha completa (raw + display) */
-export interface RsActionEvent {
+export interface RosiumActionEvent {
   key: string
   row: TransformedRow
 }
@@ -62,7 +62,7 @@ export function actionColumn(
  * Preferências de exibição persistidas em localStorage.
  * Estado de UI (nunca dado) — lógica 100% do composable, zero no Core.
  */
-export interface RsPreferences {
+export interface RosiumPreferences {
   /** Visible columns, in display order */
   visibleColumns: string[]
   /** Page size */
@@ -71,12 +71,12 @@ export interface RsPreferences {
 
 const STORAGE_PREFIX = 'rosiumdata:'
 
-export function readPreferences(key: string): RsPreferences | null {
+export function readPreferences(key: string): RosiumPreferences | null {
   if (typeof localStorage === 'undefined') return null
   try {
     const raw = localStorage.getItem(STORAGE_PREFIX + key)
     if (!raw) return null
-    const data = JSON.parse(raw) as Partial<RsPreferences>
+    const data = JSON.parse(raw) as Partial<RosiumPreferences>
     if (!Array.isArray(data.visibleColumns)) return null
     return {
       visibleColumns: data.visibleColumns.filter((k): k is string => typeof k === 'string'),
@@ -87,7 +87,7 @@ export function readPreferences(key: string): RsPreferences | null {
   }
 }
 
-export function savePreferences(key: string, prefs: RsPreferences): void {
+export function savePreferences(key: string, prefs: RosiumPreferences): void {
   if (typeof localStorage === 'undefined') return
   try {
     localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(prefs))
@@ -96,13 +96,13 @@ export function savePreferences(key: string, prefs: RsPreferences): void {
   }
 }
 
-export interface UseRsTableOptions {
+export interface UseRosiumTableOptions {
   columns: ColumnDefinition[]
   adapter: DataAdapter
   pageSize?: number
 }
 
-export interface UseRsTableExtras {
+export interface UseRosiumTableExtras {
   /**
    * Persistence key for preferences (visible columns, order, pageSize)
    * in localStorage. Without the key, nothing is saved or restored — behavior
@@ -111,9 +111,9 @@ export interface UseRsTableExtras {
   persistence?: string
 }
 
-export interface UseRsTableContext {
+export interface UseRosiumTableContext {
   /** Core instance being observed */
-  table: RsTable
+  table: RosiumTable
 
   /** Rows of the current page (raw + display, transformed by Core) */
   rows: Ref<TransformedRow[]>
@@ -157,14 +157,14 @@ export interface UseRsTableContext {
    * the user clicks an action button in a row. The event does NOT execute
    * anything — it only notifies ({ key, row }). Logic belongs to the consumer.
    */
-  on: (event: 'action', callback: (payload: RsActionEvent) => void) => void
+  on: (event: 'action', callback: (payload: RosiumActionEvent) => void) => void
   /** Removes a listener registered with on() */
-  off: (event: 'action', callback: (payload: RsActionEvent) => void) => void
+  off: (event: 'action', callback: (payload: RosiumActionEvent) => void) => void
   /**
    * Emits the 'action' event to registered listeners. Called by Render
-   * components (RsTbody/RsActions) on click — never executes business logic.
+   * components (RosiumTbody/RosiumActions) on click — never executes business logic.
    */
-  emitAction: (payload: RsActionEvent) => void
+  emitAction: (payload: RosiumActionEvent) => void
 
   /** Effective alignment of a column (custom or type default) */
   alignment: (col: ColumnDefinition) => ColumnAlignment
@@ -172,14 +172,14 @@ export interface UseRsTableContext {
   defaultOperator: (col: ColumnDefinition) => string
 }
 
-export function useRsTable(
-  source: RsTable | UseRsTableOptions,
-  extras: UseRsTableExtras = {},
-): UseRsTableContext {
+export function useRosiumTable(
+  source: RosiumTable | UseRosiumTableOptions,
+  extras: UseRosiumTableExtras = {},
+): UseRosiumTableContext {
   const persistenceKey = extras.persistence
   const preferences = persistenceKey ? readPreferences(persistenceKey) : null
 
-  const table = source instanceof RsTable ? source : createTable(source, preferences)
+  const table = source instanceof RosiumTable ? source : createTable(source, preferences)
 
   /* Restore visible columns and order via official Core API */
   if (preferences && preferences.visibleColumns.length > 0) {
@@ -228,7 +228,7 @@ export function useRsTable(
   }
 
   const onStateChanged = (...args: unknown[]) => {
-    const state = args[0] as RsTableState
+    const state = args[0] as RosiumTableState
     rows.value = state.rows
     total.value = state.total
     currentPage.value = state.page
@@ -251,17 +251,17 @@ export function useRsTable(
   table.on('state:changed', onStateChanged)
 
   /* Action listeners (Render → consumer). Trigger, never executor. */
-  const actionListeners = new Set<(payload: RsActionEvent) => void>()
+  const actionListeners = new Set<(payload: RosiumActionEvent) => void>()
 
-  function on(event: 'action', callback: (payload: RsActionEvent) => void): void {
+  function on(event: 'action', callback: (payload: RosiumActionEvent) => void): void {
     if (event === 'action') actionListeners.add(callback)
   }
 
-  function off(event: 'action', callback: (payload: RsActionEvent) => void): void {
+  function off(event: 'action', callback: (payload: RosiumActionEvent) => void): void {
     if (event === 'action') actionListeners.delete(callback)
   }
 
-  function emitAction(payload: RsActionEvent): void {
+  function emitAction(payload: RosiumActionEvent): void {
     for (const listener of [...actionListeners]) listener(payload)
   }
 
@@ -318,12 +318,12 @@ export function useRsTable(
 }
 
 function createTable(
-  options: UseRsTableOptions,
-  preferences: RsPreferences | null,
-): RsTable {
+  options: UseRosiumTableOptions,
+  preferences: RosiumPreferences | null,
+): RosiumTable {
   const savedPageSize =
     preferences && preferences.pageSize > 0 ? preferences.pageSize : undefined
-  const table = new RsTable({
+  const table = new RosiumTable({
     columns: options.columns,
     pageSize: savedPageSize ?? options.pageSize,
   })

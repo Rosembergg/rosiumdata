@@ -2,10 +2,10 @@
  * rosiumdata — Theme Default
  *
  * CSS puro, zero dependências externas. Estrutura de classes previsível
- * (.rs-*) para sobrescrita. Nenhum !important.
+ * (.rosium-*) para sobrescrita. Nenhum !important.
  *
  * Personalização: sobrescreva as variáveis abaixo no seu próprio CSS.
- * Ex.:  :root { --rs-accent: #f59e0b; --rs-radius-lg: 4px; }
+ * Ex.:  :root { --rosium-accent: #f59e0b; --rosium-radius-lg: 4px; }
  *
  * Modo escuro: automático via prefers-color-scheme OU via classe .dark no
  * <html> (compatível com Tailwind darkMode: 'class').
@@ -13,173 +13,173 @@
 
 :root {
   /* Identidade visual rosiumdata */
-  --rs-primary: #1c203f;   /* azul escuro — destaque, página ativa */
-  --rs-accent: #65ba88;    /* verde água — ações, foco, interações */
-  --rs-light: #cde9f2;     /* azul claro — superfícies, hover sutil */
-  --rs-success: #66b32e;   /* verde claro — sucesso, positivo */
+  --rosium-primary: #1c203f;   /* azul escuro — destaque, página ativa */
+  --rosium-accent: #65ba88;    /* verde água — ações, foco, interações */
+  --rosium-light: #cde9f2;     /* azul claro — superfícies, hover sutil */
+  --rosium-success: #66b32e;   /* verde claro — sucesso, positivo */
 
   /* Superfícies e texto */
-  --rs-page-bg: #f8fafc;
-  --rs-surface: #ffffff;
-  --rs-surface-alt: #f8fafc;
-  --rs-border: #e2e8f0;
-  --rs-border-soft: #f1f5f9;
-  --rs-text: #0f172a;
-  --rs-text-muted: #64748b;
-  --rs-text-subtle: #94a3b8;
+  --rosium-page-bg: #f8fafc;
+  --rosium-surface: #ffffff;
+  --rosium-surface-alt: #f8fafc;
+  --rosium-border: #e2e8f0;
+  --rosium-border-soft: #f1f5f9;
+  --rosium-text: #0f172a;
+  --rosium-text-muted: #64748b;
+  --rosium-text-subtle: #94a3b8;
 
-  /* Interação (rgba de --rs-light: 205,233,242 / --rs-accent: 101,186,136) */
-  --rs-row-hover: rgba(205, 233, 242, 0.15);
-  --rs-focus-ring: rgba(101, 186, 136, 0.3);
-  --rs-accent-soft: rgba(101, 186, 136, 0.12);
+  /* Interação (rgba de --rosium-light: 205,233,242 / --rosium-accent: 101,186,136) */
+  --rosium-row-hover: rgba(205, 233, 242, 0.15);
+  --rosium-focus-ring: rgba(101, 186, 136, 0.3);
+  --rosium-accent-soft: rgba(101, 186, 136, 0.12);
 
   /* Badges */
-  --rs-badge-bg: rgba(205, 233, 242, 0.3);
-  --rs-badge-text: #1c203f;
-  --rs-badge-success-bg: rgba(102, 179, 46, 0.12);
-  --rs-badge-success-text: #66b32e;
-  --rs-badge-neutral-bg: #e2e8f0;
-  --rs-badge-neutral-text: #64748b;
-  --rs-badge-warning-bg: #fef3c7;
-  --rs-badge-warning-text: #b45309;
+  --rosium-badge-bg: rgba(205, 233, 242, 0.3);
+  --rosium-badge-text: #1c203f;
+  --rosium-badge-success-bg: rgba(102, 179, 46, 0.12);
+  --rosium-badge-success-text: #66b32e;
+  --rosium-badge-neutral-bg: #e2e8f0;
+  --rosium-badge-neutral-text: #64748b;
+  --rosium-badge-warning-bg: #fef3c7;
+  --rosium-badge-warning-text: #b45309;
 
   /* Estado de erro (Falhe Alto) */
-  --rs-error-bg: #fef2f2;
-  --rs-error-border: #fecaca;
-  --rs-error-text: #b91c1c;
-  --rs-danger: #dc2626;
-  --rs-danger-soft: #fef2f2;
+  --rosium-error-bg: #fef2f2;
+  --rosium-error-border: #fecaca;
+  --rosium-error-text: #b91c1c;
+  --rosium-danger: #dc2626;
+  --rosium-danger-soft: #fef2f2;
 
   /* Skeleton */
-  --rs-skeleton-a: #f1f5f9;
-  --rs-skeleton-b: #e2e8f0;
+  --rosium-skeleton-a: #f1f5f9;
+  --rosium-skeleton-b: #e2e8f0;
 
   /* Página ativa da paginação */
-  --rs-page-current-bg: #1c203f;
-  --rs-page-current-text: #ffffff;
+  --rosium-page-current-bg: #1c203f;
+  --rosium-page-current-text: #ffffff;
 
   /* Forma e movimento */
-  --rs-radius-lg: 12px;
-  --rs-radius: 8px;
-  --rs-radius-sm: 6px;
-  --rs-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
-  --rs-shadow-menu: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --rs-transition: 150ms ease-out;
-  --rs-transition-slow: 200ms ease;
-  --rs-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --rosium-radius-lg: 12px;
+  --rosium-radius: 8px;
+  --rosium-radius-sm: 6px;
+  --rosium-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --rosium-shadow-menu: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --rosium-transition: 150ms ease-out;
+  --rosium-transition-slow: 200ms ease;
+  --rosium-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Densidade */
-  --rs-row-height: 52px;
-  --rs-header-height: 40px;
-  --rs-cell-x: 16px;
+  --rosium-row-height: 52px;
+  --rosium-header-height: 40px;
+  --rosium-cell-x: 16px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --rs-page-bg: #0f172a;
-    --rs-surface: #1e293b;
-    --rs-surface-alt: #162132;
-    --rs-border: #334155;
-    --rs-border-soft: #283548;
-    --rs-text: #f1f5f9;
-    --rs-text-muted: #94a3b8;
-    --rs-text-subtle: #64748b;
+    --rosium-page-bg: #0f172a;
+    --rosium-surface: #1e293b;
+    --rosium-surface-alt: #162132;
+    --rosium-border: #334155;
+    --rosium-border-soft: #283548;
+    --rosium-text: #f1f5f9;
+    --rosium-text-muted: #94a3b8;
+    --rosium-text-subtle: #64748b;
 
-    --rs-row-hover: rgba(205, 233, 242, 0.06);
-    --rs-focus-ring: rgba(101, 186, 136, 0.35);
-    --rs-accent-soft: rgba(101, 186, 136, 0.18);
+    --rosium-row-hover: rgba(205, 233, 242, 0.06);
+    --rosium-focus-ring: rgba(101, 186, 136, 0.35);
+    --rosium-accent-soft: rgba(101, 186, 136, 0.18);
 
-    --rs-badge-bg: rgba(205, 233, 242, 0.14);
-    --rs-badge-text: #cde9f2;
-    --rs-badge-success-bg: rgba(102, 179, 46, 0.2);
-    --rs-badge-success-text: #8fd45c;
-    --rs-badge-neutral-bg: #334155;
-    --rs-badge-neutral-text: #94a3b8;
-    --rs-badge-warning-bg: rgba(245, 158, 11, 0.16);
-    --rs-badge-warning-text: #fbbf24;
+    --rosium-badge-bg: rgba(205, 233, 242, 0.14);
+    --rosium-badge-text: #cde9f2;
+    --rosium-badge-success-bg: rgba(102, 179, 46, 0.2);
+    --rosium-badge-success-text: #8fd45c;
+    --rosium-badge-neutral-bg: #334155;
+    --rosium-badge-neutral-text: #94a3b8;
+    --rosium-badge-warning-bg: rgba(245, 158, 11, 0.16);
+    --rosium-badge-warning-text: #fbbf24;
 
-    --rs-error-bg: rgba(220, 38, 38, 0.12);
-    --rs-error-border: rgba(220, 38, 38, 0.35);
-    --rs-error-text: #fca5a5;
-    --rs-danger: #f87171;
-    --rs-danger-soft: rgba(220, 38, 38, 0.12);
+    --rosium-error-bg: rgba(220, 38, 38, 0.12);
+    --rosium-error-border: rgba(220, 38, 38, 0.35);
+    --rosium-error-text: #fca5a5;
+    --rosium-danger: #f87171;
+    --rosium-danger-soft: rgba(220, 38, 38, 0.12);
 
-    --rs-skeleton-a: #283548;
-    --rs-skeleton-b: #334155;
+    --rosium-skeleton-a: #283548;
+    --rosium-skeleton-b: #334155;
 
-    --rs-page-current-bg: #65ba88;
-    --rs-page-current-text: #0f172a;
+    --rosium-page-current-bg: #65ba88;
+    --rosium-page-current-text: #0f172a;
 
-    --rs-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --rs-shadow-menu: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --rosium-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --rosium-shadow-menu: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 }
 
 /* Modo escuro via classe (ex.: apps com Tailwind darkMode: 'class') */
 :root.dark {
-  --rs-page-bg: #0f172a;
-  --rs-surface: #1e293b;
-  --rs-surface-alt: #162132;
-  --rs-border: #334155;
-  --rs-border-soft: #283548;
-  --rs-text: #f1f5f9;
-  --rs-text-muted: #94a3b8;
-  --rs-text-subtle: #64748b;
+  --rosium-page-bg: #0f172a;
+  --rosium-surface: #1e293b;
+  --rosium-surface-alt: #162132;
+  --rosium-border: #334155;
+  --rosium-border-soft: #283548;
+  --rosium-text: #f1f5f9;
+  --rosium-text-muted: #94a3b8;
+  --rosium-text-subtle: #64748b;
 
-  --rs-row-hover: rgba(205, 233, 242, 0.06);
-  --rs-focus-ring: rgba(101, 186, 136, 0.35);
-  --rs-accent-soft: rgba(101, 186, 136, 0.18);
+  --rosium-row-hover: rgba(205, 233, 242, 0.06);
+  --rosium-focus-ring: rgba(101, 186, 136, 0.35);
+  --rosium-accent-soft: rgba(101, 186, 136, 0.18);
 
-  --rs-badge-bg: rgba(205, 233, 242, 0.14);
-  --rs-badge-text: #cde9f2;
-  --rs-badge-success-bg: rgba(102, 179, 46, 0.2);
-  --rs-badge-success-text: #8fd45c;
-  --rs-badge-neutral-bg: #334155;
-  --rs-badge-neutral-text: #94a3b8;
-  --rs-badge-warning-bg: rgba(245, 158, 11, 0.16);
-  --rs-badge-warning-text: #fbbf24;
+  --rosium-badge-bg: rgba(205, 233, 242, 0.14);
+  --rosium-badge-text: #cde9f2;
+  --rosium-badge-success-bg: rgba(102, 179, 46, 0.2);
+  --rosium-badge-success-text: #8fd45c;
+  --rosium-badge-neutral-bg: #334155;
+  --rosium-badge-neutral-text: #94a3b8;
+  --rosium-badge-warning-bg: rgba(245, 158, 11, 0.16);
+  --rosium-badge-warning-text: #fbbf24;
 
-  --rs-error-bg: rgba(220, 38, 38, 0.12);
-  --rs-error-border: rgba(220, 38, 38, 0.35);
-  --rs-error-text: #fca5a5;
-  --rs-danger: #f87171;
-  --rs-danger-soft: rgba(220, 38, 38, 0.12);
+  --rosium-error-bg: rgba(220, 38, 38, 0.12);
+  --rosium-error-border: rgba(220, 38, 38, 0.35);
+  --rosium-error-text: #fca5a5;
+  --rosium-danger: #f87171;
+  --rosium-danger-soft: rgba(220, 38, 38, 0.12);
 
-  --rs-skeleton-a: #283548;
-  --rs-skeleton-b: #334155;
+  --rosium-skeleton-a: #283548;
+  --rosium-skeleton-b: #334155;
 
-  --rs-page-current-bg: #65ba88;
-  --rs-page-current-text: #0f172a;
+  --rosium-page-current-bg: #65ba88;
+  --rosium-page-current-text: #0f172a;
 
-  --rs-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --rs-shadow-menu: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --rosium-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --rosium-shadow-menu: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* ---------- Container e card ---------- */
 
-.rs-table-container {
-  font-family: var(--rs-font);
+.rosium-table-container {
+  font-family: var(--rosium-font);
   font-size: 0.875rem; /* 14px */
-  color: var(--rs-text);
+  color: var(--rosium-text);
 }
 
-.rs-table-container *,
-.rs-table-container *::before,
-.rs-table-container *::after {
+.rosium-table-container *,
+.rosium-table-container *::before,
+.rosium-table-container *::after {
   box-sizing: border-box;
 }
 
-.rs-card {
-  background-color: var(--rs-surface);
-  border: 1px solid var(--rs-border);
-  border-radius: var(--rs-radius-lg);
-  box-shadow: var(--rs-shadow-card);
+.rosium-card {
+  background-color: var(--rosium-surface);
+  border: 1px solid var(--rosium-border);
+  border-radius: var(--rosium-radius-lg);
+  box-shadow: var(--rosium-shadow-card);
   padding: 24px;
 }
 
 /* ---------- Utilitários ---------- */
 
-.rs-sr-only {
+.rosium-sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -191,7 +191,7 @@
   border: 0;
 }
 
-.rs-icon {
+.rosium-icon {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
@@ -199,7 +199,7 @@
 
 /* ---------- Toolbar ---------- */
 
-.rs-toolbar {
+.rosium-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -208,62 +208,62 @@
   margin-bottom: 20px;
 }
 
-.rs-toolbar-left,
-.rs-toolbar-right {
+.rosium-toolbar-left,
+.rosium-toolbar-right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.rs-btn {
+.rosium-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 34px;
   padding: 0 12px;
-  border: 1px solid var(--rs-border);
-  border-radius: var(--rs-radius);
-  background-color: var(--rs-surface);
-  color: var(--rs-text-muted);
+  border: 1px solid var(--rosium-border);
+  border-radius: var(--rosium-radius);
+  background-color: var(--rosium-surface);
+  color: var(--rosium-text-muted);
   font-family: inherit;
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color var(--rs-transition), color var(--rs-transition),
-    background-color var(--rs-transition);
+  transition: border-color var(--rosium-transition), color var(--rosium-transition),
+    background-color var(--rosium-transition);
 }
 
-.rs-btn:hover {
-  border-color: var(--rs-accent);
-  color: var(--rs-accent);
+.rosium-btn:hover {
+  border-color: var(--rosium-accent);
+  color: var(--rosium-accent);
 }
 
-.rs-btn:focus-visible {
+.rosium-btn:focus-visible {
   outline: none;
-  border-color: var(--rs-accent);
-  box-shadow: 0 0 0 3px var(--rs-focus-ring);
+  border-color: var(--rosium-accent);
+  box-shadow: 0 0 0 3px var(--rosium-focus-ring);
 }
 
-.rs-btn-active {
-  border-color: var(--rs-accent);
-  color: var(--rs-accent);
-  background-color: var(--rs-accent-soft);
+.rosium-btn-active {
+  border-color: var(--rosium-accent);
+  color: var(--rosium-accent);
+  background-color: var(--rosium-accent-soft);
 }
 
 /* Botão primário (ações do usuário — ex.: slot futuro) */
-.rs-btn-primary {
-  border-color: var(--rs-accent);
-  background-color: var(--rs-accent);
+.rosium-btn-primary {
+  border-color: var(--rosium-accent);
+  background-color: var(--rosium-accent);
   color: #ffffff;
 }
 
-.rs-btn-primary:hover {
-  border-color: var(--rs-success);
-  background-color: var(--rs-success);
+.rosium-btn-primary:hover {
+  border-color: var(--rosium-success);
+  background-color: var(--rosium-success);
   color: #ffffff;
 }
 
-.rs-badge-count {
+.rosium-badge-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -271,7 +271,7 @@
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background-color: var(--rs-accent);
+  background-color: var(--rosium-accent);
   color: #ffffff;
   font-size: 0.6875rem;
   font-weight: 700;
@@ -280,23 +280,23 @@
 
 /* ---------- Menu dropdown (Colunas hoje; ações ⋯ na Fase 4) ---------- */
 
-.rs-toolbar-menu {
+.rosium-toolbar-menu {
   position: relative;
 }
 
-.rs-menu {
+.rosium-menu {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
   z-index: 30;
   min-width: 200px;
   padding: 6px;
-  background-color: var(--rs-surface);
-  border: 1px solid var(--rs-border);
+  background-color: var(--rosium-surface);
+  border: 1px solid var(--rosium-border);
   border-radius: 10px;
-  box-shadow: var(--rs-shadow-menu);
+  box-shadow: var(--rosium-shadow-menu);
   transform-origin: top right;
-  animation: rs-menu-in var(--rs-transition);
+  animation: rs-menu-in var(--rosium-transition);
 }
 
 @keyframes rs-menu-in {
@@ -310,283 +310,283 @@
   }
 }
 
-.rs-menu-item {
+.rosium-menu-item {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-radius: var(--rs-radius-sm);
-  color: var(--rs-text);
+  border-radius: var(--rosium-radius-sm);
+  color: var(--rosium-text);
   font-size: 0.8125rem;
   cursor: pointer;
-  transition: background-color var(--rs-transition);
+  transition: background-color var(--rosium-transition);
 }
 
-.rs-menu-item:hover {
-  background-color: var(--rs-surface-alt);
+.rosium-menu-item:hover {
+  background-color: var(--rosium-surface-alt);
 }
 
-.rs-menu-item--danger {
-  color: var(--rs-danger);
+.rosium-menu-item--danger {
+  color: var(--rosium-danger);
 }
 
-.rs-menu-item--danger:hover {
-  background-color: var(--rs-danger-soft);
+.rosium-menu-item--danger:hover {
+  background-color: var(--rosium-danger-soft);
 }
 
-.rs-menu-check {
-  accent-color: var(--rs-accent);
+.rosium-menu-check {
+  accent-color: var(--rosium-accent);
   margin: 0;
 }
 
 /* ---------- Painel de filtros (expansível) ---------- */
 
-.rs-filters-panel {
+.rosium-filters-panel {
   max-height: 0;
   overflow: hidden;
-  transition: max-height var(--rs-transition-slow), margin-bottom var(--rs-transition-slow);
+  transition: max-height var(--rosium-transition-slow), margin-bottom var(--rosium-transition-slow);
   margin-bottom: 0;
 }
 
-.rs-filters-panel.rs-filters-open {
+.rosium-filters-panel.rosium-filters-open {
   max-height: 400px;
   margin-bottom: 20px;
 }
 
-.rs-filters {
+.rosium-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   padding: 16px;
-  background-color: var(--rs-surface-alt);
-  border: 1px solid var(--rs-border-soft);
-  border-radius: var(--rs-radius);
+  background-color: var(--rosium-surface-alt);
+  border: 1px solid var(--rosium-border-soft);
+  border-radius: var(--rosium-radius);
 }
 
-.rs-filter {
+.rosium-filter {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.rs-filter-label {
+.rosium-filter-label {
   font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--rs-text-subtle);
+  color: var(--rosium-text-subtle);
 }
 
-.rs-filter-fields {
+.rosium-filter-fields {
   display: flex;
   gap: 6px;
 }
 
-.rs-filter-input {
+.rosium-filter-input {
   height: 36px;
   padding: 0 10px;
-  border: 1px solid var(--rs-border);
-  border-radius: var(--rs-radius-sm);
+  border: 1px solid var(--rosium-border);
+  border-radius: var(--rosium-radius-sm);
   font-size: 0.8125rem;
   font-family: inherit;
-  color: var(--rs-text);
-  background-color: var(--rs-surface);
-  transition: border-color var(--rs-transition), box-shadow var(--rs-transition);
+  color: var(--rosium-text);
+  background-color: var(--rosium-surface);
+  transition: border-color var(--rosium-transition), box-shadow var(--rosium-transition);
 }
 
-.rs-filter-input::placeholder {
-  color: var(--rs-text-subtle);
+.rosium-filter-input::placeholder {
+  color: var(--rosium-text-subtle);
 }
 
-.rs-filter-input:hover {
-  border-color: var(--rs-text-subtle);
+.rosium-filter-input:hover {
+  border-color: var(--rosium-text-subtle);
 }
 
-.rs-filter-input:focus {
+.rosium-filter-input:focus {
   outline: none;
-  border-color: var(--rs-accent);
-  box-shadow: 0 0 0 3px var(--rs-focus-ring);
+  border-color: var(--rosium-accent);
+  box-shadow: 0 0 0 3px var(--rosium-focus-ring);
 }
 
-.rs-filter-min,
-.rs-filter-max {
+.rosium-filter-min,
+.rosium-filter-max {
   max-width: 8.5rem;
 }
 
 /* ---------- Tabela ---------- */
 
-.rs-table-wrap {
-  border: 1px solid var(--rs-border);
-  border-radius: var(--rs-radius);
+.rosium-table-wrap {
+  border: 1px solid var(--rosium-border);
+  border-radius: var(--rosium-radius);
   overflow: hidden;
   overflow-x: auto;
   margin-bottom: 20px;
 }
 
-.rs-table {
+.rosium-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  background-color: var(--rs-surface);
+  background-color: var(--rosium-surface);
 }
 
-.rs-cell {
-  padding: 8px var(--rs-cell-x);
+.rosium-cell {
+  padding: 8px var(--rosium-cell-x);
   text-align: left;
   vertical-align: middle;
 }
 
-.rs-align-left {
+.rosium-align-left {
   text-align: left;
 }
 
-.rs-align-center {
+.rosium-align-center {
   text-align: center;
 }
 
-.rs-align-right {
+.rosium-align-right {
   text-align: right;
 }
 
 /* ---------- Cabeçalho (claro e tipográfico) ---------- */
 
-.rs-thead .rs-cell-header {
-  height: var(--rs-header-height);
-  padding: 0 var(--rs-cell-x);
-  background-color: var(--rs-surface-alt);
-  border-bottom: 1px solid var(--rs-border);
-  color: var(--rs-text-muted);
+.rosium-thead .rosium-cell-header {
+  height: var(--rosium-header-height);
+  padding: 0 var(--rosium-cell-x);
+  background-color: var(--rosium-surface-alt);
+  border-bottom: 1px solid var(--rosium-border);
+  color: var(--rosium-text-muted);
   font-size: 0.6875rem; /* 11px */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
   user-select: none;
-  transition: color var(--rs-transition), background-color var(--rs-transition);
+  transition: color var(--rosium-transition), background-color var(--rosium-transition);
 }
 
-.rs-sortable {
+.rosium-sortable {
   cursor: pointer;
 }
 
-.rs-sortable:hover {
-  color: var(--rs-accent);
+.rosium-sortable:hover {
+  color: var(--rosium-accent);
 }
 
 /* Affordance discreta: ▾ surge no hover de colunas ordenáveis */
-.rs-sortable::after {
+.rosium-sortable::after {
   content: ' \25BE';
   opacity: 0;
-  transition: opacity var(--rs-transition);
+  transition: opacity var(--rosium-transition);
 }
 
-.rs-sortable:hover::after {
+.rosium-sortable:hover::after {
   opacity: 0.5;
 }
 
-.rs-sorted-asc,
-.rs-sorted-desc {
-  color: var(--rs-text);
+.rosium-sorted-asc,
+.rosium-sorted-desc {
+  color: var(--rosium-text);
 }
 
-.rs-sorted-asc::after,
-.rs-sorted-desc::after {
+.rosium-sorted-asc::after,
+.rosium-sorted-desc::after {
   content: none;
 }
 
-.rs-sort-indicator {
-  color: var(--rs-accent);
-  transition: opacity var(--rs-transition), transform var(--rs-transition);
+.rosium-sort-indicator {
+  color: var(--rosium-accent);
+  transition: opacity var(--rosium-transition), transform var(--rosium-transition);
 }
 
 /* ---------- Corpo ---------- */
 
-.rs-tbody .rs-row {
-  height: var(--rs-row-height);
-  transition: background-color var(--rs-transition);
+.rosium-tbody .rosium-row {
+  height: var(--rosium-row-height);
+  transition: background-color var(--rosium-transition);
 }
 
-.rs-tbody .rs-row:hover {
-  background-color: var(--rs-row-hover);
+.rosium-tbody .rosium-row:hover {
+  background-color: var(--rosium-row-hover);
 }
 
-.rs-tbody .rs-cell {
-  border-bottom: 1px solid var(--rs-border-soft);
+.rosium-tbody .rosium-cell {
+  border-bottom: 1px solid var(--rosium-border-soft);
 }
 
-.rs-tbody .rs-row:last-child .rs-cell {
+.rosium-tbody .rosium-row:last-child .rosium-cell {
   border-bottom: none;
 }
 
 /* Linha selecionada (visual pronto — seleção de linhas é pós-1.0) */
-.rs-tbody .rs-row-selected {
-  background-color: var(--rs-row-hover);
-  box-shadow: inset 3px 0 0 var(--rs-accent);
+.rosium-tbody .rosium-row-selected {
+  background-color: var(--rosium-row-hover);
+  box-shadow: inset 3px 0 0 var(--rosium-accent);
 }
 
 /* ---------- Densidade ---------- */
 
-.rs-density-compact {
-  --rs-row-height: 36px;
-  --rs-header-height: 36px;
+.rosium-density-compact {
+  --rosium-row-height: 36px;
+  --rosium-header-height: 36px;
 }
 
-.rs-density-compact .rs-cell {
+.rosium-density-compact .rosium-cell {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
 /* ---------- Badges (colunas de seleção) ---------- */
 
-.rs-badge {
+.rosium-badge {
   display: inline-block;
   padding: 2px 10px;
   border-radius: 999px;
-  background-color: var(--rs-badge-bg);
-  color: var(--rs-badge-text);
+  background-color: var(--rosium-badge-bg);
+  color: var(--rosium-badge-text);
   font-size: 0.75rem; /* 12px */
   font-weight: 600;
   line-height: 1.5;
   white-space: nowrap;
 }
 
-.rs-badge[data-rs-badge='Ativo'] {
-  background-color: var(--rs-badge-success-bg);
-  color: var(--rs-badge-success-text);
+.rosium-badge[data-rs-badge='Ativo'] {
+  background-color: var(--rosium-badge-success-bg);
+  color: var(--rosium-badge-success-text);
 }
 
-.rs-badge[data-rs-badge='Inativo'] {
-  background-color: var(--rs-badge-neutral-bg);
-  color: var(--rs-badge-neutral-text);
+.rosium-badge[data-rs-badge='Inativo'] {
+  background-color: var(--rosium-badge-neutral-bg);
+  color: var(--rosium-badge-neutral-text);
 }
 
-.rs-badge[data-rs-badge='Pendente'] {
-  background-color: var(--rs-badge-warning-bg);
-  color: var(--rs-badge-warning-text);
+.rosium-badge[data-rs-badge='Pendente'] {
+  background-color: var(--rosium-badge-warning-bg);
+  color: var(--rosium-badge-warning-text);
 }
 
 /* ---------- Estado: loading (skeleton) ---------- */
 
-.rs-skeleton {
+.rosium-skeleton {
   display: block;
   height: 12px;
   width: 80%;
   border-radius: 4px;
   background: linear-gradient(
     90deg,
-    var(--rs-skeleton-a) 25%,
-    var(--rs-skeleton-b) 50%,
-    var(--rs-skeleton-a) 75%
+    var(--rosium-skeleton-a) 25%,
+    var(--rosium-skeleton-b) 50%,
+    var(--rosium-skeleton-a) 75%
   );
   background-size: 200% 100%;
   animation: rs-shimmer 1.4s ease infinite;
 }
 
-.rs-loading .rs-cell:nth-child(even) .rs-skeleton {
+.rosium-loading .rosium-cell:nth-child(even) .rosium-skeleton {
   width: 55%;
 }
 
-.rs-loading .rs-cell:nth-child(3n) .rs-skeleton {
+.rosium-loading .rosium-cell:nth-child(3n) .rosium-skeleton {
   width: 70%;
 }
 
@@ -601,16 +601,16 @@
 
 /* ---------- Estado: vazio ---------- */
 
-.rs-empty .rs-cell {
-  padding: 48px var(--rs-cell-x);
+.rosium-empty .rosium-cell {
+  padding: 48px var(--rosium-cell-x);
   text-align: center;
 }
 
-.rs-empty-icon {
+.rosium-empty-icon {
   width: 40px;
   height: 40px;
   margin: 0 auto 12px;
-  background-color: var(--rs-text-subtle);
+  background-color: var(--rosium-text-subtle);
   opacity: 0.7;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='22 12 16 12 14 15 10 15 8 12 2 12'/%3E%3Cpath d='M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z'/%3E%3C/svg%3E")
     center / contain no-repeat;
@@ -618,15 +618,15 @@
     center / contain no-repeat;
 }
 
-.rs-empty-title {
-  color: var(--rs-text);
+.rosium-empty-title {
+  color: var(--rosium-text);
   font-size: 0.875rem;
   font-weight: 600;
 }
 
-.rs-empty-desc {
+.rosium-empty-desc {
   margin-top: 4px;
-  color: var(--rs-text-subtle);
+  color: var(--rosium-text-subtle);
   font-size: 0.875rem;
 }
 
@@ -634,29 +634,29 @@
 
 /* Base (produção, segura): ícone ⚠ sutil + fundo levemente alterado.
    Não expõe detalhes internos; o resto da tabela funciona normalmente. */
-.rs-cell--error {
-  background-color: var(--rs-error-bg);
+.rosium-cell--error {
+  background-color: var(--rosium-error-bg);
 }
 
-.rs-cell-error-icon {
+.rosium-cell-error-icon {
   margin-right: 6px;
-  color: var(--rs-danger);
+  color: var(--rosium-danger);
   opacity: 0.8;
 }
 
 /* Modo dev (debug): grita — fundo red-50, borda esquerda 3px vermelha e
    tooltip com a localização exata (coluna, linha, esperado vs. recebido). */
-.rs-cell--error-debug {
-  box-shadow: inset 3px 0 0 var(--rs-danger);
-  color: var(--rs-error-text);
+.rosium-cell--error-debug {
+  box-shadow: inset 3px 0 0 var(--rosium-danger);
+  color: var(--rosium-error-text);
 }
 
-.rs-cell--error-debug[data-rs-error] {
+.rosium-cell--error-debug[data-rs-error] {
   position: relative;
   cursor: help;
 }
 
-.rs-cell--error-debug[data-rs-error]:hover::after {
+.rosium-cell--error-debug[data-rs-error]:hover::after {
   content: attr(data-rs-error);
   position: absolute;
   left: 0;
@@ -664,34 +664,34 @@
   z-index: 20;
   max-width: 20rem;
   padding: 6px 10px;
-  border-radius: var(--rs-radius-sm);
-  background-color: var(--rs-primary);
+  border-radius: var(--rosium-radius-sm);
+  background-color: var(--rosium-primary);
   color: #ffffff;
   font-size: 0.75rem;
   font-weight: 400;
   white-space: normal;
-  box-shadow: var(--rs-shadow-menu);
+  box-shadow: var(--rosium-shadow-menu);
 }
 
 /* Banner do Falhe Alto (modo debug): lista os erros abaixo da toolbar */
-.rs-error-banner {
+.rosium-error-banner {
   margin-bottom: 20px;
   padding: 12px 16px;
-  background-color: var(--rs-error-bg);
-  border: 1px solid var(--rs-error-border);
-  border-left: 3px solid var(--rs-danger);
-  border-radius: var(--rs-radius);
-  color: var(--rs-error-text);
+  background-color: var(--rosium-error-bg);
+  border: 1px solid var(--rosium-error-border);
+  border-left: 3px solid var(--rosium-danger);
+  border-radius: var(--rosium-radius);
+  color: var(--rosium-error-text);
   font-size: 0.8125rem;
 }
 
-.rs-error-banner-title {
+.rosium-error-banner-title {
   display: block;
   margin-bottom: 4px;
   font-weight: 700;
 }
 
-.rs-error-banner-item {
+.rosium-error-banner-item {
   padding: 2px 0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.75rem;
@@ -699,51 +699,51 @@
 
 /* ---------- Actions (gatilhos por linha) ---------- */
 
-.rs-cell-action {
+.rosium-cell-action {
   white-space: nowrap;
 }
 
-.rs-action-btn {
+.rosium-action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 28px;
   padding: 2px 10px;
-  border: 1px solid var(--rs-border);
-  border-radius: var(--rs-radius-sm);
-  background-color: var(--rs-surface);
-  color: var(--rs-text-muted);
+  border: 1px solid var(--rosium-border);
+  border-radius: var(--rosium-radius-sm);
+  background-color: var(--rosium-surface);
+  color: var(--rosium-text-muted);
   font-family: inherit;
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color var(--rs-transition), color var(--rs-transition),
-    background-color var(--rs-transition);
+  transition: border-color var(--rosium-transition), color var(--rosium-transition),
+    background-color var(--rosium-transition);
 }
 
-.rs-action-btn:hover {
-  border-color: var(--rs-accent);
-  color: var(--rs-accent);
+.rosium-action-btn:hover {
+  border-color: var(--rosium-accent);
+  color: var(--rosium-accent);
 }
 
-.rs-action-btn:focus-visible {
+.rosium-action-btn:focus-visible {
   outline: none;
-  border-color: var(--rs-accent);
-  box-shadow: 0 0 0 3px var(--rs-focus-ring);
+  border-color: var(--rosium-accent);
+  box-shadow: 0 0 0 3px var(--rosium-focus-ring);
 }
 
-.rs-action-btn--danger {
-  color: var(--rs-danger);
+.rosium-action-btn--danger {
+  color: var(--rosium-danger);
 }
 
-.rs-action-btn--danger:hover {
-  border-color: var(--rs-danger);
-  background-color: var(--rs-danger-soft);
-  color: var(--rs-danger);
+.rosium-action-btn--danger:hover {
+  border-color: var(--rosium-danger);
+  background-color: var(--rosium-danger-soft);
+  color: var(--rosium-danger);
 }
 
 /* Botão ⋯ (múltiplas actions) */
-.rs-action-more {
+.rosium-action-more {
   min-width: 28px;
   padding: 2px 6px;
   font-size: 1rem;
@@ -752,14 +752,14 @@
 
 /* Dropdown de actions — teleportado para o <body>, posicionado via inline
    top/left calculado a partir do botão ⋯. Alinhado pela borda direita. */
-.rs-action-menu {
+.rosium-action-menu {
   position: absolute;
   right: auto;
   transform: translateX(-100%);
-  font-family: var(--rs-font);
+  font-family: var(--rosium-font);
   font-size: 0.875rem;
-  color: var(--rs-text);
-  animation: rs-action-menu-in var(--rs-transition);
+  color: var(--rosium-text);
+  animation: rs-action-menu-in var(--rosium-transition);
 }
 
 @keyframes rs-action-menu-in {
@@ -774,7 +774,7 @@
 }
 
 /* Itens do dropdown de actions são <button> — reset + layout do menu */
-.rs-menu-action {
+.rosium-menu-action {
   display: block;
   width: 100%;
   padding: 8px 16px;
@@ -787,7 +787,7 @@
 
 /* ---------- Paginação ---------- */
 
-.rs-pagination {
+.rosium-pagination {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -796,70 +796,70 @@
 }
 
 /* Resumo à esquerda dos controles, tudo alinhado à direita */
-.rs-pagination-info {
+.rosium-pagination-info {
   order: -1;
-  color: var(--rs-text-muted);
+  color: var(--rosium-text-muted);
   font-size: 0.8125rem;
 }
 
-.rs-pagination-buttons {
+.rosium-pagination-buttons {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.rs-page-btn {
+.rosium-page-btn {
   min-height: 32px;
   padding: 4px 10px;
-  border: 1px solid var(--rs-border);
-  border-radius: var(--rs-radius-sm);
-  background-color: var(--rs-surface);
-  color: var(--rs-text-muted);
+  border: 1px solid var(--rosium-border);
+  border-radius: var(--rosium-radius-sm);
+  background-color: var(--rosium-surface);
+  color: var(--rosium-text-muted);
   font-size: 0.8125rem;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color var(--rs-transition), color var(--rs-transition),
-    background-color var(--rs-transition);
+  transition: border-color var(--rosium-transition), color var(--rosium-transition),
+    background-color var(--rosium-transition);
 }
 
-.rs-page-btn:hover:not(:disabled) {
-  border-color: var(--rs-accent);
-  color: var(--rs-accent);
+.rosium-page-btn:hover:not(:disabled) {
+  border-color: var(--rosium-accent);
+  color: var(--rosium-accent);
 }
 
-.rs-page-btn:focus-visible {
+.rosium-page-btn:focus-visible {
   outline: none;
-  border-color: var(--rs-accent);
-  box-shadow: 0 0 0 3px var(--rs-focus-ring);
+  border-color: var(--rosium-accent);
+  box-shadow: 0 0 0 3px var(--rosium-focus-ring);
 }
 
-.rs-page-btn:disabled {
+.rosium-page-btn:disabled {
   cursor: default;
   opacity: 0.45;
 }
 
-.rs-page-current {
-  background-color: var(--rs-page-current-bg);
-  border-color: var(--rs-page-current-bg);
-  color: var(--rs-page-current-text);
+.rosium-page-current {
+  background-color: var(--rosium-page-current-bg);
+  border-color: var(--rosium-page-current-bg);
+  color: var(--rosium-page-current-text);
   opacity: 1;
 }
 
-.rs-page-btn.rs-page-current:disabled {
+.rosium-page-btn.rosium-page-current:disabled {
   opacity: 1;
 }
 
-.rs-page-ellipsis {
+.rosium-page-ellipsis {
   padding: 0 4px;
-  color: var(--rs-text-subtle);
+  color: var(--rosium-text-subtle);
 }
 
 /* ---------- Acessibilidade: movimento reduzido ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .rs-table-container *,
-  .rs-table-container *::before,
-  .rs-table-container *::after {
+  .rosium-table-container *,
+  .rosium-table-container *::before,
+  .rosium-table-container *::after {
     transition: none;
     animation: none;
   }
