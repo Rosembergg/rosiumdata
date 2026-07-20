@@ -207,9 +207,8 @@ Numbers, dates, and currencies are formatted via the native `Intl` API — zero 
 
 ## Contributing
 
-RSdata is in its dogfooding phase — built by a developer solving his own pain first. Contributions, questions, and feedback are welcome.
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) and [.ai/BRAIN.md](.ai/BRAIN.md) before diving in.
+RSdata is in the *dogfooding* phase—created primarily to address an internal need. Contributions, questions, and feedback are welcome.
 
 ---
 
