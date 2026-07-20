@@ -1,4 +1,4 @@
-# ROADMAP.md — RSdata
+# ROADMAP.md — rosiumdata
 
 > **Caminho até a versão 1.0.** Fases sequenciais, prioridades e dependências.
 
@@ -131,19 +131,19 @@ O desenvolvimento segue o **Caminho A — Núcleo Primeiro**: cada camada é con
 
 ### Fase 5 — Adapter Server-side (Laravel)
 
-**Objetivo:** conectar a RSdata ao backend Laravel do projeto DDD real. O servidor filtra, ordena e pagina. A RSdata substitui o PowerGrid.
+**Objetivo:** conectar a rosiumdata ao backend Laravel do projeto DDD real. O servidor filtra, ordena e pagina. A rosiumdata substitui o PowerGrid.
 
 **Dependências:** Fase 4.
 
 **Entregas:**
 - [ ] Implementar `LaravelAdapter` (ou adapter HTTP genérico customizável)
 - [ ] Tradução do contrato Query → parâmetros de request do Laravel
-- [ ] Parsing da resposta do Laravel → formato plano da RSdata
+- [ ] Parsing da resposta do Laravel → formato plano da rosiumdata
 - [ ] Opções de filtro (dropdowns) vindas do servidor
 - [ ] Testes de integração com um servidor Laravel real (ou mock)
 - [ ] Documentação de como configurar o lado Laravel (formato esperado de request/response)
 
-**= v1.0 MVP:** RSdata funcionando no projeto real do autor, substituindo o PowerGrid.
+**= v1.0 MVP:** rosiumdata funcionando no projeto real do autor, substituindo o PowerGrid.
 
 ---
 
@@ -191,7 +191,7 @@ Cada fase é **bloqueante** para a seguinte. Nenhuma fase pode começar antes da
 | **v0.2** | + Fase 2 | Dados locais fluindo pelo Core. |
 | **v0.3** | + Fase 3 | Primeira tabela visível em Nuxt. |
 | **v0.4** | + Fase 4 | Actions + Falhe Alto funcionais. |
-| **v1.0** | + Fase 5 | MVP: RSdata no projeto real. |
+| **v1.0** | + Fase 5 | MVP: rosiumdata no projeto real. |
 
 > Cada release é "limpo" — sem dívida técnica sobrevivente (Princípio #1). Nenhuma versão é publicada carregando solução temporária não-resolvida.
 

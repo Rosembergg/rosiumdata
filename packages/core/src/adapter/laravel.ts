@@ -17,7 +17,7 @@ import type { DataAdapter, Query, FetchResult, Row, FilterOption, Filter } from 
  * ## CONTRATO PÚBLICO DO BACKEND LARAVEL
  *
  * O backend precisa aceitar este formato de request e responder neste
- * formato de JSON. Esse contrato é documentação pública da RSdata.
+ * formato de JSON. Esse contrato é documentação pública da rosiumdata.
  *
  * ### Request de dados (fetch)
  *

@@ -1,4 +1,4 @@
-# PROJECT_RULES.md — RSdata
+# PROJECT_RULES.md — rosiumdata
 
 > **Regras operacionais do projeto.** Como trabalhamos no dia a dia. Complementa os princípios (o "porquê") com o "como".
 

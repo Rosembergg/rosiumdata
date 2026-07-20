@@ -1,4 +1,4 @@
-# PRINCIPLES.md — RSdata
+# PRINCIPLES.md — rosiumdata
 
 > **Princípios que guiam o projeto.** Toda decisão técnica, de design ou de produto deve passar por estes princípios. Se algo os viola, a decisão está errada — ou o princípio precisa ser revisado (com justificativa).
 
@@ -27,11 +27,11 @@
 > Se não existe um caminho oficial para fazer algo, isso é bug de design nosso — não culpa do usuário.
 
 **Regra:**
-- Toda feature da RSdata tem uma "porta oficial" de extensão: ganchos, eventos, adapters, substituição de componentes.
+- Toda feature da rosiumdata tem uma "porta oficial" de extensão: ganchos, eventos, adapters, substituição de componentes.
 - Se um usuário precisa de algo que não tem caminho oficial, a resposta NUNCA é "dá um jeito aí". A resposta é: **criamos o caminho oficial.**
 - A extensibilidade é um direito do usuário, não um favor que a lib concede.
 
-**Motivação:** no PowerGrid, o usuário era forçado a distorcer a lib para atender pedidos reais — porque a arquitetura fechada não oferecia saída. A RSdata aprende com esse erro.
+**Motivação:** no PowerGrid, o usuário era forçado a distorcer a lib para atender pedidos reais — porque a arquitetura fechada não oferecia saída. A rosiumdata aprende com esse erro.
 
 **Relação com outros princípios:** sustenta o #3 (extensibilidade por ganchos) e o #5 (customização sem parede).
 
@@ -39,7 +39,7 @@
 
 ### 3. Dependência Descartável
 
-> Core = zero dependências. Dependências externas só nas bordas, isoladas por interface, substituíveis. Se a lib morrer, a RSdata sobrevive.
+> Core = zero dependências. Dependências externas só nas bordas, isoladas por interface, substituíveis. Se a lib morrer, a rosiumdata sobrevive.
 
 **Regra:**
 - O **Core** (`@rosiumdata/core`) tem **zero dependências externas de runtime**. Nenhuma. É TypeScript puro.
@@ -49,7 +49,7 @@
   - É **substituível**: troca-se o adapter/plugin, não o projeto inteiro.
 - Toda dependência externa precisa ser justificada: a reimplementação seria desproporcional E a lib é forte/consolidada/completa no mercado.
 
-**Motivação:** o autor não quer que uma peça crítica do seu projeto DDD fique refém de código de terceiros. Se uma dependência morrer ou mudar de licença, a RSdata continua de pé.
+**Motivação:** o autor não quer que uma peça crítica do seu projeto DDD fique refém de código de terceiros. Se uma dependência morrer ou mudar de licença, a rosiumdata continua de pé.
 
 **Relação com outros princípios:** é a base da Soberania que define a Identidade do projeto. Garante que #1 (dívida) nunca seja imposta por uma lib externa.
 
@@ -60,7 +60,7 @@
 > Convenção por padrão para resolver rápido. Configuração sempre possível para controle total. Nunca fecha a porta.
 
 **Regra:**
-- A RSdata funciona **out-of-the-box** com quase nada de configuração. O caso simples ("só mostrar dados") exige o mínimo de código.
+- A rosiumdata funciona **out-of-the-box** com quase nada de configuração. O caso simples ("só mostrar dados") exige o mínimo de código.
 - Quando o pedido complexo chega, o usuário "desce de nível" — **sem reescrever tudo**.
 - A unidade de customização é a **peça** (coluna, filtro, célula) ou a **camada** (tema, adapter, render). Descer de nível é sempre opcional e localizado.
 - **Nunca é "tudo ou nada".** Customizar uma coisa específica não obriga a abandonar o modo fácil em todo o resto.
@@ -94,7 +94,7 @@
 **Regra:**
 - Nenhum comportamento "automágico" escondido. Se algo acontece na tabela, o código de uso **mostra** que aquilo foi configurado.
 - Preferimos verbosidade honesta a "mágica" invisível que ninguém entende depois.
-- O código de uso da RSdata é a **documentação primária**. A documentação escrita é apoio, não pré-requisito para entender o que está acontecendo.
+- O código de uso da rosiumdata é a **documentação primária**. A documentação escrita é apoio, não pré-requisito para entender o que está acontecendo.
 - Nada de convenções implícitas que exijam ler o manual para entender o comportamento (ex: "toda coluna chamada `preco` é automaticamente formatada como dinheiro").
 
 **Motivação:** o público-alvo inclui o dev que quer resolver rápido e vai aprendendo a lib gradativamente conforme usa — lendo o próprio código, não decorando um manual. Se o comportamento não está visível no código, a lib falhou.
@@ -108,9 +108,9 @@
 > Dado imperfeito nunca é silencioso. Mas a forma de denunciar depende do contexto.
 
 **Regra:**
-- **Em desenvolvimento:** a RSdata grita. Aponta exatamente: qual coluna, qual linha, o que esperava e o que recebeu. O dev descobre o problema na hora, sem "catar feijão" atrás do dado errado.
+- **Em desenvolvimento:** a rosiumdata grita. Aponta exatamente: qual coluna, qual linha, o que esperava e o que recebeu. O dev descobre o problema na hora, sem "catar feijão" atrás do dado errado.
 - **Em produção:** não derruba a tela do usuário final. Mostra um estado de erro visível na célula problemática, mantém o resto da tabela funcionando, e reporta o problema para o dev.
-- **Nunca silencioso:** a RSdata jamais esconde um dado errado sem avisar. Silêncio = dado parece correto mas não é — o pior cenário possível.
+- **Nunca silencioso:** a rosiumdata jamais esconde um dado errado sem avisar. Silêncio = dado parece correto mas não é — o pior cenário possível.
 
 **Motivação:** a dor real do autor era ter que caçar manualmente qual dado estava errado no meio de uma tabela, sem nenhuma ajuda da lib. O Falhe Alto transforma "catar feijão" em "apontar o dedo".
 

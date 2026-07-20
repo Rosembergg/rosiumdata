@@ -1,4 +1,4 @@
-# VISION.md — RSdata
+# VISION.md — rosiumdata
 
 > **Visão do projeto.** Por que existimos, o que queremos nos tornar e como chegaremos lá.
 
@@ -16,7 +16,7 @@ Frameworks de Data Grid existentes (como o PowerGrid, que motivou este projeto) 
 
 A causa-raiz não é "falta de features". É **falta de separação de responsabilidades**. Dado, lógica, apresentação e estilo estão acoplados — e quando você mexe em um, quebra o outro.
 
-A RSdata resolve isso com uma arquitetura de camadas radicalmente separadas:
+A rosiumdata resolve isso com uma arquitetura de camadas radicalmente separadas:
 
 ```
 Data Source  →  Data Engine  →  Render Engine  →  Theme
@@ -30,9 +30,9 @@ Cada camada tem uma responsabilidade única. A exportação recebe **dado puro**
 
 ### Hoje (Fase A — Dogfooding)
 
-A RSdata nasce para resolver uma dor real e concreta: a migração de um projeto Laravel (PowerGrid) para Nuxt 3 com arquitetura DDD. O autor é o primeiro usuário e o teste de fogo da lib.
+A rosiumdata nasce para resolver uma dor real e concreta: a migração de um projeto Laravel (PowerGrid) para Nuxt 3 com arquitetura DDD. O autor é o primeiro usuário e o teste de fogo da lib.
 
-**Critério de sucesso da Fase A:** o autor consegue substituir o PowerGrid pela RSdata no seu projeto real, com menos código, mais clareza e zero gambiarra.
+**Critério de sucesso da Fase A:** o autor consegue substituir o PowerGrid pela rosiumdata no seu projeto real, com menos código, mais clareza e zero gambiarra.
 
 ### Amanhã (Fase B — Open Source)
 
@@ -47,14 +47,14 @@ Com a lib validada pelo uso real (dogfooding), o objetivo é abri-la para a comu
 | Diferencial | Por que importa |
 |---|---|
 | **Separação radical de camadas** | Mexer no visual não quebra o dado. Mexer no dado não quebra o visual. Exportação recebe dado limpo. Fim do vazamento de estilo. |
-| **Soberania (quase zero dependências)** | O Core é JavaScript/TypeScript puro, zero dependências externas. Dependências (quando inevitáveis) vivem isoladas em plugins/adapters, substituíveis a qualquer momento. Se uma lib morrer, a RSdata não morre. |
+| **Soberania (quase zero dependências)** | O Core é JavaScript/TypeScript puro, zero dependências externas. Dependências (quando inevitáveis) vivem isoladas em plugins/adapters, substituíveis a qualquer momento. Se uma lib morrer, a rosiumdata não morre. |
 | **Headless por natureza** | O cérebro (Data Source + Data Engine) funciona em qualquer lugar — Nuxt, React, HTML puro. A interface visual é uma "casca" trocável. Portar para outro framework = nova casca, mesmo cérebro. |
 | **Resolve rápido + mantém fácil** | Convenção por padrão (funciona com quase nada de código), configuração sempre possível (escape hatches por camada e por peça). Você nunca é forçado a reconstruir tudo para customizar uma coisa. |
 | **Código como documentação** | Nada de mágica escondida. Todo comportamento é visível e rastreável no código de uso. Nenhuma convenção implícita que exija ler o manual para entender. |
 
 ---
 
-## QUEM USA A RSDATA
+## QUEM USA A rosiumdata
 
 **Nosso público:** desenvolvedores que precisam resolver pedidos reais de tratamento de dados de um sistema — do caso mais simples ("só preciso mostrar estes dados na tela") ao mais complexo (relações, filtros avançados, exportação).
 
@@ -63,7 +63,7 @@ O perfil típico: um dev que quer **resolver o problema real da empresa**, não 
 **Não é nosso público:**
 - Quem quer um "kit de UI" com componentes visuais e temas prontos (damos o mecanismo de estilização, não o catálogo de estilos).
 - Quem precisa de dashboards, gráficos ou visualizações não-tabulares (o foco é grade/tabela).
-- Quem quer um substituto do Excel/Google Sheets com fórmulas e colaboração em tempo real. Para isso, use Excel e Power BI — a RSdata é a **ponte** que entrega o dado limpo para essas ferramentas.
+- Quem quer um substituto do Excel/Google Sheets com fórmulas e colaboração em tempo real. Para isso, use Excel e Power BI — a rosiumdata é a **ponte** que entrega o dado limpo para essas ferramentas.
 
 ---
 
@@ -79,7 +79,7 @@ O caminho até a versão 1.0 está dividido em fases sequenciais:
 | **Fase 3** | Render Engine Nuxt + Theme Default. Primeira tabela visível. |
 | **Fase 4** | Actions + Falhe Alto. Gatilhos de ação e diagnóstico de dados. |
 | **Fase 5** | Adapter Server-side (Laravel). Conexão com o projeto real. |
-| **= v1.0** | RSdata substituindo o PowerGrid no projeto DDD do autor. |
+| **= v1.0** | rosiumdata substituindo o PowerGrid no projeto DDD do autor. |
 | **Pós-1.0** | Exportação, Seleção de linhas, Cache, e o caminho para o Open Source público. |
 
 ---
@@ -104,7 +104,7 @@ O caminho até a versão 1.0 está dividido em fases sequenciais:
 
 ## TOM DE VOZ
 
-A RSdata é **técnica, direta e sem firulas**. Não prometemos mágica — prometemos arquitetura sólida e decisões conscientes. Nosso "marketing" é a qualidade do código e a clareza da documentação.
+A rosiumdata é **técnica, direta e sem firulas**. Não prometemos mágica — prometemos arquitetura sólida e decisões conscientes. Nosso "marketing" é a qualidade do código e a clareza da documentação.
 
 ---
 

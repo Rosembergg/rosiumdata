@@ -48,7 +48,7 @@ export const RsTbody = defineComponent({
     /**
      * Falhe Alto: true = modo dev (grita: fundo vermelho, borda, tooltip com
      * localização exata); false = modo produção (ícone ⚠ sutil, sem detalhes
-     * internos). O RsDataTable resolve o padrão via import.meta.env.DEV.
+     * internos). O rosiumdataTable resolve o padrão via import.meta.env.DEV.
      */
     debug: {
       type: Boolean,

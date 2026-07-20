@@ -1,6 +1,6 @@
-# USAGE.md — RSdata Usage Guide
+# USAGE.md — rosiumdata Usage Guide
 
-> How to install, configure, and use RSdata in your Nuxt 3 project. From the
+> How to install, configure, and use rosiumdata in your Nuxt 3 project. From the
 > simplest case to the most complex. All examples are based on the real code.
 
 ---
@@ -27,7 +27,7 @@
 
 ### Local usage (before npm publication)
 
-While RSdata is not published on the npm registry, use a local path in your Nuxt frontend `package.json`:
+While rosiumdata is not published on the npm registry, use a local path in your Nuxt frontend `package.json`:
 
 ```json
 {
@@ -45,7 +45,7 @@ cd frontend
 npm install
 ```
 
-> **Important:** RSdata must be built first. Run `npm run build` in the RSdata root to generate the `dist/` folder in both packages. Without it, the import fails.
+> **Important:** rosiumdata must be built first. Run `npm run build` in the rosiumdata root to generate the `dist/` folder in both packages. Without it, the import fails.
 
 ### When published on npm (future)
 
@@ -55,19 +55,19 @@ npm install @rosiumdata/core @rosiumdata/nuxt
 
 ### Registering in Nuxt
 
-Create a plugin file at `plugins/rsdata.ts`:
+Create a plugin file at `plugins/rosiumdata.ts`:
 
 ```ts
-// frontend/plugins/rsdata.ts
-import { RsData } from '@rosiumdata/nuxt'
+// frontend/plugins/rosiumdata.ts
+import { rosiumdata } from '@rosiumdata/nuxt'
 import '@rosiumdata/nuxt/theme/default.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(RsData)
+  nuxtApp.vueApp.use(rosiumdata)
 })
 ```
 
-> **Note:** `RsData` is a **Vue Plugin**, not a Nuxt Module. It is registered via `plugins/`, not in `modules` in `nuxt.config.ts`.
+> **Note:** `rosiumdata` is a **Vue Plugin**, not a Nuxt Module. It is registered via `plugins/`, not in `modules` in `nuxt.config.ts`.
 
 ---
 
@@ -251,7 +251,7 @@ const state = getState()
 
 ## 7. ACTIONS
 
-Columns of type `'action'` render buttons per row. RSdata emits an event with `{ key, row }` — execution logic is 100% yours. *"RSdata is the messenger; you bring the weapon."*
+Columns of type `'action'` render buttons per row. rosiumdata emits an event with `{ key, row }` — execution logic is 100% yours. *"rosiumdata is the messenger; you bring the weapon."*
 
 ### Defining actions
 
@@ -414,7 +414,7 @@ class MyAdapter implements DataAdapter {
 
 ## 9. FAIL LOUD (DATA VALIDATION)
 
-RSdata automatically detects invalid data based on the column type. E.g. `price: "free"` where the type is `number`.
+rosiumdata automatically detects invalid data based on the column type. E.g. `price: "free"` where the type is `number`.
 
 ### DEV mode (`:debug="true"`)
 
@@ -444,7 +444,7 @@ table.on('error', (err) => {
 
 ## 10. LOCALE & FORMATTING
 
-RSdata uses locale-aware formatting via the native `Intl` API (zero dependencies). The default locale is `'pt-BR'` (Brazilian Portuguese: `R$ 1.000,00`, `DD/MM/YYYY`).
+rosiumdata uses locale-aware formatting via the native `Intl` API (zero dependencies). The default locale is `'pt-BR'` (Brazilian Portuguese: `R$ 1.000,00`, `DD/MM/YYYY`).
 
 ### Setting a global locale
 
@@ -503,7 +503,7 @@ Text sorting uses `String.localeCompare()` with the configured locale, so accent
 The default CSS is imported in the plugin:
 
 ```ts
-// plugins/rsdata.ts
+// plugins/rosiumdata.ts
 import '@rosiumdata/nuxt/theme/default.css'
 ```
 
@@ -586,9 +586,9 @@ What is saved: column order, visible columns, page size.
 
 | Export | Type | Description |
 |---|---|---|
-| `RsData` | Vue Plugin | `app.use(RsData)` |
+| `rosiumdata` | Vue Plugin | `app.use(rosiumdata)` |
 | `useRsTable(table)` | Composable | Core ↔ Vue bridge |
-| `RsDataTable` | Component | Main component (`<RsTable>`) |
+| `rosiumdataTable` | Component | Main component (`<RsTable>`) |
 | `RsThead` | Component | Clickable header |
 | `RsTbody` | Component | Table body |
 | `RsActions` | Component | Action buttons |

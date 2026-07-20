@@ -1,5 +1,5 @@
 import type { App, Plugin } from 'vue'
-import { RsDataTable } from './components/RsDataTable'
+import { rosiumdataTable } from './components/rosiumdataTable'
 import { RsThead } from './components/RsThead'
 import { RsTbody } from './components/RsTbody'
 import { RsActions } from './components/RsActions'
@@ -27,29 +27,29 @@ export type {
   ValidationError,
 } from './composables/useRsTable'
 
-export { RsDataTable, RsThead, RsTbody, RsActions, RsPagination, RsFilters }
+export { rosiumdataTable, RsThead, RsTbody, RsActions, RsPagination, RsFilters }
 export { columnActions } from './components/RsActions'
 export { errorMessage } from './components/RsTbody'
-export { isDevEnvironment } from './components/RsDataTable'
+export { isDevEnvironment } from './components/rosiumdataTable'
 
 export { THEME_DEFAULT_CSS } from './theme'
 
 /**
  * Plugin Vue/Nuxt: registra os componentes globalmente.
  *
- * Vue:  app.use(RsData)
- * Nuxt: defineNuxtPlugin((nuxtApp) => { nuxtApp.vueApp.use(RsData) })
+ * Vue:  app.use(rosiumdata)
+ * Nuxt: defineNuxtPlugin((nuxtApp) => { nuxtApp.vueApp.use(rosiumdata) })
  *
- * O componente principal exporta-se como RsDataTable (evita colisão com a
+ * O componente principal exporta-se como rosiumdataTable (evita colisão com a
  * classe RsTable do Core em imports), mas o nome público no template
  * permanece <RsTable>.
  *
  * O theme é opcional e importado separadamente:
  * import '@rosiumdata/nuxt/theme/default.css'
  */
-export const RsData: Plugin = {
+export const rosiumdata: Plugin = {
   install(app: App) {
-    app.component('RsTable', RsDataTable)
+    app.component('RsTable', rosiumdataTable)
     app.component('RsThead', RsThead)
     app.component('RsTbody', RsTbody)
     app.component('RsActions', RsActions)

@@ -4,7 +4,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { RsTable, LocalAdapter, column } from '@rosiumdata/core'
 import type { Row } from '@rosiumdata/core'
 import {
-  RsDataTable,
+  rosiumdataTable,
   RsTbody,
   RsActions,
   useRsTable,
@@ -46,7 +46,7 @@ function montarTabela(opcoes: {
 } = {}) {
   const table = new RsTable({ columns: criarColunas(opcoes.actions), pageSize: 10 })
   table.useAdapter(new LocalAdapter(opcoes.dados ?? DADOS))
-  const wrapper = mount(RsDataTable, {
+  const wrapper = mount(rosiumdataTable, {
     props: { table, debug: opcoes.debug },
     ...(opcoes.attach ? { attachTo: document.body } : {}),
   })
@@ -359,7 +359,7 @@ describe('Preferências persistentes (localStorage)', () => {
 
   it('restaura colunas visíveis, ordem e pageSize ao montar', async () => {
     localStorage.setItem(
-      'rsdata:produtos',
+      'rosiumdata:produtos',
       JSON.stringify({ visibleColumns: ['preco', 'nome'], pageSize: 2 }),
     )
 
@@ -387,11 +387,11 @@ describe('Preferências persistentes (localStorage)', () => {
   })
 
   it('preferências corrompidas ou de colunas inexistentes são ignoradas', async () => {
-    localStorage.setItem('rsdata:quebrado', '{{{nao é json')
+    localStorage.setItem('rosiumdata:quebrado', '{{{nao é json')
     expect(readPreferences('quebrado')).toBeNull()
 
     localStorage.setItem(
-      'rsdata:fantasma',
+      'rosiumdata:fantasma',
       JSON.stringify({ visibleColumns: ['coluna_que_nao_existe'], pageSize: 5 }),
     )
     const ctx = useRsTable(
@@ -404,7 +404,7 @@ describe('Preferências persistentes (localStorage)', () => {
   })
 
   it('<RsTable> com prop persistence: menu Colunas salva e outra montagem restaura', async () => {
-    const wrapperA = mount(RsDataTable, {
+    const wrapperA = mount(rosiumdataTable, {
       props: {
         columns: criarColunas(),
         adapter: new LocalAdapter(DADOS),
@@ -422,7 +422,7 @@ describe('Preferências persistentes (localStorage)', () => {
     expect(readPreferences('tela-produtos')!.visibleColumns).not.toContain('id')
     wrapperA.unmount()
 
-    const wrapperB = mount(RsDataTable, {
+    const wrapperB = mount(rosiumdataTable, {
       props: {
         columns: criarColunas(),
         adapter: new LocalAdapter(DADOS),

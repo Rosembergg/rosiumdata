@@ -1,6 +1,6 @@
-# FEATURES.md — RSdata
+# FEATURES.md — rosiumdata
 
-> **Funcionalidades da RSdata.** O que está planejado, em qual fase e com qual prioridade.
+> **Funcionalidades da rosiumdata.** O que está planejado, em qual fase e com qual prioridade.
 
 ---
 
@@ -68,7 +68,7 @@ Funcionalidades que estarão na primeira versão estável. Organizadas por fase.
 | Feature | Descrição | Prioridade |
 |---|---|---|
 | **ServerAdapter (HTTP)** | Adapter base que faz requisições HTTP para backend | Essencial |
-| **Tradução Query → Request** | Converte o contrato Query da RSdata em parâmetros de API | Essencial |
+| **Tradução Query → Request** | Converte o contrato Query da rosiumdata em parâmetros de API | Essencial |
 | **Parsing Response → Flat** | Converte resposta do servidor em dado plano para o Core | Essencial |
 | **Opções de filtro remotas** | Busca opções de dropdown do servidor | Essencial |
 
@@ -126,7 +126,7 @@ Funcionalidades que estarão na primeira versão estável. Organizadas por fase.
 |---|---|---|
 | **TypeScript strict** | Modo strict do TypeScript ativado em todo o projeto. | Fase 0 |
 | **Documentação de API** | Documentação gerada a partir dos tipos (TSDoc / API Reference). | Pós-1.0 |
-| **Playground** | Ambiente online para testar a RSdata sem instalar nada. | Futuro |
+| **Playground** | Ambiente online para testar a rosiumdata sem instalar nada. | Futuro |
 | **Devtools** | Extensão/ferramenta para inspecionar estado, eventos e performance da tabela. | Futuro |
 
 ---
@@ -135,7 +135,7 @@ Funcionalidades que estarão na primeira versão estável. Organizadas por fase.
 
 | Feature | Motivo |
 |---|---|
-| Edição inline de células | RSdata é read-only. CRUD é do sistema do usuário. |
+| Edição inline de células | rosiumdata é read-only. CRUD é do sistema do usuário. |
 | Drag-and-drop de colunas | Luxo visual. "Bem depois, e só se precisar." |
 | Fórmulas estilo Excel | "Para isso já existe Excel." Não somos planilha. |
 | Gráficos e dashboards | Foco é grade/tabela. Não somos BI. |

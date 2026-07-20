@@ -51,12 +51,12 @@ export function isDevEnvironment(): boolean {
 }
 
 /**
- * Componente principal da tabela. Chama-se RsDataTable para não colidir com a
+ * Componente principal da tabela. Chama-se rosiumdataTable para não colidir com a
  * classe RsTable do Core em imports. No template, o nome público registrado
  * pelo plugin continua sendo <RsTable>.
  */
-export const RsDataTable = defineComponent({
-  name: 'RsDataTable',
+export const rosiumdataTable = defineComponent({
+  name: 'rosiumdataTable',
   props: {
     /** RsTable Core instance (full control mode) */
     table: {
@@ -97,7 +97,7 @@ export const RsDataTable = defineComponent({
     },
   },
   emits: {
-    /** Action trigger: { key, row }. RSdata never executes anything. */
+    /** Action trigger: { key, row }. rosiumdata never executes anything. */
     action: (payload: RsActionEvent) => payload !== undefined,
   },
   setup(props, { emit }) {
@@ -116,7 +116,7 @@ export const RsDataTable = defineComponent({
       )
     } else {
       throw new Error(
-        '[RSdata] <RsTable> needs prop "table" (RsTable instance) OR props "columns" + "adapter".',
+        '[rosiumdata] <RsTable> needs prop "table" (RsTable instance) OR props "columns" + "adapter".',
       )
     }
 
@@ -298,4 +298,4 @@ export const RsDataTable = defineComponent({
   },
 })
 
-export default RsDataTable
+export default rosiumdataTable

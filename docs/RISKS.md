@@ -1,4 +1,4 @@
-# RISKS.md — RSdata
+# RISKS.md — rosiumdata
 
 > **Riscos do projeto.** O que pode dar errado, qual o impacto e como mitigamos.  
 > Atualizado conforme o projeto evolui e novos riscos são identificados.
@@ -43,7 +43,7 @@
 
 **Risco:** Plugins (ex: exportação Excel) dependem de bibliotecas de terceiros. Se a lib for abandonada, tiver breaking change inesperado, ou mudar de licença, o plugin quebra.
 
-**Impacto:** Baixo. O plugin é isolado. A RSdata (Core + Render) continua funcionando. Só a feature de exportação é afetada.
+**Impacto:** Baixo. O plugin é isolado. A rosiumdata (Core + Render) continua funcionando. Só a feature de exportação é afetada.
 
 **Mitigação:**
 - Princípio #3 (Dependência Descartável): toda dependência é isolada por interface.
@@ -89,7 +89,7 @@
 
 ### R-006: O autor não conseguir usar a própria lib no projeto real
 
-**Risco:** O objetivo da v1.0 é a RSdata substituir o PowerGrid no projeto DDD do autor. Se, ao chegar na Fase 5, a lib não for capaz de atender os casos reais, o propósito central falha.
+**Risco:** O objetivo da v1.0 é a rosiumdata substituir o PowerGrid no projeto DDD do autor. Se, ao chegar na Fase 5, a lib não for capaz de atender os casos reais, o propósito central falha.
 
 **Impacto:** Crítico. A lib existe para resolver essa dor.
 
@@ -122,7 +122,7 @@
 
 ### R-008: Comunidade não adotar (fase B)
 
-**Risco:** Quando a RSdata for aberta como OSS, pode não atrair usuários. TanStack Table, AG Grid e outros já têm comunidade, confiança e ecossistema.
+**Risco:** Quando a rosiumdata for aberta como OSS, pode não atrair usuários. TanStack Table, AG Grid e outros já têm comunidade, confiança e ecossistema.
 
 **Impacto:** Médio. A lib já terá cumprido seu propósito primário (resolver a dor do autor). A fase B é ambição, não necessidade. Mas seria uma decepção.
 

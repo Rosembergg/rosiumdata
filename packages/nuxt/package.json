@@ -1,11 +1,11 @@
 {
   "name": "@rosiumdata/nuxt",
   "version": "0.0.1",
-  "description": "RSdata Render Engine — Vue/Nuxt skin for the Data Engine",
+  "description": "rosiumdata Render Engine — Vue/Nuxt skin for the Data Engine",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Rosembergg/RSdata"
+    "url": "https://github.com/Rosembergg/rosiumdata"
   },
   "keywords": [
     "datagrid",

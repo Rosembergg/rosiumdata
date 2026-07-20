@@ -1,12 +1,12 @@
-# ARCHITECTURE.md — RSdata
+# ARCHITECTURE.md — rosiumdata
 
-> **Arquitetura completa do RSdata.** Como as camadas se relacionam, responsabilidades, fronteiras, contratos e regras invioláveis.
+> **Arquitetura completa do rosiumdata.** Como as camadas se relacionam, responsabilidades, fronteiras, contratos e regras invioláveis.
 
 ---
 
 ## VISÃO GERAL
 
-A RSdata segue uma arquitetura de **4 camadas sequenciais** com uma quinta dimensão transversal (Plugins):
+A rosiumdata segue uma arquitetura de **4 camadas sequenciais** com uma quinta dimensão transversal (Plugins):
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -36,29 +36,29 @@ A RSdata segue uma arquitetura de **4 camadas sequenciais** com uma quinta dimen
 
 ### Responsabilidade
 
-Traduzir o mundo externo para o formato que o Core entende. É a **fronteira** entre a RSdata e qualquer fonte de dados.
+Traduzir o mundo externo para o formato que o Core entende. É a **fronteira** entre a rosiumdata e qualquer fonte de dados.
 
 ### O que faz
-- Recebe pedidos do Data Engine no contrato padrão da RSdata.
+- Recebe pedidos do Data Engine no contrato padrão da rosiumdata.
 - Traduz esses pedidos para a "língua" do mundo externo (API REST, GraphQL, array local).
 - Entrega os dados de volta no formato plano que o Core espera.
 - **Filtro de sujeira:** relação entre tabelas, dados aninhados, formato de request/response — tudo isso é tratado AQUI e nunca chega ao Core.
 
 ### O que NÃO faz
-- **Nunca altera dados** (read-only). A RSdata não escreve, edita ou deleta.
+- **Nunca altera dados** (read-only). A rosiumdata não escreve, edita ou deleta.
 - **Nunca sabe** como os dados serão desenhados (Render) ou estilizados (Theme).
 - **Nunca sabe** o estado da tabela (filtros ativos, página atual) — quem coordena isso é o Data Engine.
 
 ### O Adapter como conceito central
 
-> **Tudo é adapter.** A RSdata nunca sabe de onde vêm os dados. Seja um servidor Laravel, uma API GraphQL, ou um array de 20 itens na memória — para a RSdata é sempre a mesma coisa: *"adapter, me dê os dados com este filtro/ordenação/página"*.
+> **Tudo é adapter.** A rosiumdata nunca sabe de onde vêm os dados. Seja um servidor Laravel, uma API GraphQL, ou um array de 20 itens na memória — para a rosiumdata é sempre a mesma coisa: *"adapter, me dê os dados com este filtro/ordenação/página"*.
 
 - **Adapter local:** filtra/ordena/pagina um array na memória do navegador.
 - **Adapter remoto (server-side):** delega filtro/ordenação/paginação ao servidor.
 - **Mesmo contrato, mesmo modelo mental, um único caminho no Core.**
 
 ### Modelo híbrido
-- A RSdata vem com um **adapter-padrão embutido** (local, array) — funciona out-of-the-box.
+- A rosiumdata vem com um **adapter-padrão embutido** (local, array) — funciona out-of-the-box.
 - O dev pode **trocar por um adapter customizado** (ex: adapter para Laravel, para GraphQL, para qualquer backend).
 - Trocou de backend? Troca o adapter. A tabela inteira continua idêntica.
 
@@ -98,7 +98,7 @@ type Row = Record<string, unknown>  // { id: 1, nome: "Coca", preco: 5.99 }
 
 ### Dado sempre plano (flat)
 
-> A RSdata trabalha exclusivamente com dados planos. Se o dado vem aninhado (`categoria: { nome: "Bebidas" }`), é o **adapter** quem achata (`categoria_nome: "Bebidas"`) antes de entregar ao Data Engine. O Core **nunca** navega em objetos aninhados.
+> A rosiumdata trabalha exclusivamente com dados planos. Se o dado vem aninhado (`categoria: { nome: "Bebidas" }`), é o **adapter** quem achata (`categoria_nome: "Bebidas"`) antes de entregar ao Data Engine. O Core **nunca** navega em objetos aninhados.
 
 ---
 
@@ -106,7 +106,7 @@ type Row = Record<string, unknown>  // { id: 1, nome: "Coca", preco: 5.99 }
 
 ### Responsabilidade
 
-O **cérebro** da RSdata. Gerencia o estado da tabela, transforma dados e coordena a comunicação entre o Adapter e o Render Engine.
+O **cérebro** da rosiumdata. Gerencia o estado da tabela, transforma dados e coordena a comunicação entre o Adapter e o Render Engine.
 
 ### O que faz
 - **Estado da tabela:** filtros ativos, ordenação atual, página visível, definição de colunas (tipos, visibilidade, ordem).
@@ -238,7 +238,7 @@ Desenhar a **estrutura visual** da tabela: linhas, células, cabeçalho, corpo, 
 
 ### Actions (botão gatilho)
 
-> A RSdata oferece o **ponto de ação** (botão renderizado na linha) e **emite um evento** com o dado da linha. A lógica é 100% do usuário. A RSdata nunca sabe o que a action faz — ela é o **transportador**, o usuário traz a **arma**. Actions vivem no Render Engine (é sobre exibir o botão e capturar o clique), mas emitem eventos para fora.
+> A rosiumdata oferece o **ponto de ação** (botão renderizado na linha) e **emite um evento** com o dado da linha. A lógica é 100% do usuário. A rosiumdata nunca sabe o que a action faz — ela é o **transportador**, o usuário traz a **arma**. Actions vivem no Render Engine (é sobre exibir o botão e capturar o clique), mas emitem eventos para fora.
 
 ---
 
@@ -260,11 +260,11 @@ A **aparência** visual: cores, fontes, espaçamentos, bordas, sombras. A pele q
 
 ### Template padrão
 
-A RSdata vem com um **theme default em CSS puro próprio**, zero dependências. Funciona sozinho. O usuário pode:
+A rosiumdata vem com um **theme default em CSS puro próprio**, zero dependências. Funciona sozinho. O usuário pode:
 - **Sobrescrever classes CSS** (nível leve — ajusta cor, fonte, borda).
 - **Substituir componentes inteiros** (nível pesado — troca a renderização de uma célula ou cabeçalho).
 
-A RSdata **não conhece** Tailwind ou qualquer ferramenta CSS. Se o usuário quiser usar Tailwind, ele aplica por conta própria — a estrutura de classes é previsível e estilizável.
+A rosiumdata **não conhece** Tailwind ou qualquer ferramenta CSS. Se o usuário quiser usar Tailwind, ele aplica por conta própria — a estrutura de classes é previsível e estilizável.
 
 ---
 
@@ -272,7 +272,7 @@ A RSdata **não conhece** Tailwind ou qualquer ferramenta CSS. Se o usuário qui
 
 ### Responsabilidade
 
-Funcionalidades opcionais que estendem a RSdata sem inchar o Core.
+Funcionalidades opcionais que estendem a rosiumdata sem inchar o Core.
 
 ### O que são
 - Funcionalidades que **não são essenciais** para a tabela existir.
@@ -322,7 +322,7 @@ Funcionalidades opcionais que estendem a RSdata sem inchar o Core.
 
 | Item | Decisão | Justificativa |
 |---|---|---|
-| Escrita/edição de dados | Fora de escopo. RSdata é read-only. | CRUD é responsabilidade do sistema do usuário. |
+| Escrita/edição de dados | Fora de escopo. rosiumdata é read-only. | CRUD é responsabilidade do sistema do usuário. |
 | Drag-and-drop de colunas | Fora de escopo. Adiado indefinidamente. | Luxo visual, caro de implementar, não serve à dor central. |
 | Dado aninhado no Core | Fora de escopo. Adapter achata. | Mantém o Core simples e universal. |
 | Cache de dados (dia 1) | Fora de escopo. Stateless. | Complexidade prematura. Refinamento futuro. |
@@ -343,7 +343,7 @@ Funcionalidades opcionais que estendem a RSdata sem inchar o Core.
 ## ESTRUTURA DO REPOSITÓRIO
 
 ```
-RSdata/
+rosiumdata/
 ├── packages/
 │   ├── core/                   ← @rosiumdata/core (JS puro, zero-dep)
 │   │   └── src/

@@ -1,4 +1,4 @@
-# CURRENT_PHASE.md — RSdata
+# CURRENT_PHASE.md — rosiumdata
 
 > **Status atual do desenvolvimento.** Onde estamos, o que está feito e qual o próximo passo.  
 > **Atualizado em:** 2026-07-16 — após conclusão da Fase 5.
@@ -7,7 +7,7 @@
 
 ## FASE ATUAL: Fase 5 — Adapter Server-side (Laravel) ✅ CONCLUÍDA
 
-**Status:** ✅ Concluída — **v1.0 MVP alcançado.** Próximo passo: usar a RSdata no projeto real (substituir o PowerGrid) e/ou fases pós-1.0 opcionais (exportação, seleção, cache).
+**Status:** ✅ Concluída — **v1.0 MVP alcançado.** Próximo passo: usar a rosiumdata no projeto real (substituir o PowerGrid) e/ou fases pós-1.0 opcionais (exportação, seleção, cache).
 
 ---
 
@@ -175,7 +175,7 @@
 - [x] Helpers de apresentação: `alinhamento(col)`, `operadorPadrao(col)`
 
 #### Componentes (Render burro — pergunta ao Core, desenha a resposta)
-- [x] `<RsTable>` (export JS: `RsDataTable`) — tabela completa (filtros + table + paginação), HTML semântico
+- [x] `<RsTable>` (export JS: `rosiumdataTable`) — tabela completa (filtros + table + paginação), HTML semântico
 - [x] `<RsThead>` — cabeçalho clicável com toggle asc/desc e indicador ↑↓, respeita colunas escondidas
 - [x] `<RsTbody>` — células exibem `display` do Core; estados `rs-loading` ("Carregando...") e `rs-empty` ("Nenhum registro")
 - [x] `<RsPagination>` — Anterior/números/Próximo, resumo "Página X de Y — Total: N registros", disabled nos limites
@@ -187,8 +187,8 @@
 - [x] Importável via `import '@rosiumdata/nuxt/theme/default.css'` (export no package.json)
 
 #### Plugin
-- [x] Plugin `RsData` — `app.use(RsData)` registra os 5 componentes globalmente (Vue e Nuxt via `nuxtApp.vueApp.use`)
-- [x] Exports: `useRsTable`, `RsDataTable`, `RsThead`, `RsTbody`, `RsPagination`, `RsFilters`, `RsData`, `THEME_DEFAULT_CSS` + tipos
+- [x] Plugin `rosiumdata` — `app.use(rosiumdata)` registra os 5 componentes globalmente (Vue e Nuxt via `nuxtApp.vueApp.use`)
+- [x] Exports: `useRsTable`, `rosiumdataTable`, `RsThead`, `RsTbody`, `RsPagination`, `RsFilters`, `rosiumdata`, `THEME_DEFAULT_CSS` + tipos
 
 #### Testes (Vitest + @vue/test-utils + happy-dom)
 - [x] useRsTable — 18 testes (conexão, eventos, delegação, loading, erro/Falhe Alto, desconexão, mock de adapter)
@@ -227,7 +227,7 @@
 | useRsTable() | ✅ Ponte Core ↔ Vue (eventos → reatividade) |
 | Componentes Render | ✅ RsTable, RsThead, RsTbody, RsPagination, RsFilters |
 | Theme default | ✅ CSS puro próprio, classes .rs-* |
-| Plugin Vue/Nuxt | ✅ app.use(RsData) registra componentes |
+| Plugin Vue/Nuxt | ✅ app.use(rosiumdata) registra componentes |
 | Playground | ✅ Prova visual (npx vite playground) |
 | Actions (gatilho) | ✅ Botão único, menu ⋯, evento `{ key, row }` — nunca executa |
 | Falhe Alto visual | ✅ Dev grita (banner + tooltip), produção segura (⚠ sutil) |
@@ -280,8 +280,8 @@
 | DT-028 | CSS distribuído cru: export `./theme/default.css` → `src/theme/default.css` | CSS não precisa de build; `files` do package.json inclui o arquivo. `build.config.ts` intocado |
 | DT-029 | `@vue/test-utils` + `happy-dom` como devDependencies do `@rosiumdata/nuxt` | Só para testes de componente. Ambiente DOM por arquivo via `// @vitest-environment happy-dom` (`vitest.config.ts` intocado) |
 | DT-030 | Cleanup automático de listeners via `onScopeDispose` + `desconectar()` explícito | Dentro de componente desconecta sozinho no unmount; fora de componente o dev chama `desconectar()` |
-| DT-031 | Plugin `RsData` como export nomeado (sem default export) | Explícito (Princípio #6) e evita warning de bundle misto named/default no unbuild |
-| DT-032 | Componente principal exportado como `RsDataTable` (revisão) | Evita colisão de nome com a classe `RsTable` do Core em imports. O nome público no template permanece `<RsTable>` (registrado pelo plugin) |
+| DT-031 | Plugin `rosiumdata` como export nomeado (sem default export) | Explícito (Princípio #6) e evita warning de bundle misto named/default no unbuild |
+| DT-032 | Componente principal exportado como `rosiumdataTable` (revisão) | Evita colisão de nome com a classe `RsTable` do Core em imports. O nome público no template permanece `<RsTable>` (registrado pelo plugin) |
 | DT-033 | Debounce de 300ms nos inputs de digitação do RsFilters (revisão) | `DEBOUNCE_FILTRO_MS` — setTimeout/clearTimeout puro, zero deps. Evita rajada de requisições com adapter server-side (Fase 5). Selects não usam debounce (mudança discreta). Timers cancelados no unmount |
 | DT-034 | Key de linha do `<RsTbody>` via `chaveLinha()` (revisão) | Índice do array como fallback — adequado hoje (sem animações/transições). Quando o Core fornecer um row identifier oficial (`__rowIndex`), ele será usado automaticamente como key estável |
 
@@ -299,7 +299,7 @@ O contrato `DataAdapter` define `fetchFilterOptions?(column)`, mas a classe `RsT
 | DT-048 | Dropdown ⋯ via `Teleport` nativo do Vue para o `<body>` | Zero dependências. Posição calculada do `getBoundingClientRect()` do botão; alinhado à direita via CSS (`translateX(-100%)`). Clique fora, Escape, clique em item e unmount fecham |
 | DT-049 | Falhe Alto visual com modos dev/produção via prop `:debug` | Default: `import.meta.env.DEV` (helper `ambienteDev()` com guard para ambientes sem Vite → assume produção, o modo seguro). Dev: `.rs-cell--error-debug` + `data-rs-error` (tooltip CSS) + banner `role="alert"`. Produção: só `.rs-cell--error` + ⚠ com `aria-label`, sem internals |
 | DT-050 | `mensagemErro()` formata a denúncia | "Coluna \`X\`, linha N, esperava \`Y\`, recebeu \`Z\`". `rowIndex` é o índice na página atual (contrato do Core desde a Fase 1). Erros gerais (adapter ausente, `rowIndex: -1`) omitem coluna/linha |
-| DT-051 | Persistência opt-in por chave explícita (`persistencia`) | Resolve a reserva do DT-039 (restauração automática seria mágica): sem chave visível no código de uso, nada é salvo. Storage: `rsdata:<chave>` com `{ colunasVisiveis, pageSize }`. Restauração usa somente API oficial do Core |
+| DT-051 | Persistência opt-in por chave explícita (`persistencia`) | Resolve a reserva do DT-039 (restauração automática seria mágica): sem chave visível no código de uso, nada é salvo. Storage: `rosiumdata:<chave>` com `{ colunasVisiveis, pageSize }`. Restauração usa somente API oficial do Core |
 | DT-052 | pageSize restaurado apenas no modo rápido | O Core não tem setter público de pageSize (só no construtor) — **gancho a avaliar no Core** se a Fase 5 precisar de seletor de tamanho de página. No modo instância, o pageSize salvo é ignorado (sem gambiarra) |
 | DT-053 | Coluna `acao` nunca recebe estado de erro | O Core não valida tipo `acao` (Fase 1); no Render a célula de action (`.rs-cell-action`) e a célula com erro (`.rs-cell--error`) são células distintas e independentes — action + erro convivem na mesma linha sem sobreposição |
 | DT-054 | Classes de erro renomeadas: `.rs-cell--error` / `.rs-cell--error-debug` | Substituem o CSS dormante `.rs-cell-error`/`.rs-row-error` da Fase 3 (nunca publicadas em release — sem quebra) |
@@ -311,7 +311,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 | ID | Decisão | Detalhe |
 |---|---|---|
 | DT-035 | Toolbar com Filtros (toggle + badge de contagem), Colunas (checkboxes) e Densidade | Estado de UI da sessão, sem persistência. Colunas usa a API oficial do Core (`esconderColuna`/`mostrarColuna`) via composable. `todasColunas` adicionado ao `UseRsTableContext` |
-| DT-036 | Botões "+ Novo" e "Exportar" OMITIDOS (decisão com o autor) | RSdata é read-only e exportação é plugin pós-1.0 — botões sem função violam Princípio #6. Classe `.rs-btn-primary` pronta no CSS para uso futuro |
+| DT-036 | Botões "+ Novo" e "Exportar" OMITIDOS (decisão com o autor) | rosiumdata é read-only e exportação é plugin pós-1.0 — botões sem função violam Princípio #6. Classe `.rs-btn-primary` pronta no CSS para uso futuro |
 | DT-037 | Busca global OMITIDA (decisão com o autor) | O contrato do Core não tem filtro OR entre colunas; o Render não pode filtrar dados. **Gancho a criar no Core** (ex.: busca global no Query) — reportado para o autor |
 | DT-038 | Menu ⋯ de ações ADIADO para a Fase 4 (decisão com o autor) | Não existe API de actions na ColumnDefinition; inventá-la é decisão de arquitetura (R19). CSS do dropdown (`.rs-menu`, `.rs-menu-item--danger`) pronto e dormante |
 | DT-039 | Preferências em localStorage NÃO implementadas (decisão com o autor) | Fora do roadmap; restauração automática é comportamento invisível (Princípio #6). Densidade/colunas são estado de sessão |
@@ -334,7 +334,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 - [x] Dropdown: card branco, borda sutil, sombra, animação 150ms ease-out; itens 8px 16px com hover; `danger` → texto vermelho + hover red (`.rs-menu-item--danger`)
 - [x] Dropdown renderizado no `<body>` via `Teleport` (nativo do Vue, zero deps)
 - [x] Clique fora OU Escape fecha; clique em uma ação emite e fecha
-- [x] Clique emite APENAS `{ key, row }` — zero fetch/exclusão/navegação no componente (read-only: a RSdata é o transportador, o usuário traz a arma)
+- [x] Clique emite APENAS `{ key, row }` — zero fetch/exclusão/navegação no componente (read-only: a rosiumdata é o transportador, o usuário traz a arma)
 - [x] Cadeia do evento: RsActions → RsTbody → `contexto.emitirAcao()` → listeners de `contexto.on('action')` → `<RsTable @action>` (re-emit Vue)
 
 #### Falhe Alto — visual (consumidor dos eventos do Core, nunca produtor)
@@ -344,7 +344,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 - [x] Erro + action na mesma linha: células independentes, sem sobreposição (coluna `acao` nunca é validada pelo Core; célula com erro nunca contém botão)
 
 #### Preferências persistentes (100% no composable, zero no Core)
-- [x] `useRsTable(fonte, { persistencia: 'chave' })` — salva em `localStorage` (`rsdata:chave`): colunas visíveis + ordem + pageSize
+- [x] `useRsTable(fonte, { persistencia: 'chave' })` — salva em `localStorage` (`rosiumdata:chave`): colunas visíveis + ordem + pageSize
 - [x] Sem a chave, nada é salvo/restaurado (explícito, Princípio #6 — resolve a reserva do DT-039)
 - [x] Restauração no mount via API oficial do Core (`mostrarColuna`/`esconderColuna`/`reordenarColunas`); pageSize restaurado no modo rápido (construtor)
 - [x] Prop `persistencia` no `<RsTable>`; menu "Colunas" da toolbar (checkboxes) alimenta a persistência
@@ -364,7 +364,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 
 #### Exports
 - [x] `RsActions`, `colunaAcao`, `acoesDaColuna`, `mensagemErro`, `ambienteDev`, `lerPreferencias`, `salvarPreferencias` + tipos `RsActionDefinition`, `RsActionEvent`, `RsPreferencias`, `UseRsTableExtras`
-- [x] Plugin `RsData` registra também `RsActions`
+- [x] Plugin `rosiumdata` registra também `RsActions`
 - [x] `npm run build` compila sem erros; zero dependências novas
 
 ---
@@ -442,7 +442,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 
 ## PRÓXIMOS PASSOS IMEDIATOS
 
-1. **v1.0 MVP:** usar a RSdata no projeto real do autor (Laravel DDD), substituindo o PowerGrid — validação em produção
+1. **v1.0 MVP:** usar a rosiumdata no projeto real do autor (Laravel DDD), substituindo o PowerGrid — validação em produção
 2. Configurar o backend Laravel conforme o contrato documentado no JSDoc do `LaravelAdapter` (request/response)
 3. Avaliar ganchos oficiais no Core reportados nas Fases 3/4/5: `getOpcoesFiltro(column)` (opções de filtro via adapter), setter público de pageSize, `actions` tipadas na `ColumnDefinition` e busca global no `Query`
 4. Fases pós-1.0 (opcionais): exportação CSV/Excel (plugin), seleção de linhas, cache, CI antes do primeiro release público
@@ -459,7 +459,7 @@ Nenhum no momento.
 
 **Pós-1.0 (opcional)** — o roadmap do MVP está completo:
 
-- Fases 0–5 concluídas → **v1.0 MVP**: RSdata pronta para o projeto real, substituindo o PowerGrid
+- Fases 0–5 concluídas → **v1.0 MVP**: rosiumdata pronta para o projeto real, substituindo o PowerGrid
 - Backlog priorizável: exportação (plugin), seleção de linhas, cache, casca React
 
 ---

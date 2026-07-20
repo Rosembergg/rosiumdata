@@ -1,7 +1,7 @@
-# THEMING.md — Guia de Estilização da RSdata
+# THEMING.md — Guia de Estilização da rosiumdata
 
 > Como personalizar completamente o visual da tabela. Do simples (mudar cores)
-> ao extremo (CSS próprio do zero). A RSdata foi desenhada para que você nunca
+> ao extremo (CSS próprio do zero). A rosiumdata foi desenhada para que você nunca
 > precise mexer no código da lib para aplicar SUA identidade visual.
 
 ---
@@ -20,12 +20,12 @@
 
 ## 1. COMO FUNCIONA
 
-Os componentes Vue da RSdata geram HTML com classes CSS **fixas e previsíveis** — sempre `.rs-table`, `.rs-row`, `.rs-cell`, etc. O que muda de um projeto para outro é o **CSS** que estiliza essas classes.
+Os componentes Vue da rosiumdata geram HTML com classes CSS **fixas e previsíveis** — sempre `.rs-table`, `.rs-row`, `.rs-cell`, etc. O que muda de um projeto para outro é o **CSS** que estiliza essas classes.
 
 O tema padrão vem com **70+ variáveis CSS** que controlam cores, fontes, espaçamentos, bordas e animações. Você não precisa reescrever CSS — basta **sobrescrever as variáveis** no seu próprio arquivo CSS.
 
 ```
-Componentes RSdata  →  HTML com classes .rs-*  →  SEU CSS estiliza
+Componentes rosiumdata  →  HTML com classes .rs-*  →  SEU CSS estiliza
    (nunca mudam)           (sempre igual)            (você controla)
 ```
 
@@ -37,7 +37,7 @@ O jeito mais rápido: crie um arquivo CSS no seu projeto e sobrescreva as variá
 
 ### Passo a passo
 
-**1. Crie** `assets/tema-rsdata.css` no seu frontend:
+**1. Crie** `assets/tema-rosiumdata.css` no seu frontend:
 
 ```css
 :root {
@@ -68,12 +68,12 @@ O jeito mais rápido: crie um arquivo CSS no seu projeto e sobrescreva as variá
 **2. Importe no plugin** em vez do `default.css`:
 
 ```ts
-// plugins/rsdata.ts
-import { RsData } from '@rosiumdata/nuxt'
-import '~/assets/tema-rsdata.css'      // ← seu tema
+// plugins/rosiumdata.ts
+import { rosiumdata } from '@rosiumdata/nuxt'
+import '~/assets/tema-rosiumdata.css'      // ← seu tema
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(RsData)
+  nuxtApp.vueApp.use(rosiumdata)
 })
 ```
 

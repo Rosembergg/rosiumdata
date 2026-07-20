@@ -4,13 +4,13 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { RsTable, LocalAdapter, column } from '@rosiumdata/core'
 import type { DataAdapter, Row } from '@rosiumdata/core'
 import {
-  RsDataTable,
+  rosiumdataTable,
   RsThead,
   RsTbody,
   RsPagination,
   RsFilters,
   useRsTable,
-  RsData,
+  rosiumdata,
 } from '@rosiumdata/nuxt'
 import { visiblePages } from '../src/components/RsPagination'
 import { convertOptionKey, FILTER_DEBOUNCE_MS } from '../src/components/RsFilters'
@@ -37,7 +37,7 @@ function criarColunas() {
 function montarTabela(dados: Row[] = DADOS, pageSize = 2) {
   const table = new RsTable({ columns: criarColunas(), pageSize })
   table.useAdapter(new LocalAdapter(dados))
-  const wrapper = mount(RsDataTable, { props: { table } })
+  const wrapper = mount(rosiumdataTable, { props: { table } })
   return { table, wrapper }
 }
 
@@ -79,7 +79,7 @@ describe('<RsTable> — renderização', () => {
   })
 
   it('funciona no modo rápido (columns + adapter)', async () => {
-    const wrapper = mount(RsDataTable, {
+    const wrapper = mount(rosiumdataTable, {
       props: {
         columns: criarColunas(),
         adapter: new LocalAdapter(DADOS),
@@ -92,14 +92,14 @@ describe('<RsTable> — renderização', () => {
   })
 
   it('lança erro explícito sem tabela nem columns+adapter', () => {
-    expect(() => mount(RsDataTable)).toThrow(/table/)
+    expect(() => mount(rosiumdataTable)).toThrow(/table/)
   })
 
   it('respeita colunas escondidas', async () => {
     const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
     table.useAdapter(new LocalAdapter(DADOS))
     table.hideColumn('id')
-    const wrapper = mount(RsDataTable, { props: { table } })
+    const wrapper = mount(rosiumdataTable, { props: { table } })
     await flushPromises()
 
     const headers = wrapper.findAll('th').map((th) => th.text())
@@ -173,7 +173,7 @@ describe('<RsTbody> — estados', () => {
     }
     const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
     table.useAdapter(adapterLento)
-    const wrapper = mount(RsDataTable, { props: { table } })
+    const wrapper = mount(rosiumdataTable, { props: { table } })
     await wrapper.vm.$nextTick()
 
     const loading = wrapper.find('tr.rs-loading')
@@ -455,10 +455,10 @@ describe('Integração — fluxo completo (filtro + ordenação + paginação)',
   })
 })
 
-describe('Plugin RsData', () => {
+describe('Plugin rosiumdata', () => {
   it('registra os componentes globalmente via app.use()', () => {
     const app = createApp(defineComponent({ render: () => h('div') }))
-    app.use(RsData)
+    app.use(rosiumdata)
 
     expect(app.component('RsTable')).toBeTruthy()
     expect(app.component('RsThead')).toBeTruthy()
@@ -522,7 +522,7 @@ describe('Toolbar — menu de colunas', () => {
   it('clique fora fecha o menu de colunas', async () => {
     const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
     table.useAdapter(new LocalAdapter(DADOS))
-    const wrapper = mount(RsDataTable, { props: { table }, attachTo: document.body })
+    const wrapper = mount(rosiumdataTable, { props: { table }, attachTo: document.body })
     await flushPromises()
 
     const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Columns'))!
@@ -584,7 +584,7 @@ describe('Skeleton loading', () => {
     }
     const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
     table.useAdapter(adapterLento)
-    const wrapper = mount(RsDataTable, { props: { table } })
+    const wrapper = mount(rosiumdataTable, { props: { table } })
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.rs-skeleton').length).toBeGreaterThan(0)

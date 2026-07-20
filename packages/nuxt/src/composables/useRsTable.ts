@@ -29,9 +29,9 @@ export type { RsTable } from '@rosiumdata/core'
 /**
  * Definição declarativa de uma action (gatilho).
  *
- * A RSdata renderiza o botão e emite o evento com o dado da linha — a lógica
+ * A rosiumdata renderiza o botão e emite o evento com o dado da linha — a lógica
  * do que acontece depois (API, exclusão, navegação) é 100% do usuário.
- * A RSdata é o transportador; o usuário traz a arma.
+ * A rosiumdata é o transportador; o usuário traz a arma.
  */
 export type { ActionDefinition as RsActionDefinition }
 export type { ActionDefinition }
@@ -69,7 +69,7 @@ export interface RsPreferences {
   pageSize: number
 }
 
-const STORAGE_PREFIX = 'rsdata:'
+const STORAGE_PREFIX = 'rosiumdata:'
 
 export function readPreferences(key: string): RsPreferences | null {
   if (typeof localStorage === 'undefined') return null

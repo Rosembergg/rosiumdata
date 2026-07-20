@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">RSdata</h1>
+  <h1 align="center">RosiumData</h1>
   <p align="center">
     Data Grid framework. Separate your data from your UI — finally.
   </p>
@@ -15,9 +15,9 @@
 
 ---
 
-## What is RSdata?
+## What is RosiumData?
 
-RSdata is a **Data Grid framework** built for developers who need more than a pretty table. It separates data, logic, rendering, and theming into independent layers — so changing your visual identity never corrupts your data, and filtering never breaks your export.
+RosiumData is a **Data Grid framework** built for developers who need more than a pretty table. It separates data, logic, rendering, and theming into independent layers — so changing your visual identity never corrupts your data, and filtering never breaks your export.
 
 Built for **Nuxt 3** today. Designed for **any framework** tomorrow.
 
@@ -32,7 +32,7 @@ Data Source  →  Data Engine  →  Render Engine  →  Theme
 
 Most Data Grid libraries couple everything together: fetch, filter, style, and export all live in the same place. Every new feature becomes a hack stacked on the last one. The worst symptom: **visual styling leaks into your Excel exports**, corrupting data.
 
-RSdata fixes this at the architectural level. **Same data serves your screen, your filters, and your exports — zero style contamination.**
+RosiumData fixes this at the architectural level. **Same data serves your screen, your filters, and your exports — zero style contamination.**
 
 ---
 
@@ -58,12 +58,12 @@ npm install
 ### 2. Register the plugin
 
 ```ts
-// plugins/rsdata.ts
-import { RsData } from '@rosiumdata/nuxt'
+// plugins/RosiumData.ts
+import { RosiumData } from '@rosiumdata/nuxt'
 import '@rosiumdata/nuxt/theme/default.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(RsData)
+  nuxtApp.vueApp.use(RosiumData)
 })
 ```
 
@@ -127,10 +127,10 @@ const adapter = new LaravelAdapter('https://api.example.com/products', {
 ```
 
 ### 🚨 Fail Loud
-Invalid data (e.g. `null` where a number was expected) is never silently swallowed. In dev mode, RSdata points exactly at the broken cell with column, row, expected type, and received value. In production, a subtle indicator keeps the table alive without exposing internals.
+Invalid data (e.g. `null` where a number was expected) is never silently swallowed. In dev mode, RosiumData points exactly at the broken cell with column, row, expected type, and received value. In production, a subtle indicator keeps the table alive without exposing internals.
 
 ### ⚡ Zero dependencies in the Core
-`@rosiumdata/core` has **zero runtime dependencies**. Literally `"dependencies": {}`. Every dependency lives in isolated plugins or adapters. If a library dies, RSdata doesn't.
+`@rosiumdata/core` has **zero runtime dependencies**. Literally `"dependencies": {}`. Every dependency lives in isolated plugins or adapters. If a library dies, RosiumData doesn't.
 
 ### 🌐 Locale-aware formatting (default pt-BR)
 Numbers, dates, and currencies are formatted via the native `Intl` API — zero dependencies. Default is Brazilian Portuguese (`R$ 1.000,00`, `DD/MM/YYYY`). Change with one line: `new RsTable({ columns, locale: 'en-US' })`. Per-column override for multi-currency tables. [Full guide →](docs/USAGE.md#10-locale--formatting)
@@ -139,7 +139,7 @@ Numbers, dates, and currencies are formatted via the native `Intl` API — zero 
 
 ## Quick comparison
 
-| | RSdata | TanStack Table | AG Grid | PowerGrid |
+| | RosiumData | TanStack Table | AG Grid | PowerGrid |
 |---|---|---|---|---|
 | **Paradigm** | Headless + batteries included | Headless | Full-featured | Laravel-coupled |
 | **Core deps** | 0 | 0 | 0 | Laravel |
@@ -208,7 +208,7 @@ Numbers, dates, and currencies are formatted via the native `Intl` API — zero 
 ## Contributing
 
 
-RSdata is in the *dogfooding* phase—created primarily to address an internal need. Contributions, questions, and feedback are welcome.
+RosiumData is in the *dogfooding* phase—created primarily to address an internal need. Contributions, questions, and feedback are welcome.
 
 ---
 

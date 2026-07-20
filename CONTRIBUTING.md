@@ -1,4 +1,4 @@
-# CONTRIBUTING.md — RSdata
+# CONTRIBUTING.md — rosiumdata
 
 > **Guia para contribuir com o projeto.** Leve e direto — expandível conforme o projeto crescer.
 
@@ -54,7 +54,7 @@ Nada de convenção estrita por enquanto. Apenas mensagens claras e em portuguê
 | ✨ **Feature do Roadmap** | Qualquer item das fases ativas ou planejadas (`docs/ROADMAP.md`). |
 | 🧪 **Testes** | Aumentar cobertura, testar casos de borda. |
 | 📝 **Documentação** | Correções, melhorias, traduções. |
-| 🔌 **Plugin** | Funcionalidade opcional que estende a RSdata sem tocar no Core. |
+| 🔌 **Plugin** | Funcionalidade opcional que estende a rosiumdata sem tocar no Core. |
 
 ### O que precisa ser discutido antes
 
@@ -70,7 +70,7 @@ Nesses casos, **abra uma issue primeiro** para discutir.
 ## ESTRUTURA DO PROJETO
 
 ```
-RSdata/
+rosiumdata/
 ├── packages/
 │   ├── core/        ← @rosiumdata/core (JS/TS puro, zero-dep)
 │   └── nuxt/        ← @rosiumdata/nuxt (casca Vue/Nuxt)

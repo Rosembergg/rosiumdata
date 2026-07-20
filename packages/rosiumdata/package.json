@@ -1,11 +1,11 @@
 {
   "name": "rosiumdata",
-  "version": "0.0.1",
-  "description": "RSdata — Data Grid framework for Nuxt 3 with 4-layer architecture (Adapter, Engine, Render, Theme)",
+  "version": "0.0.3",
+  "description": "RosiumData — Data Grid framework for Nuxt 3 with 4-layer architecture (Adapter, Engine, Render, Theme)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Rosembergg/RSdata"
+    "url": "https://github.com/Rosembergg/rosiumdata"
   },
   "keywords": [
     "datagrid",

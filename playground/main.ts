@@ -1,6 +1,6 @@
 import { createApp, defineComponent, h } from 'vue'
 import { RsTable as RsTableCore, LocalAdapter, coluna } from '@rosiumdata/core'
-import { RsData, RsDataTable } from '@rosiumdata/nuxt'
+import { rosiumdata, rosiumdataTable } from '@rosiumdata/nuxt'
 import '@rosiumdata/nuxt/theme/default.css'
 
 const dados = [
@@ -32,10 +32,10 @@ const App = defineComponent({
   setup() {
     return () =>
       h('main', { style: 'max-width: 60rem; margin: 2rem auto; padding: 0 1rem;' }, [
-        h('h1', 'RSdata — Fase 3: Render Engine Nuxt + Theme Default'),
-        h(RsDataTable, { tabela }),
+        h('h1', 'rosiumdata — Fase 3: Render Engine Nuxt + Theme Default'),
+        h(rosiumdataTable, { tabela }),
       ])
   },
 })
 
-createApp(App).use(RsData).mount('#app')
+createApp(App).use(rosiumdata).mount('#app')

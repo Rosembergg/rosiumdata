@@ -1,11 +1,11 @@
 {
   "name": "@rosiumdata/core",
   "version": "0.0.1",
-  "description": "RSdata Data Engine — headless data grid framework (pure TypeScript, zero dependencies)",
+  "description": "rosiumdata Data Engine — headless data grid framework (pure TypeScript, zero dependencies)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Rosembergg/RSdata"
+    "url": "https://github.com/Rosembergg/rosiumdata"
   },
   "keywords": [
     "datagrid",

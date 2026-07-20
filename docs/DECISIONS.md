@@ -1,4 +1,4 @@
-# DECISIONS.md — RSdata
+# DECISIONS.md — rosiumdata
 
 > **Registro de todas as decisões importantes do projeto.** O que foi decidido, por quê, quando e se é reversível.  
 > Serve como memória institucional — se alguém questionar "por que fizemos assim?", a resposta está aqui.
@@ -11,18 +11,18 @@
 
 **Data:** Discovery — Etapa 3 (Arquitetura)
 **Decisão:** O Core (Data Source + Data Engine) é JavaScript/TypeScript puro, zero framework. O Render Engine é a única camada que conhece o framework (hoje Nuxt/Vue).
-**Motivo:** Permite portar a RSdata para React, Web Components ou qualquer frontend no futuro sem reescrever a lógica. Torna real o sonho "qualquer frontend".
+**Motivo:** Permite portar a rosiumdata para React, Web Components ou qualquer frontend no futuro sem reescrever a lógica. Torna real o sonho "qualquer frontend".
 **Alternativa considerada:** Tudo acoplado ao Nuxt (mais rápido hoje, mas amarra ao Vue para sempre). Web Components puro (mais universal, mas difícil de usar no ecossistema Nuxt hoje).
 **Reversível:** Não. Define a arquitetura do projeto.
 **Impacto:** O Core não pode usar `ref`, `computed`, `reactive` nem qualquer API do Vue. A reatividade é própria (eventos em JS puro).
 
 ---
 
-### D-002: Read-only — RSdata não escreve dados
+### D-002: Read-only — rosiumdata não escreve dados
 
 **Data:** Discovery — Etapa 3 (Arquitetura)
-**Decisão:** A RSdata é somente-leitura (read-only) por natureza. Ela exibe e exporta dados; não edita, cria ou deleta. A mutação é responsabilidade do CRUD do sistema do usuário.
-**Motivo:** Coerente com a Identidade ("a RSdata é a ponte, não o destino"). Mantém o Core simples e o escopo afiado.
+**Decisão:** A rosiumdata é somente-leitura (read-only) por natureza. Ela exibe e exporta dados; não edita, cria ou deleta. A mutação é responsabilidade do CRUD do sistema do usuário.
+**Motivo:** Coerente com a Identidade ("a rosiumdata é a ponte, não o destino"). Mantém o Core simples e o escopo afiado.
 **Alternativa considerada:** Permitir edição inline (como o AG Grid). Rejeitada: fere o princípio de foco ("não somos Excel") e aumenta a complexidade do Core.
 **Reversível:** Não. Define o escopo do produto.
 **Impacto:** O contrato do Adapter é só leitura (`fetch`, nunca `save`/`update`/`delete`). Ações (botões) são gatilhos que emitem eventos, mas a execução é externa.
@@ -33,7 +33,7 @@
 
 **Data:** Discovery — Etapa 2 (Filosofia)
 **Decisão:** O `@rosiumdata/core` tem zero dependências externas de runtime. Literalmente nenhuma.
-**Motivo:** Soberania — se uma dependência morre, a RSdata não morre junto. O Core é sagrado. Dependências externas, quando inevitáveis, vivem isoladas em plugins/adapters nas bordas.
+**Motivo:** Soberania — se uma dependência morre, a rosiumdata não morre junto. O Core é sagrado. Dependências externas, quando inevitáveis, vivem isoladas em plugins/adapters nas bordas.
 **Alternativa considerada:** Dependências criteriosas dentro do Core. Rejeitada: qualquer dependência no Core compromete a soberania.
 **Reversível:** Não. Princípio fundador.
 **Impacto:** Tudo que exija lib externa (ex: gerar .xlsx) é Plugin, nunca Core. O `package.json` do `@rosiumdata/core` comprova: zero `dependencies`.
@@ -43,8 +43,8 @@
 ### D-004: Dado plano (flat) no Core
 
 **Data:** Discovery — Etapa 3 (Arquitetura)
-**Decisão:** A RSdata trabalha exclusivamente com dados planos. O Core nunca navega em objetos aninhados. Se o dado vier aninhado, o Adapter achata antes de entregar.
-**Motivo:** Mantém o Core simples e universal. Relação entre tabelas, JOINs, agregações são responsabilidade do backend/adapter, não da RSdata. Cura a dor original do PowerGrid (dado de relação exigia lógica especial na tabela).
+**Decisão:** A rosiumdata trabalha exclusivamente com dados planos. O Core nunca navega em objetos aninhados. Se o dado vier aninhado, o Adapter achata antes de entregar.
+**Motivo:** Mantém o Core simples e universal. Relação entre tabelas, JOINs, agregações são responsabilidade do backend/adapter, não da rosiumdata. Cura a dor original do PowerGrid (dado de relação exigia lógica especial na tabela).
 **Alternativa considerada:** Core aceitar caminhos aninhados (`categoria.nome`). Rejeitada: adicionaria complexidade ao Core e quebraria o princípio de "Core minimalista".
 **Reversível:** Dificilmente. Afeta a interface do Adapter e a definição de colunas.
 **Impacto:** Toda coluna aponta para um campo simples (`preco`, não `categoria.preco`). O Adapter tem a responsabilidade de "achatar" o dado.
@@ -54,7 +54,7 @@
 ### D-005: Adapter como conceito universal
 
 **Data:** Discovery — Etapa 3 (Arquitetura)
-**Decisão:** Toda fonte de dados é um Adapter. Server-side e client-side usam o mesmo contrato. A RSdata nunca sabe de onde vêm os dados.
+**Decisão:** Toda fonte de dados é um Adapter. Server-side e client-side usam o mesmo contrato. A rosiumdata nunca sabe de onde vêm os dados.
 **Motivo:** Um único modelo mental no Core. Escala sem reescrever: começa com adapter local, migra para remoto trocando só o adapter. É o anti-PowerGrid: a tabela não muda, o adapter muda.
 **Alternativa considerada:** Caminhos separados para local vs. remoto. Rejeitada: duplicaria lógica e quebraria a simplicidade do Core.
 **Reversível:** Não. Define a interface do Data Engine.
@@ -97,7 +97,7 @@
 ### D-009: Stateless — sem cache no dia 1
 
 **Data:** Discovery — Etapa 3 (Arquitetura)
-**Decisão:** A RSdata não guarda resultados anteriores. Toda mudança de filtro/ordenação/página gera nova consulta ao Adapter.
+**Decisão:** A rosiumdata não guarda resultados anteriores. Toda mudança de filtro/ordenação/página gera nova consulta ao Adapter.
 **Motivo:** Core minimalista. Complexidade de cache (invalidação, stale data) é prematura para o MVP. Sempre correto (dado fresco) > às vezes rápido (dado em cache).
 **Alternativa considerada:** Cache com invalidação. Adiada, não rejeitada — pode virar plugin ou opção no futuro.
 **Reversível:** Sim. Pode ser adicionado como refinamento sem quebrar nada.
@@ -107,10 +107,10 @@
 
 ## DECISÕES DE PRODUTO
 
-### D-010: Nome provisório — RSdata
+### D-010: Nome provisório — rosiumdata
 
 **Data:** Discovery — Etapa 1 (Identidade)
-**Decisão:** O nome atual do projeto é RSdata, mas é provisório e pode mudar.
+**Decisão:** O nome atual do projeto é rosiumdata, mas é provisório e pode mudar.
 **Motivo:** Nome não é crítico para a arquitetura. Pode ser decidido mais tarde, antes do lançamento público.
 **Alternativa considerada:** Nome definitivo desde o início. Rejeitada: desnecessário neste momento.
 **Reversível:** Sim. Nome não afeta código (apenas `package.json` e documentação).
@@ -185,7 +185,7 @@
 
 **Data:** Discovery — Etapa 3 (Arquitetura)
 **Decisão:** O template visual padrão usa apenas CSS puro, sem dependência de Tailwind, Bootstrap ou qualquer framework CSS.
-**Motivo:** Soberania (Princípio #3). Se um framework CSS morrer, o visual da RSdata não morre. O usuário é livre para aplicar Tailwind ou o que quiser por cima — mas a RSdata não depende de nada.
+**Motivo:** Soberania (Princípio #3). Se um framework CSS morrer, o visual da rosiumdata não morre. O usuário é livre para aplicar Tailwind ou o que quiser por cima — mas a rosiumdata não depende de nada.
 **Alternativa considerada:** Usar Tailwind como dependência. Rejeitada: fere a soberania. Oferecer múltiplos temas prontos. Rejeitada: "não somos kit de UI".
 **Reversível:** Dificilmente. Adicionar dependência a framework CSS seria contradizer o princípio fundador.
 
@@ -226,7 +226,7 @@
 | D-007 | Filtro por método explícito | Dificilmente |
 | D-008 | Instância viva com eventos | Não |
 | D-009 | Stateless (sem cache no dia 1) | Sim |
-| D-010 | Nome provisório RSdata | Sim |
+| D-010 | Nome provisório rosiumdata | Sim |
 | D-011 | Hoje solo, amanhã OSS | Sim |
 | D-012 | TypeScript | Dificilmente |
 | D-013 | npm | Sim |

@@ -1,4 +1,4 @@
-export { RsDataTable, isDevEnvironment } from './RsDataTable'
+export { rosiumdataTable, isDevEnvironment } from './rosiumdataTable'
 export { RsThead } from './RsThead'
 export { RsTbody, rowKey, errorMessage } from './RsTbody'
 export { RsActions, columnActions } from './RsActions'

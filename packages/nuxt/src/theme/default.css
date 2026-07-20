@@ -1,5 +1,5 @@
 /*
- * RSdata — Theme Default
+ * rosiumdata — Theme Default
  *
  * CSS puro, zero dependências externas. Estrutura de classes previsível
  * (.rs-*) para sobrescrita. Nenhum !important.
@@ -12,7 +12,7 @@
  */
 
 :root {
-  /* Identidade visual RSdata */
+  /* Identidade visual rosiumdata */
   --rs-primary: #1c203f;   /* azul escuro — destaque, página ativa */
   --rs-accent: #65ba88;    /* verde água — ações, foco, interações */
   --rs-light: #cde9f2;     /* azul claro — superfícies, hover sutil */
