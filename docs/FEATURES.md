@@ -19,15 +19,15 @@ Funcionalidades que estarão na primeira versão estável. Organizadas por fase.
 | **Tipo: data / data-hora** | Filtro por intervalo; ordenação cronológica; validação de data; máscara configurável | Essencial |
 | **Tipo: booleano** | Filtro de duas opções; alinhamento centro | Essencial |
 | **Tipo: seleção/enum** | Filtro dropdown; valores mapeados (1→Ativo); ordenação pelo valor de exibição | Essencial |
-| **Filtros** | API explícita: `.filtrar({ column, operator, value })` | Essencial |
-| **Ordenação** | `.ordenar(column, 'asc'|'desc')` | Essencial |
-| **Paginação** | `.irParaPagina(n)` + `.getTotal()` | Essencial |
-| **Estado visível** | `.getLinhas()`, `.getEstado()` — snapshot completo para debug/plugins | Essencial |
+| **Filters** | Explicit API: `.filter({ column, operator, value })` | Essential |
+| **Sorting** | `.sort(column, 'asc'|'desc')` | Essential |
+| **Pagination** | `.goToPage(n)` + `.getTotal()` | Essential |
+| **Visible state** | `.getRows()`, `.getState()` — full snapshot for debug/plugins | Essential |
 | **Transformação de dado** | `1 → "Ativo"`, formatação de valor (Linha Sagrada lado dado) | Essencial |
 | **Valor real + máscara** | Cada coluna guarda valor calculável + receita de exibição separados | Essencial |
 | **Falhe Alto** | Detecção de dado imperfeito com localização exata (coluna+linha+esperado vs. recebido) | Essencial |
-| **Sistema de eventos** | `.on('dados:carregados')`, `.on('erro')`, `.on('estado:alterado')` | Essencial |
-| **Gerenciamento de colunas** | `.esconderColuna()`, `.mostrarColuna()`, `.reordenarColunas()` | Essencial |
+| **Event system** | `.on('data:loaded')`, `.on('error')`, `.on('state:changed')` | Essential |
+| **Column management** | `.hideColumn()`, `.showColumn()`, `.reorderColumns()` | Essential |
 | **Interface do Adapter** | Contrato TypeScript (`DataAdapter`) que todo adapter implementa | Essencial |
 
 ### Fase 2 — Adapter Local

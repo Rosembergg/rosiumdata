@@ -68,27 +68,27 @@
 - [x] Tipos: `Query`, `FetchResult`, `Row`, `FilterOption`, `Filter`
 
 #### Tipos de Coluna
-- [x] Tipo `ColumnType`: texto, numero, data, data-hora, booleano, selecao, acao
-- [x] Cada tipo = pacote de comportamento (operadores padrão, alinhamento, validação)
-- [x] Função `coluna(key, config)` para definição declarativa
-- [x] `formatarValorPadrao()` — formatação de valor por tipo
-- [x] `ALINHAMENTO_PADRAO` por tipo
-- [x] `OPERADORES_PADRAO` por tipo
-- [x] TUDO SOBRESCREVÍVEL (Princípio #5) — transform, filterOperators, alignment
+- [x] Type `ColumnType`: text, number, date, datetime, boolean, select, action
+- [x] Each type = behavior package (default operators, alignment, validation)
+- [x] Function `column(key, config)` for declarative definition
+- [x] `formatDefaultValue()` — value formatting by type
+- [x] `DEFAULT_ALIGNMENT` by type
+- [x] `DEFAULT_OPERATORS` by type
+- [x] EVERYTHING OVERRIDABLE (Principle #5) — transform, filterOperators, alignment
 
 #### Data Engine — Classe RsTable
 - [x] Instância viva com estado mutável + eventos (Princípio #4)
 - [x] API explícita (Princípio #6):
   - [x] `new RsTable({ columns, pageSize? })`
-  - [x] `.usarAdapter(adapter)`
-  - [x] `.filtrar({ column, operator, value })` — múltiplos AND
-  - [x] `.ordenar(column, 'asc'|'desc')`
-  - [x] `.irParaPagina(n)` — com validação de limites
-  - [x] `.getLinhas()` — dados transformados (raw + display)
-  - [x] `.getTotal()` — total de linhas
-  - [x] `.getEstado()` — snapshot completo (imutável)
-  - [x] `.esconderColuna(key)` / `.mostrarColuna(key)`
-  - [x] `.reordenarColunas([...keys])`
+  - [x] `.useAdapter(adapter)`
+  - [x] `.filter({ column, operator, value })` — multiple AND
+  - [x] `.sort(column, 'asc'|'desc')`
+  - [x] `.goToPage(n)` — with boundary validation
+  - [x] `.getRows()` — transformed data (raw + display)
+  - [x] `.getTotal()` — total rows
+  - [x] `.getState()` — full snapshot (immutable)
+  - [x] `.hideColumn(key)` / `.showColumn(key)`
+  - [x] `.reorderColumns([...keys])`
 
 #### Linha Sagrada
 - [x] Cada célula retorna `{ raw, display }` — valor calculável + receita de exibição
@@ -99,11 +99,11 @@
 #### Sistema de Eventos
 - [x] EventEmitter puro (observer pattern)
 - [x] `.on(event, callback)` / `.off(event, callback)`
-- [x] Eventos: `dados:carregados`, `erro`, `estado:alterado`
+- [x] Events: `data:loaded`, `error`, `state:changed`
 
 #### Falhe Alto (Validação)
 - [x] Validar dado recebido contra tipo da coluna
-- [x] Se inválido: emitir evento `erro` com `{ column, rowIndex, expected, received }`
+- [x] If invalid: emit `error` event with `{ column, rowIndex, expected, received }`
 - [x] Validação testável no terminal (sem HTML/DOM)
 - [x] Null/undefined aceito em qualquer tipo (não é erro)
 
@@ -128,16 +128,16 @@
 - [x] `fetchFilterOptions(column)`: retorna valores únicos da coluna
 
 #### Operadores de Filtro
-- [x] Função `aplicarFiltros()` — múltiplos filtros com lógica AND
-- [x] Operadores texto: `contem`, `igual`, `comeca_com`, `termina_com`
-- [x] Operadores numero: `=`, `>`, `<`, `>=`, `<=`, `entre`
-- [x] Operadores data/data-hora: `entre`, `antes`, `depois`, `igual`
-- [x] Operadores booleano: `igual`
-- [x] Operadores selecao: `igual`
+- [x] Function `applyFilters()` — multiple filters with AND logic
+- [x] Text operators: `contains`, `equals`, `startsWith`, `endsWith`
+- [x] Number operators: `=`, `>`, `<`, `>=`, `<=`, `between`
+- [x] Date/datetime operators: `between`, `before`, `after`, `equals`
+- [x] Boolean operators: `equals`
+- [x] Select operators: `equals`
 - [x] Valores null/undefined na linha → filtro não dá match
 
 #### Ordenação
-- [x] Função `ordenarArray()` — ordena por coluna e direção (asc/desc)
+- [x] Function `sortArray()` — sort by column and direction (asc/desc)
 - [x] Auto-detecção de tipo no valor: string → alfabética, number → numérica, Date → cronológica, boolean → false antes de true
 - [x] Valores null/undefined sempre vão para o final (independente da direção)
 
@@ -243,8 +243,8 @@
 | DT-001 | `FormatarValorPadrao` usa `Intl` nativo | Zero dependências externas. locale pt-BR padrão |
 | DT-002 | `validarTexto` aceita apenas string | Números não são automaticamente válidos em coluna texto |
 | DT-003 | `getLinhas()` retorna `{ raw, display }` | Valor real + valor de exibição separados por célula |
-| DT-004 | `.filtrar()` com valor vazio remove o filtro | Sem API separada para remover filtro |
-| DT-005 | `.getEstado()` retorna snapshot imutável | Cópias (`[...]`, `{...}`) para segurança |
+| DT-004 | `.filter()` with empty value removes the filter | No separate API to remove filter |
+| DT-005 | `.getState()` returns immutable snapshot | Copies (`[...]`, `{...}`) for safety |
 | DT-006 | `esconderColuna()`/`reordenarColunas()` não fetcham | São operações visuais, não afetam os dados |
 | DT-007 | Operadores em português | `contem`, `igual`, `comeca_com`, `entre`, `antes`, `depois` |
 | DT-008 | `validarPagina` sempre retorna 1 para total 0 | Tabela sem dados = primeira página "vazia" |
@@ -287,14 +287,14 @@
 
 ### ⚠️ Buraco de contrato encontrado (reportar — não corrigido com gambiarra)
 
-O contrato `DataAdapter` define `fetchFilterOptions?(column)`, mas a classe `RsTable` (Core) **não expõe** nenhum método para o Render consumi-lo (o adapter é privado). Como o Render não pode falar com o Adapter diretamente (regra de camadas), o dropdown de seleção da Fase 3 usa `col.options` da definição da coluna. **Sugestão para Fase 4/5:** adicionar ao Core um método oficial (ex.: `RsTable.getOpcoesFiltro(column)`) que delega ao adapter. O Core NÃO foi alterado nesta fase.
+O contrato `DataAdapter` define `fetchFilterOptions?(column)`, mas a classe `RsTable` (Core) **não expõe** nenhum método para o Render consumi-lo (o adapter é privado). Como o Render não pode falar com o Adapter diretamente (regra de camadas), o dropdown de seleção da Fase 3 usa `col.options` da definição da coluna. **Sugestão para Fase 4/5:** adicionar ao Core um método oficial (ex.: `RsTable.getFilterOptions(column)`) que delega ao adapter. O Core NÃO foi alterado nesta fase.
 
 ## DECISÕES TÉCNICAS DA FASE 4
 
 | ID | Decisão | Detalhe |
 |---|---|---|
 | DT-045 | Actions declaradas em `col.options.actions` (API definida pelo autor no kickoff da fase) | O Core trata `options` como opaco para o tipo `acao` (não filtra, não valida, `display` = ''). O Render lê por duck-typing (`acoesDaColuna()`). Core intocado |
-| DT-046 | Helper `colunaAcao(key, { label, actions })` no Render | A `ColumnDefinition.options` do Core é tipada como `Record<string\|number, string>` — declarar actions inline exigiria cast no código do usuário. O helper produz a definição válida (via `coluna()` do Core) e mantém o uso explícito e tipado |
+| DT-046 | Helper `actionColumn(key, actions)` in Render | Core `ColumnDefinition.options` is typed as `Record<string, string>` — declaring actions inline requires user cast. The helper produces a valid definition (via Core `column()`) keeping usage explicit and typed |
 | DT-047 | Evento de action viaja por canal próprio do composable (`contexto.on/off/emitirAcao`) | A `RsTable` do Core não expõe `emit` público — o Render não pode (nem deve) emitir eventos na instância do Core. O composable é o hub: RsTbody → `emitirAcao` → listeners + re-emit Vue no `<RsTable @action>`. Payload: `{ key, row }` com a linha transformada (raw + display) |
 | DT-048 | Dropdown ⋯ via `Teleport` nativo do Vue para o `<body>` | Zero dependências. Posição calculada do `getBoundingClientRect()` do botão; alinhado à direita via CSS (`translateX(-100%)`). Clique fora, Escape, clique em item e unmount fecham |
 | DT-049 | Falhe Alto visual com modos dev/produção via prop `:debug` | Default: `import.meta.env.DEV` (helper `ambienteDev()` com guard para ambientes sem Vite → assume produção, o modo seguro). Dev: `.rs-cell--error-debug` + `data-rs-error` (tooltip CSS) + banner `role="alert"`. Produção: só `.rs-cell--error` + ⚠ com `aria-label`, sem internals |
@@ -328,7 +328,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 #### Actions — coluna tipo `acao` no Render (gatilhos, nunca executores)
 - [x] `RsActions` (components/RsActions.ts) — renderiza as actions de uma célula
 - [x] Actions declaradas em `col.options.actions: [{ key, label, danger? }]`
-- [x] Helper `colunaAcao(key, { label, actions })` no Render — cria a ColumnDefinition sem cast no código do usuário
+- [x] Helper `actionColumn(key, actions)` in Render
 - [x] 1 action → botão direto (`.rs-action-btn`); `danger: true` → `.rs-action-btn--danger`
 - [x] 2+ actions → botão ⋯ (`.rs-action-more`) que abre dropdown
 - [x] Dropdown: card branco, borda sutil, sombra, animação 150ms ease-out; itens 8px 16px com hover; `danger` → texto vermelho + hover red (`.rs-menu-item--danger`)
