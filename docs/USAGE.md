@@ -87,9 +87,7 @@ const columns = [
   column('id',     { type: 'number',  label: 'ID' }),
   column('name',   { type: 'text',    label: 'Name' }),
   column('price',  { type: 'number',  label: 'Price', mask: 'R$ #,##0.00' }),
-  column('status', { type: 'select',  label: 'Status', options: {
-    entries: { 1: 'Active', 2: 'Inactive' }
-  }}),
+  column('status', { type: 'select',  label: 'Status', options: { 1: 'Active', 2: 'Inactive' } }),
 ]
 
 const adapter = new LocalAdapter([
@@ -138,7 +136,7 @@ column('field_name', {
 | `'date'` | between (range) | Chronological | Center | — |
 | `'datetime'` | between (range) | Chronological | Center | — |
 | `'boolean'` | equals (dropdown Yes/No) | No < Yes | Center | — (displays `Yes`/`No`; use `transform` to customize) |
-| `'select'` | equals (dropdown) | By raw value | Left | `{ entries: { value: 'Label' } }` (flat map) |
+| `'select'` | equals (dropdown) | By raw value | Left | `{ value: 'Label' }` (flat map) |
 | `'action'` | — | — | Center | `{ actions: ActionDefinition[] }` (use `actionColumn()`) |
 
 ### Examples
@@ -157,7 +155,7 @@ column('createdAt', { type: 'date', label: 'Created at' })
 column('status', {
   type: 'select',
   label: 'Status',
-  options: { entries: { 1: 'Active', 2: 'Inactive', 3: 'Pending' } }
+  options: { 1: 'Active', 2: 'Inactive', 3: 'Pending' }
 })
 
 // Boolean (displays "Yes"/"No" by default; customize with transform)
@@ -649,14 +647,10 @@ import { actionColumn } from '@rsdata/nuxt'
 const columns = [
   column('id',       { type: 'number',  label: 'ID' }),
   column('name',     { type: 'text',    label: 'Product' }),
-  column('category', { type: 'select',  label: 'Category', options: {
-    entries: { 1: 'Beverages', 2: 'Food', 3: 'Hygiene', 4: 'Cleaning' }
-  }}),
+  column('category', { type: 'select',  label: 'Category', options: { 1: 'Beverages', 2: 'Food', 3: 'Hygiene', 4: 'Cleaning' } }),
   column('price',    { type: 'number',  label: 'Price', mask: 'R$ #,##0.00' }),
   column('stock',    { type: 'number',  label: 'Stock' }),
-  column('status',   { type: 'select',  label: 'Status', options: {
-    entries: { 1: 'Active', 2: 'Inactive', 3: 'Pending' }
-  }}),
+  column('status',   { type: 'select',  label: 'Status', options: { 1: 'Active', 2: 'Inactive', 3: 'Pending' } }),
   column('created_at', { type: 'date',  label: 'Date' }),
   actionColumn('actions', [
     { key: 'edit',   label: 'Edit' },

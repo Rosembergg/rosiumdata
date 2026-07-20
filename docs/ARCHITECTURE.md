@@ -194,7 +194,7 @@ Cada coluna guarda:
 const columns = [
   column('name',    { type: 'text' }),
   column('price',   { type: 'number', mask: 'R$ #,##0.00' }),
-  column('status',  { type: 'select', options: { entries: { 1: 'Active', 2: 'Inactive' } } }),
+  column('status',  { type: 'select', options: { 1: 'Active', 2: 'Inactive' } }),
   column('createdAt', { type: 'date' }),
   column('actions', { type: 'action' }),
 ]
