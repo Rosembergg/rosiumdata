@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/tests-376%20passing-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/core%20deps-zero-success" alt="Zero dependencies">
   <img src="https://img.shields.io/badge/status-v1.0%20MVP-orange" alt="Status">
-  <img src="https://img.shields.io/badge/license-TBD-lightgrey" alt="License">
+  <img src="https://img.shields.io/badge/license-MTI-lightgrey" alt="License">
 </p>
 
 ---
