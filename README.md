@@ -40,16 +40,11 @@ RosiumData fixes this at the architectural level. **Same data serves your screen
 
 ### 1. Install
 
-While not published on npm yet, use a local path in your Nuxt project:
-
-```json
-{
-  "dependencies": {
-    "@rosiumdata/core": "file:../RStable/packages/core",
-    "@rosiumdata/nuxt": "file:../RStable/packages/nuxt"
-  }
-}
+```bash
+npm install rosiumdata
 ```
+
+This installs `@rosiumdata/core` (headless engine) + `@rosiumdata/nuxt` (Vue renderer) in a single command.
 
 ```
 npm install
@@ -71,7 +66,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
 ```vue
 <template>
-  <RsTable :columns="columns" :adapter="adapter" />
+  <RosiumTable :columns="columns" :adapter="adapter" />
 </template>
 
 <script setup>
@@ -133,7 +128,7 @@ Invalid data (e.g. `null` where a number was expected) is never silently swallow
 `@rosiumdata/core` has **zero runtime dependencies**. Literally `"dependencies": {}`. Every dependency lives in isolated plugins or adapters. If a library dies, RosiumData doesn't.
 
 ### 🌐 Locale-aware formatting (default pt-BR)
-Numbers, dates, and currencies are formatted via the native `Intl` API — zero dependencies. Default is Brazilian Portuguese (`R$ 1.000,00`, `DD/MM/YYYY`). Change with one line: `new RsTable({ columns, locale: 'en-US' })`. Per-column override for multi-currency tables. [Full guide →](docs/USAGE.md#10-locale--formatting)
+Numbers, dates, and currencies are formatted via the native `Intl` API — zero dependencies. Default is Brazilian Portuguese (`R$ 1.000,00`, `DD/MM/YYYY`). Change with one line: `new RosiumTable({ columns, locale: 'en-US' })`. Per-column override for multi-currency tables. [Full guide →](docs/USAGE.md#10-locale--formatting)
 
 ---
 

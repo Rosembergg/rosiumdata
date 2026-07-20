@@ -25,33 +25,11 @@
 
 ## 1. INSTALLATION
 
-### Local usage (before npm publication)
-
-While rosiumdata is not published on the npm registry, use a local path in your Nuxt frontend `package.json`:
-
-```json
-{
-  "dependencies": {
-    "@rosiumdata/core": "file:../RStable/packages/core",
-    "@rosiumdata/nuxt": "file:../RStable/packages/nuxt"
-  }
-}
-```
-
-Adjust `../RStable/` to the real path between your `frontend/` and the `RStable/` folder. Then:
-
 ```bash
-cd frontend
-npm install
+npm install rosiumdata
 ```
 
-> **Important:** rosiumdata must be built first. Run `npm run build` in the rosiumdata root to generate the `dist/` folder in both packages. Without it, the import fails.
-
-### When published on npm (future)
-
-```bash
-npm install @rosiumdata/core @rosiumdata/nuxt
-```
+This installs `@rosiumdata/core` (headless engine) + `@rosiumdata/nuxt` (Vue renderer) in a single command.
 
 ### Registering in Nuxt
 
@@ -59,7 +37,7 @@ Create a plugin file at `plugins/rosiumdata.ts`:
 
 ```ts
 // frontend/plugins/rosiumdata.ts
-import { rosiumdata } from '@rosiumdata/nuxt'
+import { RosiumData } from '@rosiumdata/nuxt'
 import '@rosiumdata/nuxt/theme/default.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -77,7 +55,7 @@ The simplest case: local data, no server. Just `columns` + `adapter` as props �
 
 ```vue
 <template>
-  <RsTable :columns="columns" :adapter="adapter" />
+  <RosiumTable :columns="columns" :adapter="adapter" />
 </template>
 
 <script setup>
@@ -179,11 +157,11 @@ column('price_usd', {
 
 ## 4. FILTERS
 
-Each column type has automatic filter operators. Inputs are rendered by `<RsFilters>` inside the table.
+Each column type has automatic filter operators. Inputs are rendered by `<RosiumFilters>` inside the table.
 
 ### Operators by type
 
-The first in the list is the default used by `<RsFilters>` inputs.
+The first in the list is the default used by `<RosiumFilters>` inputs.
 
 | Type | Operators |
 |---|---|
@@ -198,13 +176,13 @@ The first in the list is the default used by `<RsFilters>` inputs.
 ### Programmatic API
 
 ```ts
-import { RsTable } from '@rosiumdata/core'
-import { useRsTable } from '@rosiumdata/nuxt'
+import { RosiumTable } from '@rosiumdata/core'
+import { useRosiumTable } from '@rosiumdata/nuxt'
 
-const table = new RsTable({ columns })
+const table = new RosiumTable({ columns })
 table.useAdapter(adapter)
 
-const { filter } = useRsTable(table)
+const { filter } = useRosiumTable(table)
 
 filter({ column: 'name', operator: 'contains', value: 'coke' })
 filter({ column: 'price', operator: '>', value: 10 })
@@ -223,7 +201,7 @@ The table header is clickable. Each click toggles between `asc`, `desc`, and no 
 ### Programmatic API
 
 ```ts
-const { sort } = useRsTable(table)
+const { sort } = useRosiumTable(table)
 
 sort('name', 'asc')
 sort('price', 'desc')
@@ -238,7 +216,7 @@ Controlled by Previous/Next buttons in the table footer. Default: 20 items per p
 ### Programmatic API
 
 ```ts
-const { goToPage, setPageSize, getState } = useRsTable(table)
+const { goToPage, setPageSize, getState } = useRosiumTable(table)
 
 goToPage(3)
 setPageSize(50)
@@ -273,7 +251,7 @@ const columns = [
 
 ```vue
 <template>
-  <RsTable :columns="columns" :adapter="adapter" @action="handleAction" />
+  <RosiumTable :columns="columns" :adapter="adapter" @action="handleAction" />
 </template>
 
 <script setup>
@@ -312,7 +290,7 @@ const adapter = new LocalAdapter([
   { id: 2, name: 'Pepsi',     price: 4.99 },
 ])
 
-<RsTable :columns="columns" :adapter="adapter" />
+<RosiumTable :columns="columns" :adapter="adapter" />
 ```
 
 Filters, sorts, and paginates in the browser. Ideal for up to ~500 rows.
@@ -421,7 +399,7 @@ rosiumdata automatically detects invalid data based on the column type. E.g. `pr
 The table shows the exact error location. Useful during development.
 
 ```vue
-<RsTable :columns="columns" :adapter="adapter" :debug="true" />
+<RosiumTable :columns="columns" :adapter="adapter" :debug="true" />
 ```
 
 Displays: ``Column `price`, row 42, expected `number`, received `"free"` ``.
@@ -433,7 +411,7 @@ Subtle ⚠ icon in the cell. The end user sees no internal details. The table ke
 ### Capturing errors via code
 
 ```ts
-const table = new RsTable({ columns })
+const table = new RosiumTable({ columns })
 table.on('error', (err) => {
   // err: { column, rowIndex, expected, received }
   console.error(`Error: column ${err.column}, row ${err.rowIndex}, expected ${err.expected}`)
@@ -450,18 +428,18 @@ rosiumdata uses locale-aware formatting via the native `Intl` API (zero dependen
 
 ```ts
 // Brazilian (default — no config needed)
-const table = new RsTable({ columns })
+const table = new RosiumTable({ columns })
 
 // US English
-const table = new RsTable({ columns, locale: 'en-US' })
+const table = new RosiumTable({ columns, locale: 'en-US' })
 // → $1,000.00 | 12/25/2024
 
 // German
-const table = new RsTable({ columns, locale: 'de-DE' })
+const table = new RosiumTable({ columns, locale: 'de-DE' })
 // → 1.000,00 € | 25.12.2024
 
 // Japanese
-const table = new RsTable({ columns, locale: 'ja-JP' })
+const table = new RosiumTable({ columns, locale: 'ja-JP' })
 // → ￥1,000 | 2024/12/25
 ```
 
@@ -470,7 +448,7 @@ const table = new RsTable({ columns, locale: 'ja-JP' })
 A specific column can use a different locale or currency from the table default:
 
 ```ts
-const table = new RsTable({ columns, locale: 'pt-BR' })
+const table = new RosiumTable({ columns, locale: 'pt-BR' })
 
 const columns = [
   // This column uses the table's locale (pt-BR → R$)
@@ -534,7 +512,7 @@ Two mechanisms, both supported:
 The `persistence` prop saves to `localStorage`:
 
 ```vue
-<RsTable :columns="columns" :adapter="adapter" persistence="my-table" />
+<RosiumTable :columns="columns" :adapter="adapter" persistence="my-table" />
 ```
 
 What is saved: column order, visible columns, page size.
@@ -549,7 +527,7 @@ What is saved: column order, visible columns, page size.
 
 | Export | Type | Description |
 |---|---|---|
-| `RsTable` | Class | Live Data Engine instance |
+| `RosiumTable` | Class | Live Data Engine instance |
 | `column(key, config)` | Function | Create column definition |
 | `LocalAdapter` | Class | In-memory array adapter |
 | `LaravelAdapter` | Class | Laravel backend adapter |
@@ -561,11 +539,11 @@ What is saved: column order, visible columns, page size.
 | `formatDefaultValue` | Function | Format value by column type |
 | `validateRow` / `validateRows` | Function | Validate data (Fail Loud) |
 
-### `RsTable` — public methods
+### `RosiumTable` — public methods
 
 | Method | Description |
 |---|---|
-| `new RsTable({ columns, pageSize?, locale? })` | Create instance |
+| `new RosiumTable({ columns, pageSize?, locale? })` | Create instance |
 | `.useAdapter(adapter)` | Connect data source |
 | `.filter({ column, operator, value })` | Apply filter |
 | `.sort(column, direction)` | Sort by column |
@@ -587,29 +565,29 @@ What is saved: column order, visible columns, page size.
 | Export | Type | Description |
 |---|---|---|
 | `rosiumdata` | Vue Plugin | `app.use(rosiumdata)` |
-| `useRsTable(table)` | Composable | Core ↔ Vue bridge |
-| `rosiumdataTable` | Component | Main component (`<RsTable>`) |
-| `RsThead` | Component | Clickable header |
-| `RsTbody` | Component | Table body |
-| `RsActions` | Component | Action buttons |
-| `RsPagination` | Component | Pagination controls |
-| `RsFilters` | Component | Filter inputs |
+| `useRosiumTable(table)` | Composable | Core ↔ Vue bridge |
+| `RosiumDataTable` | Component | Main component (`<RosiumTable>`) |
+| `RosiumThead` | Component | Clickable header |
+| `RosiumTbody` | Component | Table body |
+| `RosiumActions` | Component | Action buttons |
+| `RosiumPagination` | Component | Pagination controls |
+| `RosiumFilters` | Component | Filter inputs |
 | `actionColumn()` | Function | Helper for action column |
 | `readPreferences()` | Function | Restore preferences from localStorage |
 | `savePreferences()` | Function | Persist preferences to localStorage |
 
-### `<RsTable>` props
+### `<RosiumTable>` props
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `columns` | `ColumnDefinition[]` | — | Column definitions |
 | `adapter` | `DataAdapter` | — | Data source |
-| `table` | `RsTable` | — | Pre-configured instance (control mode) |
+| `table` | `RosiumTable` | — | Pre-configured instance (control mode) |
 | `pageSize` | `number` | `20` | Items per page |
 | `debug` | `boolean` | `import.meta.env.DEV` | Fail Loud dev mode |
 | `persistence` | `string` | — | localStorage key (opt-in) |
 
-### `<RsTable>` events
+### `<RosiumTable>` events
 
 The component emits a **single event**:
 
@@ -617,13 +595,13 @@ The component emits a **single event**:
 |---|---|---|
 | `@action` | `{ key: string, row: TransformedRow }` | Action clicked |
 
-Other events are on the **Core instance** (`RsTable`), via `table.on(...)`:
+Other events are on the **Core instance** (`RosiumTable`), via `table.on(...)`:
 
 | Event (Core) | Payload | When |
 |---|---|---|
 | `data:loaded` | `TransformedRow[]` | Data loaded |
 | `error` | `ValidationError` | Fail Loud |
-| `state:changed` | `RsTableState` | State changed |
+| `state:changed` | `RosiumTableState` | State changed |
 
 ---
 
@@ -631,7 +609,7 @@ Other events are on the **Core instance** (`RsTable`), via `table.on(...)`:
 
 ```vue
 <template>
-  <RsTable
+  <RosiumTable
     :columns="columns"
     :adapter="adapter"
     :pageSize="25"

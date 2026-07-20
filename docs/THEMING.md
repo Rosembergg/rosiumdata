@@ -69,7 +69,7 @@ O jeito mais rápido: crie um arquivo CSS no seu projeto e sobrescreva as variá
 
 ```ts
 // plugins/rosiumdata.ts
-import { rosiumdata } from '@rosiumdata/nuxt'
+import { RosiumData } from '@rosiumdata/nuxt'
 import '~/assets/tema-rosiumdata.css'      // ← seu tema
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -489,7 +489,7 @@ Envolva a tabela num container com uma classe própria e use escopo CSS:
 
 ```vue
 <div class="minha-tabela-especial">
-  <RsTable :columns="colunas" :adapter="adapter" />
+  <RosiumTable :columns="colunas" :adapter="adapter" />
 </div>
 ```
 

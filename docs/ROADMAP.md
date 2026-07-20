@@ -52,7 +52,7 @@ O desenvolvimento segue o **Caminho A — Núcleo Primeiro**: cada camada é con
 **Dependências:** Fase 0.
 
 **Entregas:**
-- [ ] Classe `RsTable` (instância viva com estado)
+- [ ] Classe `RosiumTable` (instância viva com estado)
 - [ ] API explícita: `.filter()`, `.sort()`, `.goToPage()`
 - [ ] Leitura: `.getRows()`, `.getTotal()`, `.getState()`
 - [ ] Definição de colunas com tipos (`texto`, `numero`, `data`, `booleano`, `selecao`, `acao`)
@@ -82,7 +82,7 @@ O desenvolvimento segue o **Caminho A — Núcleo Primeiro**: cada camada é con
 - [ ] Lógica de filtro local (todos os operadores dos tipos)
 - [ ] Lógica de ordenação local
 - [ ] Lógica de paginação local
-- [ ] Testes de integração: RsTable + LocalAdapter com dados reais
+- [ ] Testes de integração: RosiumTable + LocalAdapter com dados reais
 - [ ] Cenários de teste: filtro combinado, ordenação + paginação, dados vazios, Falhe Alto com dados inválidos
 
 **Não inclui:** servidor, HTTP, renderização.
@@ -96,15 +96,15 @@ O desenvolvimento segue o **Caminho A — Núcleo Primeiro**: cada camada é con
 **Dependências:** Fase 2.
 
 **Entregas:**
-- [ ] Composable `useRsTable()` — conecta a instância RsTable (Core) à reatividade do Vue
-- [ ] Componente `<RsTable>` — renderiza a tabela completa
+- [ ] Composable `useRosiumTable()` — conecta a instância RosiumTable (Core) à reatividade do Vue
+- [ ] Componente `<RosiumTable>` — renderiza a tabela completa
 - [ ] Renderização de cabeçalho (com ordenação clicável)
 - [ ] Renderização de corpo (linhas e células)
 - [ ] Renderização de paginação (controles de página)
 - [ ] Renderização de filtros (inputs/dropdowns por tipo de coluna)
 - [ ] Theme default em CSS puro próprio (zero dependência)
 - [ ] Estrutura de classes previsível para sobrescrita
-- [ ] Plugin Nuxt para instalação (`app.use(RsTable)`)
+- [ ] Plugin Nuxt para instalação (`app.use(RosiumTable)`)
 - [ ] Testes de componente com Vitest
 
 **Não inclui:** actions (botão), adapter server-side, exportação.

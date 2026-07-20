@@ -126,7 +126,7 @@ O **cérebro** da rosiumdata. Gerencia o estado da tabela, transforma dados e co
 O Data Engine é uma classe com estado mutável que emite eventos:
 
 ```ts
-const table = new RsTable({ columns: [...] })
+const table = new RosiumTable({ columns: [...] })
 table.useAdapter(adapter)
 
 // State
@@ -214,7 +214,7 @@ Desenhar a **estrutura visual** da tabela: linhas, células, cabeçalho, corpo, 
 
 ### O que faz
 - Renderiza a tabela com componentes do framework (hoje Nuxt/Vue).
-- Conecta a reatividade do Vue aos eventos do Data Engine (via `useRsTable()` composable).
+- Conecta a reatividade do Vue aos eventos do Data Engine (via `useRosiumTable()` composable).
 - Gerencia comportamento visual: cabeçalho clicável (ordenação), dropdown de filtro, paginação.
 - Exibe os botões de **Action** (gatilho) — renderiza o botão, emite evento com o dado da linha.
 - Recebe o Theme e aplica classes/estilos.
@@ -347,7 +347,7 @@ rosiumdata/
 ├── packages/
 │   ├── core/                   ← @rosiumdata/core (JS puro, zero-dep)
 │   │   └── src/
-│   │       ├── engine/         ← Data Engine (RsTable, estado, eventos)
+│   │       ├── engine/         ← Data Engine (RosiumTable, estado, eventos)
 │   │       ├── columns/        ← Definição de colunas e tipos
 │   │       ├── adapter/        ← Interface do adapter + adapter local
 │   │       ├── filters/        ← Lógica de filtro e operadores
@@ -359,8 +359,8 @@ rosiumdata/
 │   │
 │   └── nuxt/                   ← @rosiumdata/nuxt (casca Vue/Nuxt)
 │       └── src/
-│           ├── components/     ← RsTable, RsColumn, etc.
-│           ├── composables/    ← useRsTable() — conecta Core ao Vue
+│           ├── components/     ← RosiumTable, RosiumColumn, etc.
+│           ├── composables/    ← useRosiumTable() — conecta Core ao Vue
 │           ├── theme/          ← CSS puro (template default)
 │           └── index.ts        ← Plugin Nuxt
 │

@@ -76,10 +76,10 @@
 - [x] `DEFAULT_OPERATORS` by type
 - [x] EVERYTHING OVERRIDABLE (Principle #5) — transform, filterOperators, alignment
 
-#### Data Engine — Classe RsTable
+#### Data Engine — Classe RosiumTable
 - [x] Instância viva com estado mutável + eventos (Princípio #4)
 - [x] API explícita (Princípio #6):
-  - [x] `new RsTable({ columns, pageSize? })`
+  - [x] `new RosiumTable({ columns, pageSize? })`
   - [x] `.useAdapter(adapter)`
   - [x] `.filter({ column, operator, value })` — multiple AND
   - [x] `.sort(column, 'asc'|'desc')`
@@ -112,7 +112,7 @@
 - [x] Colunas e tipos — comportamento, formatação, alinhamento, operadores (26 testes)
 - [x] Validação / Falhe Alto (11 testes)
 - [x] Paginação (11 testes)
-- [x] Engine / RsTable — filtros, ordenação, paginação, eventos, bordas (36 testes)
+- [x] Engine / RosiumTable — filtros, ordenação, paginação, eventos, bordas (36 testes)
 - [x] Smoke test (4 testes)
 - **Total: 100 testes passando**
 
@@ -149,7 +149,7 @@
 - [x] Filtros — 31 testes (todos operadores, combinação AND, casos de borda)
 - [x] Ordenação — 15 testes (texto, numero, data, booleano, nulls, repetidos)
 - [x] LocalAdapter isolado — 24 testes (fetch, fetchAll, fetchFilterOptions, paginação, filtro+ordenação)
-- [x] Integração RsTable + LocalAdapter — 21 testes (fluxo completo, Falhe Alto, getEstado, troca de adapter)
+- [x] Integração RosiumTable + LocalAdapter — 21 testes (fluxo completo, Falhe Alto, getEstado, troca de adapter)
 - **Total: 194 testes passando (91 novos)**
 
 #### Exports
@@ -164,9 +164,9 @@
 
 ### Checklist da Fase 3 ✅ (CONCLUÍDA)
 
-#### Composable useRsTable() — a ponte Core ↔ Vue
+#### Composable useRosiumTable() — a ponte Core ↔ Vue
 - [x] Único ponto de contato entre o Core e o Vue (nenhum componente importa o Core em runtime)
-- [x] Aceita instância `RsTable` OU `{ columns, adapter, pageSize }` (modo rápido)
+- [x] Aceita instância `RosiumTable` OU `{ columns, adapter, pageSize }` (modo rápido)
 - [x] Escuta eventos do Core: `dados:carregados`, `erro`, `estado:alterado`
 - [x] Estado reativo: `linhas`, `total`, `paginaAtual`, `totalPaginas`, `ordenacao`, `filtros`, `colunas`, `loading`, `erro`, `erros`
 - [x] Métodos que delegam ao Core: `filtrar()`, `ordenar()`, `irParaPagina()`, `esconderColuna()`, `mostrarColuna()`, `reordenarColunas()`
@@ -175,11 +175,11 @@
 - [x] Helpers de apresentação: `alinhamento(col)`, `operadorPadrao(col)`
 
 #### Componentes (Render burro — pergunta ao Core, desenha a resposta)
-- [x] `<RsTable>` (export JS: `rosiumdataTable`) — tabela completa (filtros + table + paginação), HTML semântico
-- [x] `<RsThead>` — cabeçalho clicável com toggle asc/desc e indicador ↑↓, respeita colunas escondidas
-- [x] `<RsTbody>` — células exibem `display` do Core; estados `rs-loading` ("Carregando...") e `rs-empty` ("Nenhum registro")
-- [x] `<RsPagination>` — Anterior/números/Próximo, resumo "Página X de Y — Total: N registros", disabled nos limites
-- [x] `<RsFilters>` — inputs por tipo: texto (input), numero (min/max), data (date início/fim), selecao (select via `col.options`), booleano (select Sim/Não); debounce de 300ms nos inputs de digitação
+- [x] `<RosiumTable>` (export JS: `RosiumDataTable`) — tabela completa (filtros + table + paginação), HTML semântico
+- [x] `<RosiumThead>` — cabeçalho clicável com toggle asc/desc e indicador ↑↓, respeita colunas escondidas
+- [x] `<RosiumTbody>` — células exibem `display` do Core; estados `rs-loading` ("Carregando...") e `rs-empty` ("Nenhum registro")
+- [x] `<RosiumPagination>` — Anterior/números/Próximo, resumo "Página X de Y — Total: N registros", disabled nos limites
+- [x] `<RosiumFilters>` — inputs por tipo: texto (input), numero (min/max), data (date início/fim), selecao (select via `col.options`), booleano (select Sim/Não); debounce de 300ms nos inputs de digitação
 
 #### Theme Default
 - [x] `theme/default.css` — CSS puro próprio, zero framework, zero `@import` externo, zero `!important`
@@ -188,10 +188,10 @@
 
 #### Plugin
 - [x] Plugin `rosiumdata` — `app.use(rosiumdata)` registra os 5 componentes globalmente (Vue e Nuxt via `nuxtApp.vueApp.use`)
-- [x] Exports: `useRsTable`, `rosiumdataTable`, `RsThead`, `RsTbody`, `RsPagination`, `RsFilters`, `rosiumdata`, `THEME_DEFAULT_CSS` + tipos
+- [x] Exports: `useRosiumTable`, `RosiumDataTable`, `RosiumThead`, `RosiumTbody`, `RosiumPagination`, `RosiumFilters`, `rosiumdata`, `THEME_DEFAULT_CSS` + tipos
 
 #### Testes (Vitest + @vue/test-utils + happy-dom)
-- [x] useRsTable — 18 testes (conexão, eventos, delegação, loading, erro/Falhe Alto, desconexão, mock de adapter)
+- [x] useRosiumTable — 18 testes (conexão, eventos, delegação, loading, erro/Falhe Alto, desconexão, mock de adapter)
 - [x] Componentes — 30 testes (renderização, ordenação por clique, paginação, filtros por tipo, debounce, loading/empty, integração completa, plugin)
 - [x] `packages/core/` sem NENHUMA alteração (`git diff packages/core/` vazio)
 - **Total: 242 testes passando (48 novos)**
@@ -214,7 +214,7 @@
 | Testes (Vitest) | ✅ 194 testes passando |
 | Estrutura de pastas | ✅ Conforme ARCHITECTURE.md |
 | DataAdapter (interface) | ✅ Contrato TypeScript definido |
-| RsTable (Data Engine) | ✅ Classe completa com API pública |
+| RosiumTable (Data Engine) | ✅ Classe completa com API pública |
 | Tipos de coluna | ✅ 7 tipos com comportamentos padrão |
 | Sistema de eventos | ✅ Observer pattern puro |
 | Falhe Alto | ✅ Validação por tipo, evento de erro |
@@ -224,8 +224,8 @@
 | Operadores de filtro | ✅ Todos os 15 operadores implementados |
 | Ordenação local | ✅ Sensível ao tipo do valor |
 | Paginação local | ✅ Fatiamento de array |
-| useRsTable() | ✅ Ponte Core ↔ Vue (eventos → reatividade) |
-| Componentes Render | ✅ RsTable, RsThead, RsTbody, RsPagination, RsFilters |
+| useRosiumTable() | ✅ Ponte Core ↔ Vue (eventos → reatividade) |
+| Componentes Render | ✅ RosiumTable, RosiumThead, RosiumTbody, RosiumPagination, RosiumFilters |
 | Theme default | ✅ CSS puro próprio, classes .rs-* |
 | Plugin Vue/Nuxt | ✅ app.use(rosiumdata) registra componentes |
 | Playground | ✅ Prova visual (npx vite playground) |
@@ -267,27 +267,27 @@
 
 | ID | Decisão | Detalhe |
 |---|---|---|
-| DT-018 | Componentes em `.ts` com `defineComponent` + `h()` (sem SFC `.vue`) | Compila com o setup atual sem alterar `build.config.ts`/`vitest.config.ts`/`tsconfig.json`. API pública idêntica (`<RsTable>` etc.) |
-| DT-019 | `useRsTable()` aceita instância `RsTable` OU `{ columns, adapter, pageSize }` | Permite o modo rápido do `<RsTable>` sem que o componente importe o Core (só o composable importa) |
+| DT-018 | Componentes em `.ts` com `defineComponent` + `h()` (sem SFC `.vue`) | Compila com o setup atual sem alterar `build.config.ts`/`vitest.config.ts`/`tsconfig.json`. API pública idêntica (`<RosiumTable>` etc.) |
+| DT-019 | `useRosiumTable()` aceita instância `RosiumTable` OU `{ columns, adapter, pageSize }` | Permite o modo rápido do `<RosiumTable>` sem que o componente importe o Core (só o composable importa) |
 | DT-020 | Subcomponentes recebem o contexto via prop explícita `contexto` | Sem provide/inject mágico (Princípio #6). Tipos do Core reexportados pelo composable (`import type`, apagado na compilação) |
 | DT-021 | `loading` é estado de UI mantido pelo composable | O Core não emite evento de loading; o composable seta `true` antes de delegar e `false` ao resolver |
 | DT-022 | `carregar()` delega para `irParaPagina(paginaAtual)` | O Core não tem método dedicado de load inicial; usa o caminho oficial existente sem gambiarra |
-| DT-023 | Toggle de ordenação (asc↔desc) vive no `RsThead` | É captura de intenção de clique (UX), não lógica de dado. O Core decide o resto |
+| DT-023 | Toggle de ordenação (asc↔desc) vive no `RosiumThead` | É captura de intenção de clique (UX), não lógica de dado. O Core decide o resto |
 | DT-024 | Helpers `alinhamento()`/`operadorPadrao()` expostos pelo composable | Componentes não importam `ALINHAMENTO_PADRAO`/`OPERADOR_PADRAO` do Core diretamente |
 | DT-025 | Filtro de intervalo parcial: só mínimo → `>=`/`depois`, só máximo → `<=`/`antes`, ambos → `entre` | Usa apenas operadores oficiais do Core por tipo. Nota: `depois`/`antes` são exclusivos (não incluem o próprio dia) |
-| DT-026 | `converterChaveOpcao()` no RsFilters: chave numérica de `options` vira `Number` | Inputs HTML entregam sempre string; o operador `igual` do Core usa igualdade estrita. Conversão de intenção do usuário, não transformação de dado |
+| DT-026 | `converterChaveOpcao()` no RosiumFilters: chave numérica de `options` vira `Number` | Inputs HTML entregam sempre string; o operador `igual` do Core usa igualdade estrita. Conversão de intenção do usuário, não transformação de dado |
 | DT-027 | Filtro de seleção usa `col.options` da definição da coluna | `fetchFilterOptions()` do adapter NÃO é alcançável: o Core não o expõe (ver "buraco de contrato" abaixo) |
 | DT-028 | CSS distribuído cru: export `./theme/default.css` → `src/theme/default.css` | CSS não precisa de build; `files` do package.json inclui o arquivo. `build.config.ts` intocado |
 | DT-029 | `@vue/test-utils` + `happy-dom` como devDependencies do `@rosiumdata/nuxt` | Só para testes de componente. Ambiente DOM por arquivo via `// @vitest-environment happy-dom` (`vitest.config.ts` intocado) |
 | DT-030 | Cleanup automático de listeners via `onScopeDispose` + `desconectar()` explícito | Dentro de componente desconecta sozinho no unmount; fora de componente o dev chama `desconectar()` |
 | DT-031 | Plugin `rosiumdata` como export nomeado (sem default export) | Explícito (Princípio #6) e evita warning de bundle misto named/default no unbuild |
-| DT-032 | Componente principal exportado como `rosiumdataTable` (revisão) | Evita colisão de nome com a classe `RsTable` do Core em imports. O nome público no template permanece `<RsTable>` (registrado pelo plugin) |
-| DT-033 | Debounce de 300ms nos inputs de digitação do RsFilters (revisão) | `DEBOUNCE_FILTRO_MS` — setTimeout/clearTimeout puro, zero deps. Evita rajada de requisições com adapter server-side (Fase 5). Selects não usam debounce (mudança discreta). Timers cancelados no unmount |
-| DT-034 | Key de linha do `<RsTbody>` via `chaveLinha()` (revisão) | Índice do array como fallback — adequado hoje (sem animações/transições). Quando o Core fornecer um row identifier oficial (`__rowIndex`), ele será usado automaticamente como key estável |
+| DT-032 | Componente principal exportado como `RosiumDataTable` (revisão) | Evita colisão de nome com a classe `RosiumTable` do Core em imports. O nome público no template permanece `<RosiumTable>` (registrado pelo plugin) |
+| DT-033 | Debounce de 300ms nos inputs de digitação do RosiumFilters (revisão) | `DEBOUNCE_FILTRO_MS` — setTimeout/clearTimeout puro, zero deps. Evita rajada de requisições com adapter server-side (Fase 5). Selects não usam debounce (mudança discreta). Timers cancelados no unmount |
+| DT-034 | Key de linha do `<RosiumTbody>` via `chaveLinha()` (revisão) | Índice do array como fallback — adequado hoje (sem animações/transições). Quando o Core fornecer um row identifier oficial (`__rowIndex`), ele será usado automaticamente como key estável |
 
 ### ⚠️ Buraco de contrato encontrado (reportar — não corrigido com gambiarra)
 
-O contrato `DataAdapter` define `fetchFilterOptions?(column)`, mas a classe `RsTable` (Core) **não expõe** nenhum método para o Render consumi-lo (o adapter é privado). Como o Render não pode falar com o Adapter diretamente (regra de camadas), o dropdown de seleção da Fase 3 usa `col.options` da definição da coluna. **Sugestão para Fase 4/5:** adicionar ao Core um método oficial (ex.: `RsTable.getFilterOptions(column)`) que delega ao adapter. O Core NÃO foi alterado nesta fase.
+O contrato `DataAdapter` define `fetchFilterOptions?(column)`, mas a classe `RosiumTable` (Core) **não expõe** nenhum método para o Render consumi-lo (o adapter é privado). Como o Render não pode falar com o Adapter diretamente (regra de camadas), o dropdown de seleção da Fase 3 usa `col.options` da definição da coluna. **Sugestão para Fase 4/5:** adicionar ao Core um método oficial (ex.: `RosiumTable.getFilterOptions(column)`) que delega ao adapter. O Core NÃO foi alterado nesta fase.
 
 ## DECISÕES TÉCNICAS DA FASE 4
 
@@ -295,7 +295,7 @@ O contrato `DataAdapter` define `fetchFilterOptions?(column)`, mas a classe `RsT
 |---|---|---|
 | DT-045 | Actions declaradas em `col.options.actions` (API definida pelo autor no kickoff da fase) | O Core trata `options` como opaco para o tipo `acao` (não filtra, não valida, `display` = ''). O Render lê por duck-typing (`acoesDaColuna()`). Core intocado |
 | DT-046 | Helper `actionColumn(key, actions)` in Render | Core `ColumnDefinition.options` is typed as `Record<string, string>` — declaring actions inline requires user cast. The helper produces a valid definition (via Core `column()`) keeping usage explicit and typed |
-| DT-047 | Evento de action viaja por canal próprio do composable (`contexto.on/off/emitirAcao`) | A `RsTable` do Core não expõe `emit` público — o Render não pode (nem deve) emitir eventos na instância do Core. O composable é o hub: RsTbody → `emitirAcao` → listeners + re-emit Vue no `<RsTable @action>`. Payload: `{ key, row }` com a linha transformada (raw + display) |
+| DT-047 | Evento de action viaja por canal próprio do composable (`contexto.on/off/emitirAcao`) | A `RosiumTable` do Core não expõe `emit` público — o Render não pode (nem deve) emitir eventos na instância do Core. O composable é o hub: RosiumTbody → `emitirAcao` → listeners + re-emit Vue no `<RosiumTable @action>`. Payload: `{ key, row }` com a linha transformada (raw + display) |
 | DT-048 | Dropdown ⋯ via `Teleport` nativo do Vue para o `<body>` | Zero dependências. Posição calculada do `getBoundingClientRect()` do botão; alinhado à direita via CSS (`translateX(-100%)`). Clique fora, Escape, clique em item e unmount fecham |
 | DT-049 | Falhe Alto visual com modos dev/produção via prop `:debug` | Default: `import.meta.env.DEV` (helper `ambienteDev()` com guard para ambientes sem Vite → assume produção, o modo seguro). Dev: `.rs-cell--error-debug` + `data-rs-error` (tooltip CSS) + banner `role="alert"`. Produção: só `.rs-cell--error` + ⚠ com `aria-label`, sem internals |
 | DT-050 | `mensagemErro()` formata a denúncia | "Coluna \`X\`, linha N, esperava \`Y\`, recebeu \`Z\`". `rowIndex` é o índice na página atual (contrato do Core desde a Fase 1). Erros gerais (adapter ausente, `rowIndex: -1`) omitem coluna/linha |
@@ -310,7 +310,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 
 | ID | Decisão | Detalhe |
 |---|---|---|
-| DT-035 | Toolbar com Filtros (toggle + badge de contagem), Colunas (checkboxes) e Densidade | Estado de UI da sessão, sem persistência. Colunas usa a API oficial do Core (`esconderColuna`/`mostrarColuna`) via composable. `todasColunas` adicionado ao `UseRsTableContext` |
+| DT-035 | Toolbar com Filtros (toggle + badge de contagem), Colunas (checkboxes) e Densidade | Estado de UI da sessão, sem persistência. Colunas usa a API oficial do Core (`esconderColuna`/`mostrarColuna`) via composable. `todasColunas` adicionado ao `UseRosiumTableContext` |
 | DT-036 | Botões "+ Novo" e "Exportar" OMITIDOS (decisão com o autor) | rosiumdata é read-only e exportação é plugin pós-1.0 — botões sem função violam Princípio #6. Classe `.rs-btn-primary` pronta no CSS para uso futuro |
 | DT-037 | Busca global OMITIDA (decisão com o autor) | O contrato do Core não tem filtro OR entre colunas; o Render não pode filtrar dados. **Gancho a criar no Core** (ex.: busca global no Query) — reportado para o autor |
 | DT-038 | Menu ⋯ de ações ADIADO para a Fase 4 (decisão com o autor) | Não existe API de actions na ColumnDefinition; inventá-la é decisão de arquitetura (R19). CSS do dropdown (`.rs-menu`, `.rs-menu-item--danger`) pronto e dormante |
@@ -326,7 +326,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 ### Checklist da Fase 4 ✅ (CONCLUÍDA)
 
 #### Actions — coluna tipo `acao` no Render (gatilhos, nunca executores)
-- [x] `RsActions` (components/RsActions.ts) — renderiza as actions de uma célula
+- [x] `RosiumActions` (components/RosiumActions.ts) — renderiza as actions de uma célula
 - [x] Actions declaradas em `col.options.actions: [{ key, label, danger? }]`
 - [x] Helper `actionColumn(key, actions)` in Render
 - [x] 1 action → botão direto (`.rs-action-btn`); `danger: true` → `.rs-action-btn--danger`
@@ -335,19 +335,19 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 - [x] Dropdown renderizado no `<body>` via `Teleport` (nativo do Vue, zero deps)
 - [x] Clique fora OU Escape fecha; clique em uma ação emite e fecha
 - [x] Clique emite APENAS `{ key, row }` — zero fetch/exclusão/navegação no componente (read-only: a rosiumdata é o transportador, o usuário traz a arma)
-- [x] Cadeia do evento: RsActions → RsTbody → `contexto.emitirAcao()` → listeners de `contexto.on('action')` → `<RsTable @action>` (re-emit Vue)
+- [x] Cadeia do evento: RosiumActions → RosiumTbody → `contexto.emitirAcao()` → listeners de `contexto.on('action')` → `<RosiumTable @action>` (re-emit Vue)
 
 #### Falhe Alto — visual (consumidor dos eventos do Core, nunca produtor)
-- [x] `useRsTable()` já expunha `erros[]` (Fase 3) — nenhuma validação nova no Render
+- [x] `useRosiumTable()` já expunha `erros[]` (Fase 3) — nenhuma validação nova no Render
 - [x] Modo DEV (`:debug="true"` ou `import.meta.env.DEV`): célula com `.rs-cell--error` + `.rs-cell--error-debug` (fundo red-50, borda esquerda 3px vermelha), tooltip via `data-rs-error` e banner `.rs-error-banner` abaixo da toolbar com "Coluna \`X\`, linha N, esperava \`Y\`, recebeu \`Z\`"
 - [x] Modo PRODUÇÃO (`:debug="false"`): ícone ⚠ sutil (`.rs-cell-error-icon`) + fundo levemente alterado; sem banner, sem detalhes internos; resto da tabela funciona
 - [x] Erro + action na mesma linha: células independentes, sem sobreposição (coluna `acao` nunca é validada pelo Core; célula com erro nunca contém botão)
 
 #### Preferências persistentes (100% no composable, zero no Core)
-- [x] `useRsTable(fonte, { persistencia: 'chave' })` — salva em `localStorage` (`rosiumdata:chave`): colunas visíveis + ordem + pageSize
+- [x] `useRosiumTable(fonte, { persistencia: 'chave' })` — salva em `localStorage` (`rosiumdata:key`): colunas visíveis + ordem + pageSize
 - [x] Sem a chave, nada é salvo/restaurado (explícito, Princípio #6 — resolve a reserva do DT-039)
 - [x] Restauração no mount via API oficial do Core (`mostrarColuna`/`esconderColuna`/`reordenarColunas`); pageSize restaurado no modo rápido (construtor)
-- [x] Prop `persistencia` no `<RsTable>`; menu "Colunas" da toolbar (checkboxes) alimenta a persistência
+- [x] Prop `persistencia` no `<RosiumTable>`; menu "Colunas" da toolbar (checkboxes) alimenta a persistência
 - [x] Preferências corrompidas/colunas inexistentes são ignoradas com fallback para defaults
 
 #### Testes (Vitest + happy-dom)
@@ -357,14 +357,14 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 - [x] Falhe Alto dev: `.rs-cell--error`, `.rs-cell--error-debug`, `data-rs-error`, banner
 - [x] Falhe Alto produção: sem banner, indicador sutil, tabela continua funcionando
 - [x] Ação + erro na mesma linha: layout não quebra
-- [x] Preferências: salvar/restaurar/ignorar corrompidas; fluxo completo via `<RsTable>`
+- [x] Preferências: salvar/restaurar/ignorar corrompidas; fluxo completo via `<RosiumTable>`
 - [x] Menu colunas: checkboxes mostram/escondem colunas
 - [x] `packages/core/` sem NENHUMA alteração (`git diff packages/core/` vazio)
 - **Total: 279 testes passando (28 novos)**
 
 #### Exports
-- [x] `RsActions`, `colunaAcao`, `acoesDaColuna`, `mensagemErro`, `ambienteDev`, `lerPreferencias`, `salvarPreferencias` + tipos `RsActionDefinition`, `RsActionEvent`, `RsPreferencias`, `UseRsTableExtras`
-- [x] Plugin `rosiumdata` registra também `RsActions`
+- [x] `RosiumActions`, `colunaAcao`, `acoesDaColuna`, `mensagemErro`, `ambienteDev`, `lerPreferencias`, `salvarPreferencias` + tipos `RosiumActionDefinition`, `RosiumActionEvent`, `RosiumPreferences`, `UseRosiumTableExtras`
+- [x] Plugin `rosiumdata` registra também `RosiumActions`
 - [x] `npm run build` compila sem erros; zero dependências novas
 
 ---
@@ -400,11 +400,11 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 - [x] Resposta não-JSON → erro com detalhes
 - [x] Rede offline → erro amigável ("verifique a conexão e o servidor")
 - [x] 1 tentativa apenas — sem retry automático (retry é política do usuário)
-- [x] Toda falha vira rejeição com `Error` de mensagem clara → a `RsTable` captura no caminho oficial (Fase 1) e converte no evento `erro` — a tabela continua viva
+- [x] Toda falha vira rejeição com `Error` de mensagem clara → a `RosiumTable` captura no caminho oficial (Fase 1) e converte no evento `erro` — a tabela continua viva
 
 #### Testes (Vitest, fetch mockado via `vi.stubGlobal`)
 - [x] LaravelAdapter isolado — 58 testes (interface, tradução de todos os operadores, headers/fetchOptions + mescla, parsing, erros HTTP/timeout — inclusive na leitura do body —/offline/malformada, fetchAll, fetchFilterOptions — inclusive baseUrl com query string)
-- [x] Integração RsTable + LaravelAdapter — 15 testes (fluxo completo, Query→URL, eventos, troca LocalAdapter→LaravelAdapter transparente, erros de rede E timeout viram evento `erro`, tabela sobrevive a erro e volta a funcionar)
+- [x] Integração RosiumTable + LaravelAdapter — 15 testes (fluxo completo, Query→URL, eventos, troca LocalAdapter→LaravelAdapter transparente, erros de rede E timeout viram evento `erro`, tabela sobrevive a erro e volta a funcionar)
 - [x] Falhe Alto com dados sujos do servidor: `{ preco: "grátis" }` em coluna numero → evento `erro` com `{ column, rowIndex, expected, received }`; null aceito; dado aninhado chega plano
 - [x] `packages/nuxt/` sem NENHUMA alteração (`git diff packages/nuxt/` vazio); engine/columns/events/validation do Core intocados
 - **Total: 352 testes passando (73 novos)**
@@ -419,7 +419,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 
 | ID | Decisão | Detalhe |
 |---|---|---|
-| DT-055 | Erros do adapter viajam pela rejeição da Promise, não por eventos próprios | A interface `DataAdapter` não tem canal de eventos e o Render não fala com o Adapter (regra de camadas). O `LaravelAdapter` lança `Error` com mensagem clara; o catch oficial do `fetchData()` da `RsTable` (existente desde a Fase 1) converte em evento `erro`. Zero alteração no Core — a fronteira "falha HTTP → evento" funciona pelo contrato já existente |
+| DT-055 | Erros do adapter viajam pela rejeição da Promise, não por eventos próprios | A interface `DataAdapter` não tem canal de eventos e o Render não fala com o Adapter (regra de camadas). O `LaravelAdapter` lança `Error` com mensagem clara; o catch oficial do `fetchData()` da `RosiumTable` (existente desde a Fase 1) converte em evento `erro`. Zero alteração no Core — a fronteira "falha HTTP → evento" funciona pelo contrato já existente |
 | DT-056 | Operadores traduzidos para inglês URL-safe (aprovado pelo autor) | `=`→`eq`, `>`→`gt`, `<`→`lt`, `>=`→`gte`, `<=`→`lte`, `igual`→`eq`, `contem`→`like`, `comeca_com`→`starts_with`, `termina_com`→`ends_with`, `entre`→`between`, `antes`→`before`, `depois`→`after`. Mapa exportado como `OPERADOR_LARAVEL` (contrato público) |
 | DT-057 | Serialização de valores na URL | Array → vírgula (`between=20,60`), `Date` → ISO 8601, booleano → `1`/`0` (convenção Laravel), demais → `String(valor)`. Documentado no JSDoc do adapter |
 | DT-058 | `fetchAll` usa o mesmo endpoint com `per_page` grande (aprovado pelo autor) | `page=1&per_page=1000000` (configurável via `fetchAllPageSize`). Zero rota nova no Laravel; contrato mais simples que `all=1` ou endpoint separado |
@@ -436,7 +436,7 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 ### ⚠️ Notas sobre o contrato do Adapter (Fase 5)
 
 - O contrato `DataAdapter` da Fase 1 cobriu a Fase 5 **sem nenhum ajuste** — a troca `LocalAdapter` → `LaravelAdapter` é transparente para Core e Render (testado). A arquitetura não furou.
-- O buraco de contrato da Fase 3 permanece: `fetchFilterOptions()` está implementado no adapter, mas a `RsTable` ainda não expõe `getOpcoesFiltro(column)` para o Render consumir. Gancho oficial no Core continua pendente (decisão do autor).
+- O buraco de contrato da Fase 3 permanece: `fetchFilterOptions()` está implementado no adapter, mas a `RosiumTable` ainda não expõe `getOpcoesFiltro(column)` para o Render consumir. Gancho oficial no Core continua pendente (decisão do autor).
 
 ---
 

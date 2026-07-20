@@ -15,7 +15,7 @@
 
 **Mitigação:**
 - Manter o sistema de eventos **mínimo e simples**. Apenas o necessário para o Core funcionar. Nada de "reatividade reativa" complexa.
-- A casca Nuxt (`useRsTable()`) é a única responsável por "traduzir" eventos puros para a reatividade do Vue. Se essa tradução for problemática, o problema fica contido na casca.
+- A casca Nuxt (`useRosiumTable()`) é a única responsável por "traduzir" eventos puros para a reatividade do Vue. Se essa tradução for problemática, o problema fica contido na casca.
 - Testar exaustivamente o sistema de eventos na Fase 1, antes de qualquer casca existir.
 
 **Probabilidade:** Média

@@ -12,7 +12,7 @@ Funcionalidades que estarão na primeira versão estável. Organizadas por fase.
 
 | Feature | Descrição | Prioridade |
 |---|---|---|
-| **RsTable (instância viva)** | Classe principal com estado mutável e eventos | Essencial |
+| **RosiumTable (instância viva)** | Classe principal com estado mutável e eventos | Essencial |
 | **Definição de colunas** | API declarativa para definir colunas com nome, tipo e opções | Essencial |
 | **Tipo: texto** | Filtro "contém", ordenação alfabética, alinhamento esquerda, validação string | Essencial |
 | **Tipo: número** | Filtro =, >, <, entre; ordenação numérica; alinhamento direita; validação numérica | Essencial |
@@ -43,15 +43,15 @@ Funcionalidades que estarão na primeira versão estável. Organizadas por fase.
 
 | Feature | Descrição | Prioridade |
 |---|---|---|
-| **useRsTable()** | Composable Vue que conecta instância RsTable à reatividade do Vue | Essencial |
-| **`<RsTable>`** | Componente principal que renderiza a tabela completa | Essencial |
+| **useRosiumTable()** | Composable Vue que conecta instância RosiumTable à reatividade do Vue | Essencial |
+| **`<RosiumTable>`** | Componente principal que renderiza a tabela completa | Essencial |
 | **Cabeçalho clicável** | Header com ordenação ao clicar | Essencial |
 | **Corpo da tabela** | Renderização de linhas e células com dados transformados | Essencial |
 | **Paginação visual** | Controles de página (anterior, próximo, números) | Essencial |
 | **Filtros visuais** | Inputs/dropdowns renderizados por tipo de coluna | Essencial |
 | **Theme default** | CSS puro próprio, zero dependências, funcional out-of-the-box | Essencial |
 | **Estrutura de classes** | Classes CSS previsíveis para sobrescrita pelo usuário | Essencial |
-| **Plugin Nuxt** | Instalação via `app.use(RsTable)` | Essencial |
+| **Plugin Nuxt** | Instalação via `app.use(RosiumTable)` | Essencial |
 
 ### Fase 4 — Actions + Falhe Alto integrado
 

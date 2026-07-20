@@ -86,7 +86,7 @@
 ### D-008: Modelo A — Instância viva com eventos
 
 **Data:** Discovery — Etapa 3 (Arquitetura)
-**Decisão:** O Data Engine é uma classe com estado mutável que emite eventos (`new RsTable()`, `.filter()`, `.on('data:loaded', ...)`).
+**Decisão:** O Data Engine é uma classe com estado mutável que emite eventos (`new RosiumTable()`, `.filter()`, `.on('data:loaded', ...)`).
 **Motivo:** Conecta naturalmente ao Render Engine headless (casca escuta eventos). Mais intuitivo para o dev "resolve rápido". Coerente com plugins (escutam os mesmos eventos).
 **Alternativa considerada:** API funcional/imutável (cada ação retorna novo estado). Rejeitada: menos intuitiva, exigiria mais código do usuário para gerenciar estado.
 **Reversível:** Não. Define a API pública do Data Engine.
