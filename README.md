@@ -132,6 +132,9 @@ Invalid data (e.g. `null` where a number was expected) is never silently swallow
 ### ⚡ Zero dependencies in the Core
 `@rsdata/core` has **zero runtime dependencies**. Literally `"dependencies": {}`. Every dependency lives in isolated plugins or adapters. If a library dies, RSdata doesn't.
 
+### 🌐 Locale-aware formatting (default pt-BR)
+Numbers, dates, and currencies are formatted via the native `Intl` API — zero dependencies. Default is Brazilian Portuguese (`R$ 1.000,00`, `DD/MM/YYYY`). Change with one line: `new RsTable({ columns, locale: 'en-US' })`. Per-column override for multi-currency tables. [Full guide →](docs/USAGE.md#10-locale--formatting)
+
 ---
 
 ## Quick comparison
@@ -181,7 +184,7 @@ Invalid data (e.g. `null` where a number was expected) is never silently swallow
 | **TypeScript** | Language — strict mode |
 | **npm** | Package manager — workspaces |
 | **unbuild** | Build — CJS + ESM + types |
-| **Vitest** | Tests — 352 passing |
+| **Vitest** | Tests — 376 passing |
 | **Nuxt 3 / Vue 3** | Render Engine |
 | **CSS puro** | Theme — zero dependencies |
 
