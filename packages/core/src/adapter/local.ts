@@ -14,7 +14,7 @@ export class LocalAdapter implements DataAdapter {
     let rows = applyFilters(this.data, query.filters)
 
     if (query.sort) {
-      rows = sortArray(rows, query.sort.column, query.sort.direction)
+      rows = sortArray(rows, query.sort.column, query.sort.direction, query.locale)
     }
 
     const total = rows.length
@@ -27,7 +27,7 @@ export class LocalAdapter implements DataAdapter {
     let rows = applyFilters(this.data, query.filters)
 
     if (query.sort) {
-      rows = sortArray(rows, query.sort.column, query.sort.direction)
+      rows = sortArray(rows, query.sort.column, query.sort.direction, query.locale)
     }
 
     return rows

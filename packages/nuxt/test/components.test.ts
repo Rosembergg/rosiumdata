@@ -73,7 +73,7 @@ describe('<RsTable> — renderização', () => {
 
     const primeira = wrapper.findAll('tbody tr')[0]!
     expect(primeira.text()).toContain('R$')
-    expect(primeira.text()).toContain('5.99')
+    expect(primeira.text()).toContain('5,99')
     expect(primeira.text()).toContain('Yes')
     expect(primeira.text()).toContain('Ativo')
   })

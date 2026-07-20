@@ -66,7 +66,7 @@ describe('RsTable — getLinhas() e transformacao de dados', () => {
     expect(linhas[0]!.nome!.display).toBe('Produto A')
 
     expect(linhas[0]!.preco!.raw).toBe(10.5)
-    expect(linhas[0]!.preco!.display).toBe('10.5')
+    expect(linhas[0]!.preco!.display).toBe('10,5')
 
     expect(linhas[0]!.ativo!.raw).toBe(true)
     expect(linhas[0]!.ativo!.display).toBe('Yes')
@@ -535,5 +535,93 @@ describe('RsTable — casos de borda', () => {
     const estado2 = tabela.getState()
     expect(estado2.filters).toEqual([])
     expect(estado1.filters).not.toEqual(estado2.filters)
+  })
+})
+
+describe('RsTable — locale', () => {
+  it('default locale is pt-BR', () => {
+    const tabela = new RsTable({ columns: [column('x', { type: 'number' })] })
+    expect(tabela.getState().locale).toBe('pt-BR')
+  })
+
+  it('custom locale is stored and exposed', () => {
+    const tabela = new RsTable({ columns: [column('x', { type: 'number' })], locale: 'en-US' })
+    expect(tabela.getState().locale).toBe('en-US')
+  })
+
+  it('formats numbers in pt-BR by default', async () => {
+    const adapter = criarMockAdapter([{ preco: 1500.5 }])
+    const tabela = new RsTable({
+      columns: [column('preco', { type: 'number' })],
+    })
+    tabela.useAdapter(adapter)
+    await tabela.goToPage(1)
+
+    const rows = tabela.getRows()
+    expect(rows[0]!.preco!.display).toBe('1.500,5')
+  })
+
+  it('formats numbers in en-US when configured', async () => {
+    const adapter = criarMockAdapter([{ preco: 1500.5 }])
+    const tabela = new RsTable({
+      columns: [column('preco', { type: 'number' })],
+      locale: 'en-US',
+    })
+    tabela.useAdapter(adapter)
+    await tabela.goToPage(1)
+
+    const rows = tabela.getRows()
+    expect(rows[0]!.preco!.display).toBe('1,500.5')
+  })
+
+  it('formats numbers in de-DE when configured', async () => {
+    const adapter = criarMockAdapter([{ preco: 1500.5 }])
+    const tabela = new RsTable({
+      columns: [column('preco', { type: 'number' })],
+      locale: 'de-DE',
+    })
+    tabela.useAdapter(adapter)
+    await tabela.goToPage(1)
+
+    const rows = tabela.getRows()
+    expect(rows[0]!.preco!.display).toBe('1.500,5')
+  })
+
+  it('column locale overrides table locale', async () => {
+    const adapter = criarMockAdapter([{ preco: 1500.5 }])
+    const tabela = new RsTable({
+      columns: [column('preco', { type: 'number', locale: 'en-US' })],
+      locale: 'pt-BR',
+    })
+    tabela.useAdapter(adapter)
+    await tabela.goToPage(1)
+
+    const rows = tabela.getRows()
+    expect(rows[0]!.preco!.display).toBe('1,500.5')
+  })
+
+  it('formats dates in pt-BR by default', async () => {
+    const adapter = criarMockAdapter([{ data: new Date(2024, 11, 25) }])
+    const tabela = new RsTable({
+      columns: [column('data', { type: 'date' })],
+    })
+    tabela.useAdapter(adapter)
+    await tabela.goToPage(1)
+
+    const rows = tabela.getRows()
+    expect(rows[0]!.data!.display).toBe('25/12/2024')
+  })
+
+  it('formats dates in en-US when configured', async () => {
+    const adapter = criarMockAdapter([{ data: new Date(2024, 11, 25) }])
+    const tabela = new RsTable({
+      columns: [column('data', { type: 'date' })],
+      locale: 'en-US',
+    })
+    tabela.useAdapter(adapter)
+    await tabela.goToPage(1)
+
+    const rows = tabela.getRows()
+    expect(rows[0]!.data!.display).toBe('12/25/2024')
   })
 })

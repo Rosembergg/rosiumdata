@@ -61,7 +61,7 @@ describe('useRsTable — conexão com o Core', () => {
     await ctx.load()
     const primeira = ctx.rows.value[0]!
     expect(primeira.preco!.raw).toBe(5.99)
-    expect(primeira.preco!.display).toContain('5.99')
+    expect(primeira.preco!.display).toContain('5,99')
     expect(primeira.ativo!.display).toBe('Yes')
     expect(primeira.status!.display).toBe('Ativo')
   })

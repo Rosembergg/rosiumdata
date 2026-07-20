@@ -150,3 +150,35 @@ describe('sortArray — casos de borda', () => {
     expect(dados[1]!.nome).toBe('A')
   })
 })
+
+describe('sortArray() — locale-aware sorting', () => {
+  it('sorts strings with pt-BR collation (accented characters)', () => {
+    const dados: Row[] = [
+      { nome: 'casa' },
+      { nome: 'água' },
+      { nome: 'bebida' },
+    ]
+    const result = sortArray(dados, 'nome', 'asc', 'pt-BR')
+    expect(result.map((r) => r.nome)).toEqual(['água', 'bebida', 'casa'])
+  })
+
+  it('sorts strings with different locale — same order for basic latin', () => {
+    const dados: Row[] = [
+      { nome: 'Banana' },
+      { nome: 'apple' },
+      { nome: 'Cherry' },
+    ]
+    const result = sortArray(dados, 'nome', 'asc', 'en-US')
+    expect(result.map((r) => r.nome)).toEqual(['apple', 'Banana', 'Cherry'])
+  })
+
+  it('uses pt-BR as default locale when not specified', () => {
+    const dados: Row[] = [
+      { nome: 'B' },
+      { nome: 'a' },
+    ]
+    const result = sortArray(dados, 'nome', 'asc')
+    expect(result[0]!.nome).toBe('a')
+    expect(result[1]!.nome).toBe('B')
+  })
+})

@@ -57,33 +57,33 @@ describe('column() — factory de definicao de coluna', () => {
 describe('formatDefaultValue()', () => {
   it('deve retornar string vazia para null/undefined', () => {
     const c = column('nome', { type: 'text' })
-    expect(formatDefaultValue(null, c)).toBe('')
-    expect(formatDefaultValue(undefined, c)).toBe('')
+    expect(formatDefaultValue(null, c, 'pt-BR')).toBe('')
+    expect(formatDefaultValue(undefined, c, 'pt-BR')).toBe('')
   })
 
   it('deve formatar booleano como Sim/Nao', () => {
     const c = column('ativo', { type: 'boolean' })
-    expect(formatDefaultValue(true, c)).toBe('Yes')
-    expect(formatDefaultValue(false, c)).toBe('No')
+    expect(formatDefaultValue(true, c, 'pt-BR')).toBe('Yes')
+    expect(formatDefaultValue(false, c, 'pt-BR')).toBe('No')
   })
 
-  it('deve formatar numero como string', () => {
+  it('deve formatar numero como string (pt-BR)', () => {
     const c = column('preco', { type: 'number' })
-    expect(formatDefaultValue(100, c)).toBe('100')
-    expect(formatDefaultValue(5.99, c)).toBe('5.99')
+    expect(formatDefaultValue(100, c, 'pt-BR')).toBe('100')
+    expect(formatDefaultValue(5.99, c, 'pt-BR')).toBe('5,99')
   })
 
-  it('deve aplicar mascara R$ em coluna numero', () => {
+  it('deve aplicar mascara R$ em coluna numero (pt-BR)', () => {
     const c = column('preco', { type: 'number', mask: 'R$ #.##0,00' })
-    const formatted = formatDefaultValue(100, c)
+    const formatted = formatDefaultValue(100, c, 'pt-BR')
     expect(formatted).toContain('R$')
     expect(formatted).toContain('100')
   })
 
-  it('deve aplicar mascara de numero sem currency', () => {
+  it('deve aplicar mascara de numero sem currency (pt-BR)', () => {
     const c = column('quantidade', { type: 'number', mask: '#.##0' })
-    const formatted = formatDefaultValue(1500, c)
-    expect(formatted).toContain('1,500')
+    const formatted = formatDefaultValue(1500, c, 'pt-BR')
+    expect(formatted).toContain('1.500')
   })
 
   it('deve formatar selecao usando opcoes', () => {
@@ -91,8 +91,8 @@ describe('formatDefaultValue()', () => {
       type: 'select',
       options: { 1: 'Ativo', 2: 'Inativo' },
     })
-    expect(formatDefaultValue(1, c)).toBe('Ativo')
-    expect(formatDefaultValue(2, c)).toBe('Inativo')
+    expect(formatDefaultValue(1, c, 'pt-BR')).toBe('Ativo')
+    expect(formatDefaultValue(2, c, 'pt-BR')).toBe('Inativo')
   })
 
   it('deve retornar o proprio valor se nao estiver nas opcoes de selecao', () => {
@@ -100,32 +100,112 @@ describe('formatDefaultValue()', () => {
       type: 'select',
       options: { 1: 'Ativo' },
     })
-    expect(formatDefaultValue(999, c)).toBe('999')
+    expect(formatDefaultValue(999, c, 'pt-BR')).toBe('999')
   })
 
   it('deve formatar data com locale pt-BR', () => {
     const c = column('criadoEm', { type: 'date' })
     const date = new Date(2024, 0, 15)
-    const formatted = formatDefaultValue(date, c)
-    expect(formatted).toBe('1/15/2024')
+    const formatted = formatDefaultValue(date, c, 'pt-BR')
+    expect(formatted).toBe('15/01/2024')
   })
 
   it('deve formatar data-hora com locale pt-BR', () => {
     const c = column('atualizadoEm', { type: 'datetime' })
     const date = new Date(2024, 0, 15, 14, 30, 0)
-    const formatted = formatDefaultValue(date, c)
-    expect(formatted).toContain('1/15/2024')
-    expect(formatted).toContain('02:30')
+    const formatted = formatDefaultValue(date, c, 'pt-BR')
+    expect(formatted).toContain('15/01/2024')
+    expect(formatted).toContain('14:30')
   })
 
   it('deve retornar string vazia para tipo acao', () => {
     const c = column('acoes', { type: 'action' })
-    expect(formatDefaultValue('qualquer', c)).toBe('')
+    expect(formatDefaultValue('qualquer', c, 'pt-BR')).toBe('')
   })
 
   it('deve formatar texto como string', () => {
     const c = column('nome', { type: 'text' })
-    expect(formatDefaultValue('Coca-Cola', c)).toBe('Coca-Cola')
+    expect(formatDefaultValue('Coca-Cola', c, 'pt-BR')).toBe('Coca-Cola')
+  })
+})
+
+describe('formatDefaultValue() — locale support', () => {
+  it('formats number in pt-BR (default)', () => {
+    const c = column('preco', { type: 'number' })
+    expect(formatDefaultValue(1500.5, c, 'pt-BR')).toBe('1.500,5')
+  })
+
+  it('formats number in en-US', () => {
+    const c = column('preco', { type: 'number' })
+    expect(formatDefaultValue(1500.5, c, 'en-US')).toBe('1,500.5')
+  })
+
+  it('formats number in de-DE', () => {
+    const c = column('preco', { type: 'number' })
+    expect(formatDefaultValue(1500.5, c, 'de-DE')).toBe('1.500,5')
+  })
+
+  it('formats currency in pt-BR with R$ mask', () => {
+    const c = column('preco', { type: 'number', mask: 'R$ #.##0,00' })
+    const formatted = formatDefaultValue(1500.5, c, 'pt-BR')
+    expect(formatted).toContain('R$')
+    expect(formatted).toContain('1.500,50')
+  })
+
+  it('formats currency in en-US with USD', () => {
+    const c = column('preco', { type: 'number', mask: '$ #,##0.00', currency: 'USD' })
+    const formatted = formatDefaultValue(1500.5, c, 'en-US')
+    expect(formatted).toContain('$1,500.50')
+  })
+
+  it('formats currency in de-DE with EUR', () => {
+    const c = column('preco', { type: 'number', mask: '#.##0,00 €', currency: 'EUR' })
+    const formatted = formatDefaultValue(1500.5, c, 'de-DE')
+    expect(formatted).toContain('1.500,50')
+    expect(formatted).toContain('€')
+  })
+
+  it('formats date in pt-BR', () => {
+    const c = column('data', { type: 'date' })
+    const date = new Date(2024, 11, 25)
+    expect(formatDefaultValue(date, c, 'pt-BR')).toBe('25/12/2024')
+  })
+
+  it('formats date in en-US', () => {
+    const c = column('data', { type: 'date' })
+    const date = new Date(2024, 11, 25)
+    expect(formatDefaultValue(date, c, 'en-US')).toBe('12/25/2024')
+  })
+
+  it('formats date in de-DE', () => {
+    const c = column('data', { type: 'date' })
+    const date = new Date(2024, 11, 25)
+    expect(formatDefaultValue(date, c, 'de-DE')).toBe('25.12.2024')
+  })
+
+  it('formats datetime in pt-BR', () => {
+    const c = column('criadoEm', { type: 'datetime' })
+    const date = new Date(2024, 0, 15, 14, 30, 0)
+    const formatted = formatDefaultValue(date, c, 'pt-BR')
+    expect(formatted).toContain('15/01/2024')
+    expect(formatted).toContain('14:30')
+  })
+
+  it('column locale override > table locale', () => {
+    const c = column('preco', { type: 'number', locale: 'en-US' })
+    const formatted = formatDefaultValue(1500.5, c, c.locale!)
+    expect(formatted).toBe('1,500.5')
+  })
+
+  it('column currency override is used', () => {
+    const c = column('preco', { type: 'number', mask: 'R$ #,##0.00', currency: 'USD', locale: 'en-US' })
+    const formatted = formatDefaultValue(100, c, 'en-US')
+    expect(formatted).toContain('$100.00')
+  })
+
+  it('column with locale but no mask formats decimal correctly', () => {
+    const c = column('preco', { type: 'number', locale: 'de-DE' })
+    expect(formatDefaultValue(1000.5, c, 'de-DE')).toBe('1.000,5')
   })
 })
 

@@ -24,6 +24,7 @@ export interface RsTableState {
   rows: TransformedRow[]
   visibleColumns: string[]
   columnOrder: string[]
+  locale: string
 }
 
 export class RsTable {
@@ -37,10 +38,12 @@ export class RsTable {
   private currentRows: TransformedRow[] = []
   private visibleColumns: Set<string>
   private events: EventEmitter
+  private locale: string
 
-  constructor(config: { columns: ColumnDefinition[]; pageSize?: number }) {
+  constructor(config: { columns: ColumnDefinition[]; pageSize?: number; locale?: string }) {
     this.columns = config.columns
     this.pageSize = config.pageSize ?? 20
+    this.locale = config.locale ?? 'pt-BR'
     this.events = new EventEmitter()
 
     const visibleKeys = config.columns
@@ -118,6 +121,7 @@ export class RsTable {
       rows: this.currentRows,
       visibleColumns: [...this.visibleColumns],
       columnOrder: this.getColumnOrder(),
+      locale: this.locale,
     }
   }
 
@@ -206,6 +210,7 @@ export class RsTable {
       sort: this.sortState ? { ...this.sortState } : undefined,
       page: this.currentPage,
       pageSize: this.pageSize,
+      locale: this.locale,
     }
 
     try {
@@ -235,9 +240,10 @@ export class RsTable {
       const transformed: TransformedRow = {}
       for (const colDef of this.columns) {
         const rawValue = row[colDef.key]
+        const effectiveLocale = colDef.locale ?? this.locale
         const displayValue = colDef.transform
           ? String(colDef.transform(rawValue))
-          : formatDefaultValue(rawValue, colDef)
+          : formatDefaultValue(rawValue, colDef, effectiveLocale)
 
         transformed[colDef.key] = {
           raw: rawValue,

@@ -9,6 +9,8 @@ export interface Query {
   sort?: { column: string; direction: 'asc' | 'desc' }
   page: number
   pageSize: number
+  /** Locale for client-side sorting. Server-side adapters may ignore. */
+  locale?: string
 }
 
 export interface FetchResult {

@@ -22,6 +22,10 @@ export interface ColumnDefinition {
   filterable?: boolean
   visible?: boolean
   exportAsFormatted?: boolean
+  /** Override the table locale for this column only (e.g. 'en-US', 'de-DE') */
+  locale?: string
+  /** ISO currency code (e.g. 'USD', 'EUR', 'BRL'). Default: inferred from locale */
+  currency?: string
 }
 
 export interface ColumnConfig {
@@ -37,6 +41,10 @@ export interface ColumnConfig {
   filterable?: boolean
   visible?: boolean
   exportAsFormatted?: boolean
+  /** Override the table locale for this column only */
+  locale?: string
+  /** ISO currency code (e.g. 'USD', 'EUR'). Default: inferred from locale */
+  currency?: string
 }
 
 export function column(key: string, config: ColumnConfig): ColumnDefinition {
@@ -55,6 +63,8 @@ export function column(key: string, config: ColumnConfig): ColumnDefinition {
     filterable: config.filterable ?? (type !== 'action'),
     visible: config.visible ?? true,
     exportAsFormatted: config.exportAsFormatted ?? false,
+    locale: config.locale,
+    currency: config.currency,
   }
 }
 
@@ -68,27 +78,26 @@ export const DEFAULT_ALIGNMENT: Record<ColumnType, ColumnAlignment> = {
   action: 'center',
 }
 
-function formatarNumero(value: unknown, colDef: ColumnDefinition): string {
+function formatNumber(value: unknown, colDef: ColumnDefinition, locale: string): string {
   const num = typeof value === 'number' ? value : Number(value)
   if (isNaN(num)) return String(value)
 
+  const currency = colDef.currency ?? (locale.startsWith('pt') ? 'BRL' : undefined)
+
   if (colDef.mask) {
-    if (/R\$/i.test(colDef.mask)) {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'BRL',
-      }).format(num)
-    }
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
+    return new Intl.NumberFormat(locale, {
+      style: currency ? 'currency' : 'decimal',
+      ...(currency ? { currency } : { minimumFractionDigits: 0, maximumFractionDigits: 2 }),
     }).format(num)
   }
 
-  return String(value)
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(num)
 }
 
-export function formatDefaultValue(value: unknown, colDef: ColumnDefinition): string {
+export function formatDefaultValue(value: unknown, colDef: ColumnDefinition, locale: string): string {
   if (value === null || value === undefined) return ''
 
   if (colDef.options) {
@@ -101,18 +110,18 @@ export function formatDefaultValue(value: unknown, colDef: ColumnDefinition): st
       return value ? 'Yes' : 'No'
 
     case 'number':
-      return formatarNumero(value, colDef)
+      return formatNumber(value, colDef, locale)
 
     case 'date': {
       const date = value instanceof Date ? value : new Date(String(value))
       if (isNaN(date.getTime())) return String(value)
-      return date.toLocaleDateString('en-US')
+      return date.toLocaleDateString(locale)
     }
 
     case 'datetime': {
       const date = value instanceof Date ? value : new Date(String(value))
       if (isNaN(date.getTime())) return String(value)
-      return date.toLocaleDateString('en-US') + ' ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      return date.toLocaleDateString(locale) + ' ' + date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
     }
 
     case 'action':
