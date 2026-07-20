@@ -460,9 +460,7 @@ O CSS padrão é importado no plugin:
 import '@rsdata/nuxt/theme/default.css'
 ```
 
-### Customizando o visual
-
-O tema usa CSS custom properties. Sobrescreva no seu CSS:
+### Customização rápida (cores)
 
 ```css
 :root {
@@ -473,33 +471,14 @@ O tema usa CSS custom properties. Sobrescreva no seu CSS:
 }
 ```
 
-### Classes CSS disponíveis
-
-| Classe | Elemento |
-|---|---|
-| `.rs-table-container` | Container principal |
-| `.rs-table` | Elemento `<table>` |
-| `.rs-thead` | Cabeçalho |
-| `.rs-tbody` | Corpo |
-| `.rs-row` | Linha |
-| `.rs-cell` | Célula |
-| `.rs-cell--error` | Célula com erro (produção) |
-| `.rs-cell--error-debug` | Célula com erro (dev) |
-| `.rs-error-banner` | Banner do Falhe Alto (dev) |
-| `.rs-pagination` | Paginação |
-| `.rs-filters` | Barra de filtros |
-| `.rs-loading` | Loading |
-| `.rs-empty` | Estado vazio |
-| `.rs-badge` | Badge de status |
-| `.rs-action-btn` | Botão de ação |
-| `.rs-action-menu` | Dropdown de ações (2+ ações) |
+> **Guia completo de estilização:** `THEMING.md` — 3 níveis de customização, 70+ variáveis CSS, galeria de 4 exemplos prontos, tema do zero passo a passo, modo escuro customizável.
 
 ### Modo escuro
 
 Dois mecanismos, ambos suportados:
 
 1. **Preferência do SO:** detecta automaticamente `prefers-color-scheme: dark`
-2. **Classe `.dark` no `<html>`:** compatível com Tailwind `darkMode: 'class'` — quando seu app adiciona/remove a classe, a tabela responde junto
+2. **Classe `.dark` no `<html>`:** compatível com Tailwind `darkMode: 'class'`
 
 ---
 

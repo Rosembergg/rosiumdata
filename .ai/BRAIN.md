@@ -169,4 +169,5 @@ Cada tipo = pacote de comportamento pronto (filtro, ordenação, alinhamento, va
 | TEMPLATE.md | `.ai/` | ✅ |
 | PROJECT_RULES.md | `docs/` | ✅ |
 | USAGE.md | `docs/` | ✅ |
+| THEMING.md | `docs/` | ✅ |
 | DEBUGGER.md | `.ai/` | ✅ |
