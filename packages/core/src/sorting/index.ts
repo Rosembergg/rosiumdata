@@ -2,7 +2,7 @@ import type { Row } from '../adapter'
 
 export type SortDirection = 'asc' | 'desc'
 
-export function inverterDirecao(direction: SortDirection): SortDirection {
+export function invertDirection(direction: SortDirection): SortDirection {
   return direction === 'asc' ? 'desc' : 'asc'
 }
 
@@ -19,10 +19,10 @@ function compararValores(a: unknown, b: unknown): number {
     return a === b ? 0 : a ? 1 : -1
   }
 
-  return String(a).localeCompare(String(b), 'pt-BR')
+  return String(a).localeCompare(String(b), 'en-US')
 }
 
-export function ordenarArray(rows: Row[], column: string, direction: SortDirection): Row[] {
+export function sortArray(rows: Row[], column: string, direction: SortDirection): Row[] {
   const sorted = [...rows].sort((a, b) => {
     const aVal = a[column]
     const bVal = b[column]

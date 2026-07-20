@@ -3,24 +3,24 @@ import type { PropType, VNode } from 'vue'
 import type { UseRsTableContext } from '../composables/useRsTable'
 
 /**
- * Calcula quais páginas exibir: primeira, última e uma janela ao redor
- * da atual. Lacunas são representadas por '...'.
+ * Calculates which pages to display: first, last, and a window around
+ * the current one. Gaps are represented by '...'.
  */
-export function paginasVisiveis(atual: number, total: number): (number | '...')[] {
+export function visiblePages(current: number, total: number): (number | '...')[] {
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => i + 1)
   }
 
-  const paginas: (number | '...')[] = [1]
-  const inicio = Math.max(2, atual - 1)
-  const fim = Math.min(total - 1, atual + 1)
+  const pages: (number | '...')[] = [1]
+  const start = Math.max(2, current - 1)
+  const end = Math.min(total - 1, current + 1)
 
-  if (inicio > 2) paginas.push('...')
-  for (let p = inicio; p <= fim; p++) paginas.push(p)
-  if (fim < total - 1) paginas.push('...')
-  paginas.push(total)
+  if (start > 2) pages.push('...')
+  for (let p = start; p <= end; p++) pages.push(p)
+  if (end < total - 1) pages.push('...')
+  pages.push(total)
 
-  return paginas
+  return pages
 }
 
 export const RsPagination = defineComponent({
@@ -33,35 +33,35 @@ export const RsPagination = defineComponent({
   },
   setup(props) {
     return () => {
-      const { paginaAtual, totalPaginas, total, irParaPagina } = props.contexto
-      const atual = paginaAtual.value
-      const totalPags = Math.max(totalPaginas.value, 1)
+      const { currentPage, totalPages, total, goToPage } = props.contexto
+      const current = currentPage.value
+      const totalPgs = Math.max(totalPages.value, 1)
 
-      const botoes: VNode[] = [
+      const buttons: VNode[] = [
         h(
           'button',
           {
             type: 'button',
             class: 'rs-page-btn rs-page-prev',
-            disabled: atual <= 1,
-            onClick: () => void irParaPagina(atual - 1),
+            disabled: current <= 1,
+            onClick: () => void goToPage(current - 1),
           },
-          'Anterior',
+          'Previous',
         ),
       ]
 
-      for (const p of paginasVisiveis(atual, totalPags)) {
+      for (const p of visiblePages(current, totalPgs)) {
         if (p === '...') {
-          botoes.push(h('span', { class: 'rs-page-ellipsis' }, '\u2026'))
+          buttons.push(h('span', { class: 'rs-page-ellipsis' }, '\u2026'))
         } else {
-          botoes.push(
+          buttons.push(
             h(
               'button',
               {
                 type: 'button',
-                class: ['rs-page-btn', 'rs-page-number', { 'rs-page-current': p === atual }],
-                disabled: p === atual,
-                onClick: () => void irParaPagina(p),
+                class: ['rs-page-btn', 'rs-page-number', { 'rs-page-current': p === current }],
+                disabled: p === current,
+                onClick: () => void goToPage(p),
               },
               String(p),
             ),
@@ -69,25 +69,25 @@ export const RsPagination = defineComponent({
         }
       }
 
-      botoes.push(
+      buttons.push(
         h(
           'button',
           {
             type: 'button',
             class: 'rs-page-btn rs-page-next',
-            disabled: atual >= totalPags,
-            onClick: () => void irParaPagina(atual + 1),
+            disabled: current >= totalPgs,
+            onClick: () => void goToPage(current + 1),
           },
-          'Próximo',
+          'Next',
         ),
       )
 
-      return h('nav', { class: 'rs-pagination', 'aria-label': 'Paginação' }, [
-        h('div', { class: 'rs-pagination-buttons' }, botoes),
+      return h('nav', { class: 'rs-pagination', 'aria-label': 'Pagination' }, [
+        h('div', { class: 'rs-pagination-buttons' }, buttons),
         h(
           'span',
           { class: 'rs-pagination-info' },
-          `Página ${atual} de ${totalPags} — Total: ${total.value} registros`,
+          `Page ${current} of ${totalPgs} — Total: ${total.value} records`,
         ),
       ])
     }

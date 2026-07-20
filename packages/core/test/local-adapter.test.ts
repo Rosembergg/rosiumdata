@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { LocalAdapter, coluna, RsTable } from '@rsdata/core'
+import { LocalAdapter, column, RsTable } from '@rsdata/core'
 import type { Row, Query } from '@rsdata/core'
 
 const dados: Row[] = [
@@ -82,7 +82,7 @@ describe('LocalAdapter — fetch com filtro', () => {
   it('deve filtrar e retornar total correto', async () => {
     const adapter = new LocalAdapter(dados)
     const query = criarQuery({
-      filters: [{ column: 'nome', operator: 'contem', value: 'Produto' }],
+      filters: [{ column: 'nome', operator: 'contains', value: 'Produto' }],
     })
     const result = await adapter.fetch(query)
     expect(result.rows).toHaveLength(2)
@@ -94,7 +94,7 @@ describe('LocalAdapter — fetch com filtro', () => {
   it('filtro + paginacao', async () => {
     const adapter = new LocalAdapter(dados)
     const query = criarQuery({
-      filters: [{ column: 'ativo', operator: 'igual', value: true }],
+      filters: [{ column: 'ativo', operator: 'equals', value: true }],
       page: 1,
       pageSize: 2,
     })
@@ -106,7 +106,7 @@ describe('LocalAdapter — fetch com filtro', () => {
   it('filtro sem match', async () => {
     const adapter = new LocalAdapter(dados)
     const query = criarQuery({
-      filters: [{ column: 'nome', operator: 'contem', value: 'Inexistente' }],
+      filters: [{ column: 'nome', operator: 'contains', value: 'Inexistente' }],
     })
     const result = await adapter.fetch(query)
     expect(result.rows).toHaveLength(0)
@@ -158,7 +158,7 @@ describe('LocalAdapter — fetchAll', () => {
   it('fetchAll com filtro deve retornar todas as matches', async () => {
     const adapter = new LocalAdapter(dados)
     const query = criarQuery({
-      filters: [{ column: 'ativo', operator: 'igual', value: true }],
+      filters: [{ column: 'ativo', operator: 'equals', value: true }],
     })
     const result = await adapter.fetchAll(query)
     expect(result).toHaveLength(3)

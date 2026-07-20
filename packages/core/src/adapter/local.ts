@@ -1,7 +1,7 @@
 import type { DataAdapter, Query, FetchResult, Row, FilterOption } from './index'
-import { aplicarFiltros } from '../filters'
-import { ordenarArray } from '../sorting'
-import { paginarArray } from '../pagination'
+import { applyFilters } from '../filters'
+import { sortArray } from '../sorting'
+import { paginateArray } from '../pagination'
 
 export class LocalAdapter implements DataAdapter {
   private data: Row[]
@@ -11,23 +11,23 @@ export class LocalAdapter implements DataAdapter {
   }
 
   async fetch(query: Query): Promise<FetchResult> {
-    let rows = aplicarFiltros(this.data, query.filters)
+    let rows = applyFilters(this.data, query.filters)
 
     if (query.sort) {
-      rows = ordenarArray(rows, query.sort.column, query.sort.direction)
+      rows = sortArray(rows, query.sort.column, query.sort.direction)
     }
 
     const total = rows.length
-    const paged = paginarArray(rows, query.page, query.pageSize)
+    const paged = paginateArray(rows, query.page, query.pageSize)
 
     return { rows: paged, total }
   }
 
   async fetchAll(query: Query): Promise<Row[]> {
-    let rows = aplicarFiltros(this.data, query.filters)
+    let rows = applyFilters(this.data, query.filters)
 
     if (query.sort) {
-      rows = ordenarArray(rows, query.sort.column, query.sort.direction)
+      rows = sortArray(rows, query.sort.column, query.sort.direction)
     }
 
     return rows

@@ -146,19 +146,19 @@ export interface LaravelAdapterOptions {
 }
 
 /** Tradução operador do Core → operador URL-safe do contrato Laravel. */
-export const OPERADOR_LARAVEL: Record<string, string> = {
+export const LARAVEL_OPERATOR: Record<string, string> = {
   '=': 'eq',
   '>': 'gt',
   '<': 'lt',
   '>=': 'gte',
   '<=': 'lte',
-  igual: 'eq',
-  contem: 'like',
-  comeca_com: 'starts_with',
-  termina_com: 'ends_with',
-  entre: 'between',
-  antes: 'before',
-  depois: 'after',
+  equals: 'eq',
+  contains: 'like',
+  startsWith: 'starts_with',
+  endsWith: 'ends_with',
+  between: 'between',
+  before: 'before',
+  after: 'after',
 }
 
 const TIMEOUT_PADRAO = 30000
@@ -280,13 +280,13 @@ export class LaravelAdapter implements DataAdapter {
   }
 
   private traduzirOperador(filter: Filter): string {
-    const traduzido = OPERADOR_LARAVEL[filter.operator]
-    if (!traduzido) {
+    const translated = LARAVEL_OPERATOR[filter.operator]
+    if (!translated) {
       throw new Error(
-        `LaravelAdapter: operador desconhecido \`${filter.operator}\` no filtro da coluna \`${filter.column}\` — operadores suportados: ${Object.keys(OPERADOR_LARAVEL).join(', ')}`
+        `LaravelAdapter: unknown operator \`${filter.operator}\` in filter for column \`${filter.column}\` — supported operators: ${Object.keys(LARAVEL_OPERATOR).join(', ')}`
       )
     }
-    return traduzido
+    return translated
   }
 
   private montarUrl(params: URLSearchParams): string {
@@ -322,7 +322,7 @@ export class LaravelAdapter implements DataAdapter {
         if (estourouTimeout) throw this.erroTimeout(url)
         const detalhe = err instanceof Error ? err.message : String(err)
         throw new Error(
-          `LaravelAdapter: falha de rede ao buscar \`${url}\` — verifique a conexão e o servidor (${detalhe})`
+          `LaravelAdapter: network failure while fetching \`${url}\` — check connection and server (${detalhe})`
         )
       }
 
@@ -332,10 +332,10 @@ export class LaravelAdapter implements DataAdapter {
           body = await response.text()
         } catch {
           if (estourouTimeout) throw this.erroTimeout(url)
-          body = '(corpo indisponível)'
+          body = '(body unavailable)'
         }
         throw new Error(
-          `LaravelAdapter: HTTP ${response.status} ao buscar \`${url}\` — ${body || '(corpo vazio)'}`
+          `LaravelAdapter: HTTP ${response.status} while fetching \`${url}\` — ${body || '(empty body)'}`
         )
       }
 
@@ -345,7 +345,7 @@ export class LaravelAdapter implements DataAdapter {
         if (estourouTimeout) throw this.erroTimeout(url)
         const detalhe = err instanceof Error ? err.message : String(err)
         throw new Error(
-          `LaravelAdapter: resposta de \`${url}\` não é JSON válido (${detalhe})`
+          `LaravelAdapter: response from \`${url}\` is not valid JSON (${detalhe})`
         )
       }
     } finally {
@@ -355,7 +355,7 @@ export class LaravelAdapter implements DataAdapter {
 
   private erroTimeout(url: string): Error {
     return new Error(
-      `LaravelAdapter: timeout de ${this.timeout}ms excedido ao buscar \`${url}\``
+      `LaravelAdapter: timeout of ${this.timeout}ms exceeded while fetching \`${url}\``
     )
   }
 
@@ -385,21 +385,21 @@ export class LaravelAdapter implements DataAdapter {
   private parseFetchResult(json: unknown, url: string): FetchResult {
     if (!ehObjetoPlano(json)) {
       throw new Error(
-        `LaravelAdapter: formato de resposta inesperado de \`${url}\` — esperava objeto \`{ data: [...], meta: { total } }\`, recebeu ${JSON.stringify(json)}`
+        `LaravelAdapter: unexpected response format from \`${url}\` — expected object \`{ data: [...], meta: { total } }\`, received ${JSON.stringify(json)}`
       )
     }
 
     const data = json.data
     if (!Array.isArray(data)) {
       throw new Error(
-        `LaravelAdapter: resposta de \`${url}\` sem \`data\` como array — esperava \`{ data: [...] }\`, recebeu ${JSON.stringify(json).slice(0, 200)}`
+        `LaravelAdapter: response from \`${url}\` missing \`data\` as array — expected \`{ data: [...] }\`, received ${JSON.stringify(json).slice(0, 200)}`
       )
     }
 
     const rows: Row[] = data.map((item, index) => {
       if (!ehObjetoPlano(item)) {
         throw new Error(
-          `LaravelAdapter: item ${index} de \`data\` não é um objeto — esperava \`{ campo: valor }\`, recebeu ${JSON.stringify(item)}`
+          `LaravelAdapter: item ${index} of \`data\` is not an object — expected \`{ field: value }\`, received ${JSON.stringify(item)}`
         )
       }
       return achatarLinha(item)
@@ -410,7 +410,7 @@ export class LaravelAdapter implements DataAdapter {
     const total = Number(totalBruto)
     if (totalBruto === null || totalBruto === undefined || isNaN(total)) {
       throw new Error(
-        `LaravelAdapter: resposta de \`${url}\` sem total numérico — esperava \`meta.total\` ou \`total\` na raiz, recebeu ${JSON.stringify(totalBruto)}`
+        `LaravelAdapter: response from \`${url}\` missing numeric total — expected \`meta.total\` or \`total\` at root, received ${JSON.stringify(totalBruto)}`
       )
     }
 
@@ -427,7 +427,7 @@ export class LaravelAdapter implements DataAdapter {
 
     if (!lista) {
       throw new Error(
-        `LaravelAdapter: formato de opções de filtro inesperado de \`${url}\` — esperava \`{ data: [{ label, value }] }\` ou array, recebeu ${JSON.stringify(json).slice(0, 200)}`
+        `LaravelAdapter: unexpected filter options format from \`${url}\` — expected \`{ data: [{ label, value }] }\` or array, received ${JSON.stringify(json).slice(0, 200)}`
       )
     }
 

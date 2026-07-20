@@ -1,4 +1,4 @@
-export type ColumnType = 'texto' | 'numero' | 'data' | 'data-hora' | 'booleano' | 'selecao' | 'acao'
+export type ColumnType = 'text' | 'number' | 'date' | 'datetime' | 'boolean' | 'select' | 'action'
 
 export type ColumnAlignment = 'left' | 'center' | 'right'
 
@@ -39,8 +39,8 @@ export interface ColumnConfig {
   exportAsFormatted?: boolean
 }
 
-export function coluna(key: string, config: ColumnConfig): ColumnDefinition {
-  const type = config.type ?? 'texto'
+export function column(key: string, config: ColumnConfig): ColumnDefinition {
+  const type = config.type ?? 'text'
   return {
     key,
     type,
@@ -52,20 +52,20 @@ export function coluna(key: string, config: ColumnConfig): ColumnDefinition {
     defaultOperator: config.defaultOperator,
     alignment: config.alignment,
     sortable: config.sortable,
-    filterable: config.filterable ?? (type !== 'acao'),
+    filterable: config.filterable ?? (type !== 'action'),
     visible: config.visible ?? true,
     exportAsFormatted: config.exportAsFormatted ?? false,
   }
 }
 
-export const ALINHAMENTO_PADRAO: Record<ColumnType, ColumnAlignment> = {
-  texto: 'left',
-  numero: 'right',
-  data: 'center',
-  'data-hora': 'center',
-  booleano: 'center',
-  selecao: 'left',
-  acao: 'center',
+export const DEFAULT_ALIGNMENT: Record<ColumnType, ColumnAlignment> = {
+  text: 'left',
+  number: 'right',
+  date: 'center',
+  datetime: 'center',
+  boolean: 'center',
+  select: 'left',
+  action: 'center',
 }
 
 function formatarNumero(value: unknown, colDef: ColumnDefinition): string {
@@ -74,12 +74,12 @@ function formatarNumero(value: unknown, colDef: ColumnDefinition): string {
 
   if (colDef.mask) {
     if (/R\$/i.test(colDef.mask)) {
-      return new Intl.NumberFormat('pt-BR', {
+      return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'BRL',
       }).format(num)
     }
-    return new Intl.NumberFormat('pt-BR', {
+    return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(num)
@@ -88,7 +88,7 @@ function formatarNumero(value: unknown, colDef: ColumnDefinition): string {
   return String(value)
 }
 
-export function formatarValorPadrao(value: unknown, colDef: ColumnDefinition): string {
+export function formatDefaultValue(value: unknown, colDef: ColumnDefinition): string {
   if (value === null || value === undefined) return ''
 
   if (colDef.options) {
@@ -97,25 +97,25 @@ export function formatarValorPadrao(value: unknown, colDef: ColumnDefinition): s
   }
 
   switch (colDef.type) {
-    case 'booleano':
-      return value ? 'Sim' : 'Nao'
+    case 'boolean':
+      return value ? 'Yes' : 'No'
 
-    case 'numero':
+    case 'number':
       return formatarNumero(value, colDef)
 
-    case 'data': {
+    case 'date': {
       const date = value instanceof Date ? value : new Date(String(value))
       if (isNaN(date.getTime())) return String(value)
-      return date.toLocaleDateString('pt-BR')
+      return date.toLocaleDateString('en-US')
     }
 
-    case 'data-hora': {
+    case 'datetime': {
       const date = value instanceof Date ? value : new Date(String(value))
       if (isNaN(date.getTime())) return String(value)
-      return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      return date.toLocaleDateString('en-US') + ' ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     }
 
-    case 'acao':
+    case 'action':
       return ''
 
     default:

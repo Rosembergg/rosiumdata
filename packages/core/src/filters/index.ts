@@ -1,24 +1,24 @@
 import type { ColumnType } from '../columns'
 import type { Row, Filter } from '../adapter'
 
-export const OPERADORES_PADRAO: Record<ColumnType, string[]> = {
-  texto: ['contem', 'igual', 'comeca_com', 'termina_com'],
-  numero: ['=', '>', '<', '>=', '<=', 'entre'],
-  data: ['entre', 'antes', 'depois', 'igual'],
-  'data-hora': ['entre', 'antes', 'depois', 'igual'],
-  booleano: ['igual'],
-  selecao: ['igual'],
-  acao: [],
+export const DEFAULT_OPERATORS: Record<ColumnType, string[]> = {
+  text: ['contains', 'equals', 'startsWith', 'endsWith'],
+  number: ['=', '>', '<', '>=', '<=', 'between'],
+  date: ['between', 'before', 'after', 'equals'],
+  datetime: ['between', 'before', 'after', 'equals'],
+  boolean: ['equals'],
+  select: ['equals'],
+  action: [],
 }
 
-export const OPERADOR_PADRAO: Record<ColumnType, string> = {
-  texto: 'contem',
-  numero: '=',
-  data: 'entre',
-  'data-hora': 'entre',
-  booleano: 'igual',
-  selecao: 'igual',
-  acao: '',
+export const DEFAULT_OPERATOR: Record<ColumnType, string> = {
+  text: 'contains',
+  number: '=',
+  date: 'between',
+  datetime: 'between',
+  boolean: 'equals',
+  select: 'equals',
+  action: '',
 }
 
 function toDate(value: unknown): Date | null {
@@ -80,16 +80,16 @@ function aplicarFiltroLinha(row: Row, filter: Filter): boolean {
   if (rowValue === null || rowValue === undefined) return false
 
   switch (filter.operator) {
-    case 'contem':
+    case 'contains':
       return String(rowValue).toLowerCase().includes(String(filter.value).toLowerCase())
 
-    case 'igual':
+    case 'equals':
       return compararIgual(rowValue, filter.value)
 
-    case 'comeca_com':
+    case 'startsWith':
       return String(rowValue).toLowerCase().startsWith(String(filter.value).toLowerCase())
 
-    case 'termina_com':
+    case 'endsWith':
       return String(rowValue).toLowerCase().endsWith(String(filter.value).toLowerCase())
 
     case '=':
@@ -107,16 +107,16 @@ function aplicarFiltroLinha(row: Row, filter: Filter): boolean {
     case '<=':
       return Number(rowValue) <= Number(filter.value)
 
-    case 'entre':
+    case 'between':
       return compararEntre(rowValue, filter.value)
 
-    case 'antes': {
+    case 'before': {
       const cmp = compararDatas(rowValue, filter.value)
       if (isNaN(cmp)) return false
       return cmp < 0
     }
 
-    case 'depois': {
+    case 'after': {
       const cmp = compararDatas(rowValue, filter.value)
       if (isNaN(cmp)) return false
       return cmp > 0
@@ -127,7 +127,7 @@ function aplicarFiltroLinha(row: Row, filter: Filter): boolean {
   }
 }
 
-export function aplicarFiltros(rows: Row[], filters: Filter[]): Row[] {
+export function applyFilters(rows: Row[], filters: Filter[]): Row[] {
   if (filters.length === 0) return rows
   return rows.filter((row) => filters.every((f) => aplicarFiltroLinha(row, f)))
 }

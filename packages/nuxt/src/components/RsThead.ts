@@ -11,25 +11,25 @@ export const RsThead = defineComponent({
     },
   },
   setup(props) {
-    function ordenavel(col: ColumnDefinition): boolean {
-      return col.sortable !== false && col.type !== 'acao'
+    function sortable(col: ColumnDefinition): boolean {
+      return col.sortable !== false && col.type !== 'action'
     }
 
-    function aoClicar(col: ColumnDefinition): void {
-      if (!ordenavel(col)) return
-      const atual = props.contexto.ordenacao.value
-      const direcao =
-        atual && atual.column === col.key && atual.direction === 'asc' ? 'desc' : 'asc'
-      void props.contexto.ordenar(col.key, direcao)
+    function onClick(col: ColumnDefinition): void {
+      if (!sortable(col)) return
+      const current = props.contexto.sortState.value
+      const direction =
+        current && current.column === col.key && current.direction === 'asc' ? 'desc' : 'asc'
+      void props.contexto.sort(col.key, direction)
     }
 
-    function indicador(col: ColumnDefinition): VNode | null {
-      const atual = props.contexto.ordenacao.value
-      if (!atual || atual.column !== col.key) return null
+    function indicator(col: ColumnDefinition): VNode | null {
+      const current = props.contexto.sortState.value
+      if (!current || current.column !== col.key) return null
       return h(
         'span',
         { class: 'rs-sort-indicator', 'aria-hidden': 'true' },
-        atual.direction === 'asc' ? ' \u25B4' : ' \u25BE',
+        current.direction === 'asc' ? ' \u25B4' : ' \u25BE',
       )
     }
 
@@ -38,8 +38,8 @@ export const RsThead = defineComponent({
         h(
           'tr',
           { class: 'rs-row rs-row-header' },
-          props.contexto.colunas.value.map((col) => {
-            const atual = props.contexto.ordenacao.value
+          props.contexto.columns.value.map((col) => {
+            const current = props.contexto.sortState.value
             return h(
               'th',
               {
@@ -47,19 +47,19 @@ export const RsThead = defineComponent({
                 class: [
                   'rs-cell',
                   'rs-cell-header',
-                  `rs-align-${props.contexto.alinhamento(col)}`,
+                  `rs-align-${props.contexto.alignment(col)}`,
                   {
-                    'rs-sortable': ordenavel(col),
+                    'rs-sortable': sortable(col),
                     'rs-sorted-asc':
-                      atual?.column === col.key && atual?.direction === 'asc',
+                      current?.column === col.key && current?.direction === 'asc',
                     'rs-sorted-desc':
-                      atual?.column === col.key && atual?.direction === 'desc',
+                      current?.column === col.key && current?.direction === 'desc',
                   },
                 ],
                 scope: 'col',
-                onClick: () => aoClicar(col),
+                onClick: () => onClick(col),
               },
-              [col.label ?? col.key, indicador(col)],
+              [col.label ?? col.key, indicator(col)],
             )
           }),
         ),

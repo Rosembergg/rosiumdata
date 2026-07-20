@@ -1,17 +1,17 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { RsTable, LocalAdapter, coluna } from '@rsdata/core'
+import { RsTable, LocalAdapter, column } from '@rsdata/core'
 import type { Row } from '@rsdata/core'
 import {
   RsDataTable,
   RsTbody,
   RsActions,
   useRsTable,
-  colunaAcao,
-  acoesDaColuna,
-  mensagemErro,
-  lerPreferencias,
+  actionColumn,
+  columnActions,
+  errorMessage,
+  readPreferences,
 } from '@rsdata/nuxt'
 import type { ActionDefinition, RsActionEvent } from '@rsdata/nuxt'
 
@@ -31,10 +31,10 @@ const TRES_ACOES: ActionDefinition[] = [
 
 function criarColunas(actions: ActionDefinition[] = ACAO_UNICA) {
   return [
-    coluna('id', { type: 'numero' }),
-    coluna('nome', { type: 'texto', label: 'Nome' }),
-    coluna('preco', { type: 'numero', label: 'Preço', mask: 'R$ #.##0,00' }),
-    colunaAcao('acoes', { label: 'Ações', actions }),
+    column('id', { type: 'number' }),
+    column('nome', { type: 'text', label: 'Nome' }),
+    column('preco', { type: 'number', label: 'Preço', mask: 'R$ #.##0,00' }),
+    actionColumn('actions', { label: 'Ações', actions }),
   ]
 }
 
@@ -44,13 +44,13 @@ function montarTabela(opcoes: {
   debug?: boolean
   attach?: boolean
 } = {}) {
-  const tabela = new RsTable({ columns: criarColunas(opcoes.actions), pageSize: 10 })
-  tabela.usarAdapter(new LocalAdapter(opcoes.dados ?? DADOS))
+  const table = new RsTable({ columns: criarColunas(opcoes.actions), pageSize: 10 })
+  table.useAdapter(new LocalAdapter(opcoes.dados ?? DADOS))
   const wrapper = mount(RsDataTable, {
-    props: { tabela, debug: opcoes.debug },
+    props: { table, debug: opcoes.debug },
     ...(opcoes.attach ? { attachTo: document.body } : {}),
   })
-  return { tabela, wrapper }
+  return { table, wrapper }
 }
 
 beforeEach(() => {
@@ -58,18 +58,18 @@ beforeEach(() => {
   document.body.innerHTML = ''
 })
 
-describe('colunaAcao() e acoesDaColuna()', () => {
-  it('colunaAcao cria coluna tipo acao com actions em options.actions', () => {
-    const col = colunaAcao('acoes', { label: 'Ações', actions: TRES_ACOES })
-    expect(col.type).toBe('acao')
+describe('actionColumn() e columnActions()', () => {
+  it('actionColumn cria coluna tipo action com actions em options.actions', () => {
+    const col = actionColumn('actions', { label: 'Ações', actions: TRES_ACOES })
+    expect(col.type).toBe('action')
     expect(col.label).toBe('Ações')
     expect(col.filterable).toBe(false)
-    expect(acoesDaColuna(col)).toEqual(TRES_ACOES)
+    expect(columnActions(col)).toEqual(TRES_ACOES)
   })
 
-  it('acoesDaColuna retorna [] para coluna sem actions', () => {
-    expect(acoesDaColuna(coluna('nome', { type: 'texto' }))).toEqual([])
-    expect(acoesDaColuna(coluna('acoes', { type: 'acao' }))).toEqual([])
+  it('columnActions retorna [] para coluna sem actions', () => {
+    expect(columnActions(column('nome', { type: 'text' }))).toEqual([])
+    expect(columnActions(column('actions', { type: 'action' }))).toEqual([])
   })
 })
 
@@ -99,10 +99,10 @@ describe('Actions — ação única (botão direto)', () => {
   })
 
   it('useRsTable propaga o evento via contexto.on("action")', async () => {
-    const tabela = new RsTable({ columns: criarColunas(), pageSize: 10 })
-    tabela.usarAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(tabela)
-    await ctx.carregar()
+    const table = new RsTable({ columns: criarColunas(), pageSize: 10 })
+    table.useAdapter(new LocalAdapter(DADOS))
+    const ctx = useRsTable(table)
+    await ctx.load()
 
     const handler = vi.fn()
     ctx.on('action', handler)
@@ -228,7 +228,7 @@ describe('Actions — múltiplas ações (menu ⋯)', () => {
 
   it('RsActions sem nenhuma action não renderiza nada', () => {
     const wrapper = mount(RsActions, {
-      props: { acoes: [], linha: {} },
+      props: { actions: [], row: {} },
     })
     expect(wrapper.find('button').exists()).toBe(false)
   })
@@ -255,7 +255,7 @@ describe('Falhe Alto — modo dev (debug: true)', () => {
 
     const celula = wrapper.find('.rs-cell--error')
     expect(celula.attributes('data-rs-error')).toBe(
-      'Coluna `nome`, linha 0, esperava `texto`, recebeu `123`',
+      'Column `nome`, row 0, expected `text`, received `123`',
     )
   })
 
@@ -265,8 +265,8 @@ describe('Falhe Alto — modo dev (debug: true)', () => {
 
     const banner = wrapper.find('.rs-error-banner')
     expect(banner.exists()).toBe(true)
-    expect(banner.text()).toContain('Falhe Alto: 1 dado(s) inválido(s)')
-    expect(banner.text()).toContain('Coluna `nome`, linha 0, esperava `texto`, recebeu `123`')
+    expect(banner.text()).toContain('Fail Loud: 1 invalid data')
+    expect(banner.text()).toContain('Column `nome`, row 0, expected `text`, received `123`')
   })
 
   it('sem erros, não há banner nem células marcadas', async () => {
@@ -277,13 +277,13 @@ describe('Falhe Alto — modo dev (debug: true)', () => {
     expect(wrapper.find('.rs-cell--error').exists()).toBe(false)
   })
 
-  it('mensagemErro formata erro de célula e erro geral (sem coluna/linha)', () => {
+  it('errorMessage formata erro de célula e erro geral (sem coluna/linha)', () => {
     expect(
-      mensagemErro({ column: 'preco', rowIndex: 42, expected: 'numero', received: null }),
-    ).toBe('Coluna `preco`, linha 42, esperava `numero`, recebeu `null`')
+      errorMessage({ column: 'preco', rowIndex: 42, expected: 'number', received: null }),
+    ).toBe('Column `preco`, row 42, expected `number`, received `null`')
     expect(
-      mensagemErro({ column: '', rowIndex: -1, expected: 'adapter configurado', received: 'nenhum adapter' }),
-    ).toBe('Esperava `adapter configurado`, recebeu `"nenhum adapter"`')
+      errorMessage({ column: '', rowIndex: -1, expected: 'adapter configured', received: 'no adapter' }),
+    ).toBe('Expected `adapter configured`, received `"no adapter"`')
   })
 })
 
@@ -313,7 +313,7 @@ describe('Falhe Alto — modo produção (debug: false)', () => {
     const linhas = wrapper.findAll('tbody tr')
     expect(linhas).toHaveLength(2)
     expect(linhas[1]!.text()).toContain('Guarana')
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Total: 2 registros')
+    expect(wrapper.find('.rs-pagination-info').text()).toContain('Total: 2 records')
   })
 })
 
@@ -344,34 +344,34 @@ describe('Falhe Alto + Action na mesma linha', () => {
 
 describe('Preferências persistentes (localStorage)', () => {
   it('salva colunas visíveis, ordem e pageSize ao alterar o estado', async () => {
-    const tabela = new RsTable({ columns: criarColunas(), pageSize: 10 })
-    tabela.usarAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(tabela, { persistencia: 'produtos' })
-    await ctx.carregar()
+    const table = new RsTable({ columns: criarColunas(), pageSize: 10 })
+    table.useAdapter(new LocalAdapter(DADOS))
+    const ctx = useRsTable(table, { persistence: 'produtos' })
+    await ctx.load()
 
-    ctx.esconderColuna('id')
+    ctx.hideColumn('id')
 
-    const salvo = lerPreferencias('produtos')
+    const salvo = readPreferences('produtos')
     expect(salvo).not.toBeNull()
-    expect(salvo!.colunasVisiveis).toEqual(['nome', 'preco', 'acoes'])
+    expect(salvo!.visibleColumns).toEqual(['nome', 'preco', 'actions'])
     expect(salvo!.pageSize).toBe(10)
   })
 
   it('restaura colunas visíveis, ordem e pageSize ao montar', async () => {
     localStorage.setItem(
       'rsdata:produtos',
-      JSON.stringify({ colunasVisiveis: ['preco', 'nome'], pageSize: 2 }),
+      JSON.stringify({ visibleColumns: ['preco', 'nome'], pageSize: 2 }),
     )
 
     const ctx = useRsTable(
       { columns: criarColunas(), adapter: new LocalAdapter(DADOS), pageSize: 10 },
-      { persistencia: 'produtos' },
+      { persistence: 'produtos' },
     )
-    await ctx.carregar()
+    await ctx.load()
 
-    expect(ctx.colunas.value.map((c) => c.key)).toEqual(['preco', 'nome'])
-    expect(ctx.tabela.getEstado().pageSize).toBe(2)
-    expect(ctx.linhas.value).toHaveLength(2)
+    expect(ctx.columns.value.map((c) => c.key)).toEqual(['preco', 'nome'])
+    expect(ctx.table.getState().pageSize).toBe(2)
+    expect(ctx.rows.value).toHaveLength(2)
   })
 
   it('sem chave de persistência, nada é salvo (comportamento explícito)', async () => {
@@ -380,46 +380,46 @@ describe('Preferências persistentes (localStorage)', () => {
       adapter: new LocalAdapter(DADOS),
       pageSize: 10,
     })
-    await ctx.carregar()
-    ctx.esconderColuna('id')
+    await ctx.load()
+    ctx.hideColumn('id')
 
     expect(localStorage.length).toBe(0)
   })
 
   it('preferências corrompidas ou de colunas inexistentes são ignoradas', async () => {
     localStorage.setItem('rsdata:quebrado', '{{{nao é json')
-    expect(lerPreferencias('quebrado')).toBeNull()
+    expect(readPreferences('quebrado')).toBeNull()
 
     localStorage.setItem(
       'rsdata:fantasma',
-      JSON.stringify({ colunasVisiveis: ['coluna_que_nao_existe'], pageSize: 5 }),
+      JSON.stringify({ visibleColumns: ['coluna_que_nao_existe'], pageSize: 5 }),
     )
     const ctx = useRsTable(
       { columns: criarColunas(), adapter: new LocalAdapter(DADOS), pageSize: 10 },
-      { persistencia: 'fantasma' },
+      { persistence: 'fantasma' },
     )
-    await ctx.carregar()
+    await ctx.load()
 
-    expect(ctx.colunas.value.map((c) => c.key)).toEqual(['id', 'nome', 'preco', 'acoes'])
+    expect(ctx.columns.value.map((c) => c.key)).toEqual(['id', 'nome', 'preco', 'actions'])
   })
 
-  it('<RsTable> com prop persistencia: menu Colunas salva e outra montagem restaura', async () => {
+  it('<RsTable> com prop persistence: menu Colunas salva e outra montagem restaura', async () => {
     const wrapperA = mount(RsDataTable, {
       props: {
         columns: criarColunas(),
         adapter: new LocalAdapter(DADOS),
         pageSize: 10,
-        persistencia: 'tela-produtos',
+        persistence: 'tela-produtos',
       },
     })
     await flushPromises()
 
-    const botao = wrapperA.findAll('.rs-btn').find((b) => b.text().includes('Colunas'))!
+    const botao = wrapperA.findAll('.rs-btn').find((b) => b.text().includes('Columns'))!
     await botao.trigger('click')
     await wrapperA.findAll('.rs-menu-item')[0]!.find('input').trigger('change')
 
     expect(wrapperA.findAll('th').map((th) => th.text())).not.toContain('id')
-    expect(lerPreferencias('tela-produtos')!.colunasVisiveis).not.toContain('id')
+    expect(readPreferences('tela-produtos')!.visibleColumns).not.toContain('id')
     wrapperA.unmount()
 
     const wrapperB = mount(RsDataTable, {
@@ -427,7 +427,7 @@ describe('Preferências persistentes (localStorage)', () => {
         columns: criarColunas(),
         adapter: new LocalAdapter(DADOS),
         pageSize: 10,
-        persistencia: 'tela-produtos',
+        persistence: 'tela-produtos',
       },
     })
     await flushPromises()
@@ -440,7 +440,7 @@ describe('Preferências persistentes (localStorage)', () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Colunas'))!
+    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Columns'))!
     await botao.trigger('click')
 
     const itens = wrapper.findAll('.rs-menu-item')

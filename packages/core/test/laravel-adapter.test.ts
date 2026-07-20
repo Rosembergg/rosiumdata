@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { LaravelAdapter, OPERADOR_LARAVEL } from '@rsdata/core'
+import { LaravelAdapter, LARAVEL_OPERATOR } from '@rsdata/core'
 import type { Row, Query } from '@rsdata/core'
 
 function criarQuery(overrides?: Partial<Query>): Query {
@@ -104,13 +104,13 @@ describe('LaravelAdapter — tradução Query → query params Laravel', () => {
     ['<', 'lt', 50, '50'],
     ['>=', 'gte', 50, '50'],
     ['<=', 'lte', 50, '50'],
-    ['igual', 'eq', 'Ativo', 'Ativo'],
-    ['contem', 'like', 'coca', 'coca'],
-    ['comeca_com', 'starts_with', 'co', 'co'],
-    ['termina_com', 'ends_with', 'la', 'la'],
-    ['entre', 'between', [20, 60], '20,60'],
-    ['antes', 'before', '2024-01-01', '2024-01-01'],
-    ['depois', 'after', '2024-01-01', '2024-01-01'],
+    ['equals', 'eq', 'Ativo', 'Ativo'],
+    ['contains', 'like', 'coca', 'coca'],
+    ['startsWith', 'starts_with', 'co', 'co'],
+    ['endsWith', 'ends_with', 'la', 'la'],
+    ['between', 'between', [20, 60], '20,60'],
+    ['before', 'before', '2024-01-01', '2024-01-01'],
+    ['after', 'after', '2024-01-01', '2024-01-01'],
   ]
 
   for (const [operador, traduzido, valor, serializado] of operadores) {
@@ -127,11 +127,11 @@ describe('LaravelAdapter — tradução Query → query params Laravel', () => {
 
   it('todos os operadores da Fase 1 estão no mapa de tradução', () => {
     const operadoresFase1 = [
-      'contem', 'igual', 'comeca_com', 'termina_com',
-      '=', '>', '<', '>=', '<=', 'entre', 'antes', 'depois',
+      'contains', 'equals', 'startsWith', 'endsWith',
+      '=', '>', '<', '>=', '<=', 'between', 'before', 'after',
     ]
     for (const op of operadoresFase1) {
-      expect(OPERADOR_LARAVEL[op], `operador \`${op}\` sem tradução`).toBeTruthy()
+      expect(LARAVEL_OPERATOR[op], `operador \`${op}\` sem tradução`).toBeTruthy()
     }
   })
 
@@ -142,7 +142,7 @@ describe('LaravelAdapter — tradução Query → query params Laravel', () => {
       criarQuery({
         filters: [
           { column: 'preco', operator: '>', value: 50 },
-          { column: 'status', operator: 'igual', value: 'Ativo' },
+          { column: 'status', operator: 'equals', value: 'Ativo' },
         ],
       })
     )
@@ -157,7 +157,7 @@ describe('LaravelAdapter — tradução Query → query params Laravel', () => {
     const adapter = new LaravelAdapter('/api/produtos')
     const data = new Date('2024-01-15T00:00:00.000Z')
     await adapter.fetch(
-      criarQuery({ filters: [{ column: 'criadoEm', operator: 'depois', value: data }] })
+      criarQuery({ filters: [{ column: 'criadoEm', operator: 'after', value: data }] })
     )
 
     expect(paramsDaChamada(fetchMock).get('filter[criadoEm][after]')).toBe(
@@ -169,10 +169,10 @@ describe('LaravelAdapter — tradução Query → query params Laravel', () => {
     const fetchMock = mockFetch(respostaLaravel([]))
     const adapter = new LaravelAdapter('/api/produtos')
     await adapter.fetch(
-      criarQuery({ filters: [{ column: 'ativo', operator: 'igual', value: true }] })
+      criarQuery({ filters: [{ column: 'ativo', operator: 'equals', value: true }] })
     )
     await adapter.fetch(
-      criarQuery({ filters: [{ column: 'ativo', operator: 'igual', value: false }] })
+      criarQuery({ filters: [{ column: 'ativo', operator: 'equals', value: false }] })
     )
 
     expect(paramsDaChamada(fetchMock, 0).get('filter[ativo][eq]')).toBe('1')
@@ -194,8 +194,8 @@ describe('LaravelAdapter — tradução Query → query params Laravel', () => {
     mockFetch(respostaLaravel([]))
     const adapter = new LaravelAdapter('/api/produtos')
     await expect(
-      adapter.fetch(criarQuery({ filters: [{ column: 'x', operator: 'invalido', value: 1 }] }))
-    ).rejects.toThrow('operador desconhecido `invalido`')
+      adapter.fetch(criarQuery({ filters: [{ column: 'x', operator: 'invalid', value: 1 }] }))
+    ).rejects.toThrow('unknown operator `invalid`')
   })
 })
 
@@ -316,31 +316,31 @@ describe('LaravelAdapter — parsing response Laravel → FetchResult', () => {
   it('resposta sem data → rejeita com mensagem clara', async () => {
     mockFetch(respostaJson({ resultado: [] }))
     const adapter = new LaravelAdapter('/api/produtos')
-    await expect(adapter.fetch(criarQuery())).rejects.toThrow('sem `data` como array')
+    await expect(adapter.fetch(criarQuery())).rejects.toThrow('missing `data` as array')
   })
 
   it('resposta que não é objeto → rejeita com mensagem clara', async () => {
     mockFetch(respostaJson([1, 2, 3]))
     const adapter = new LaravelAdapter('/api/produtos')
-    await expect(adapter.fetch(criarQuery())).rejects.toThrow('formato de resposta inesperado')
+    await expect(adapter.fetch(criarQuery())).rejects.toThrow('unexpected response format')
   })
 
   it('data com item que não é objeto → rejeita com mensagem clara', async () => {
     mockFetch(respostaJson({ data: [{ id: 1 }, 'sujeira'], total: 2 }))
     const adapter = new LaravelAdapter('/api/produtos')
-    await expect(adapter.fetch(criarQuery())).rejects.toThrow('item 1 de `data` não é um objeto')
+    await expect(adapter.fetch(criarQuery())).rejects.toThrow('item 1 of `data` is not an object')
   })
 
   it('resposta sem total → rejeita com mensagem clara', async () => {
     mockFetch(respostaJson({ data: [{ id: 1 }] }))
     const adapter = new LaravelAdapter('/api/produtos')
-    await expect(adapter.fetch(criarQuery())).rejects.toThrow('sem total numérico')
+    await expect(adapter.fetch(criarQuery())).rejects.toThrow('missing numeric total')
   })
 
   it('total não-numérico → rejeita com mensagem clara', async () => {
     mockFetch(respostaJson({ data: [], total: 'muitos' }))
     const adapter = new LaravelAdapter('/api/produtos')
-    await expect(adapter.fetch(criarQuery())).rejects.toThrow('sem total numérico')
+    await expect(adapter.fetch(criarQuery())).rejects.toThrow('missing numeric total')
   })
 })
 
@@ -374,7 +374,7 @@ describe('LaravelAdapter — erros de rede (nunca quebra, sempre rejeita com men
     } as unknown as Response
     mockFetch(response)
     const adapter = new LaravelAdapter('/api/produtos')
-    await expect(adapter.fetch(criarQuery())).rejects.toThrow('não é JSON válido')
+    await expect(adapter.fetch(criarQuery())).rejects.toThrow('is not valid JSON')
   })
 
   it('rede offline → mensagem amigável', async () => {
@@ -383,7 +383,7 @@ describe('LaravelAdapter — erros de rede (nunca quebra, sempre rejeita com men
     }))
     const adapter = new LaravelAdapter('/api/produtos')
     await expect(adapter.fetch(criarQuery())).rejects.toThrow(
-      /falha de rede.*verifique a conexão/
+      /network failure.*check connection/
     )
   })
 
@@ -401,7 +401,7 @@ describe('LaravelAdapter — erros de rede (nunca quebra, sempre rejeita com men
 
     const adapter = new LaravelAdapter('/api/produtos', { timeout: 5000 })
     const promessa = adapter.fetch(criarQuery())
-    const expectativa = expect(promessa).rejects.toThrow('timeout de 5000ms')
+    const expectativa = expect(promessa).rejects.toThrow('timeout of 5000ms')
 
     await vi.advanceTimersByTimeAsync(5001)
     await expectativa
@@ -426,7 +426,7 @@ describe('LaravelAdapter — erros de rede (nunca quebra, sempre rejeita com men
 
     const adapter = new LaravelAdapter('/api/produtos', { timeout: 5000 })
     const promessa = adapter.fetch(criarQuery())
-    const expectativa = expect(promessa).rejects.toThrow('timeout de 5000ms')
+    const expectativa = expect(promessa).rejects.toThrow('timeout of 5000ms')
 
     await vi.advanceTimersByTimeAsync(5001)
     await expectativa
@@ -519,11 +519,11 @@ describe('LaravelAdapter — fetchFilterOptions', () => {
   })
 
   it('parseia array na raiz', async () => {
-    mockFetch(respostaJson([{ label: 'Sim', value: true }]))
+    mockFetch(respostaJson([{ label: 'Yes', value: true }]))
     const adapter = new LaravelAdapter('/api/produtos')
     const options = await adapter.fetchFilterOptions('ativo')
 
-    expect(options).toEqual([{ label: 'Sim', value: true }])
+    expect(options).toEqual([{ label: 'Yes', value: true }])
   })
 
   it('itens escalares viram { label, value }', async () => {
@@ -549,7 +549,7 @@ describe('LaravelAdapter — fetchFilterOptions', () => {
     mockFetch(respostaJson({ opcoes: [] }))
     const adapter = new LaravelAdapter('/api/produtos')
     await expect(adapter.fetchFilterOptions('status')).rejects.toThrow(
-      'formato de opções de filtro inesperado'
+      'unexpected filter options format'
     )
   })
 

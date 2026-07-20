@@ -2,16 +2,16 @@
 // trocar LocalAdapter por LaravelAdapter NÃO exige mudar nada no Core.
 // O mesmo fluxo da Fase 2, agora com o dado vindo "da rede" (fetch mockado).
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { RsTable, coluna, LaravelAdapter } from '@rsdata/core'
+import { RsTable, column, LaravelAdapter } from '@rsdata/core'
 import type { ColumnDefinition, Row } from '@rsdata/core'
 
 const colunas: ColumnDefinition[] = [
-  coluna('id', { type: 'numero' }),
-  coluna('nome', { type: 'texto' }),
-  coluna('preco', { type: 'numero' }),
-  coluna('ativo', { type: 'booleano' }),
-  coluna('criadoEm', { type: 'data' }),
-  coluna('status', { type: 'selecao', options: { 1: 'Ativo', 2: 'Inativo', 3: 'Pendente' } }),
+  column('id', { type: 'number' }),
+  column('nome', { type: 'text' }),
+  column('preco', { type: 'number' }),
+  column('ativo', { type: 'boolean' }),
+  column('criadoEm', { type: 'date' }),
+  column('status', { type: 'select', options: { 1: 'Ativo', 2: 'Inativo', 3: 'Pendente' } }),
 ]
 
 const dados: Row[] = [
@@ -46,10 +46,10 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
     vi.stubGlobal('fetch', vi.fn(async () => respostaLaravel(dados)))
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
-    await tabela.irParaPagina(1)
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
+    await tabela.goToPage(1)
 
-    const linhas = tabela.getLinhas()
+    const linhas = tabela.getRows()
     expect(linhas).toHaveLength(3)
     expect(tabela.getTotal()).toBe(3)
 
@@ -65,13 +65,13 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
-    await tabela.filtrar({ column: 'nome', operator: 'contem', value: 'Produto' })
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
+    await tabela.filter({ column: 'nome', operator: 'contains', value: 'Produto' })
 
     const url = new URL(String(fetchMock.mock.calls[0]![0]), 'http://localhost')
     expect(url.searchParams.get('filter[nome][like]')).toBe('Produto')
     expect(tabela.getTotal()).toBe(2)
-    expect(tabela.getLinhas()).toHaveLength(2)
+    expect(tabela.getRows()).toHaveLength(2)
   })
 
   it('ordenar → sort na URL', async () => {
@@ -79,8 +79,8 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
-    await tabela.ordenar('preco', 'desc')
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
+    await tabela.sort('preco', 'desc')
 
     const url = new URL(String(fetchMock.mock.calls[0]![0]), 'http://localhost')
     expect(url.searchParams.get('sort')).toBe('-preco')
@@ -91,27 +91,27 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const tabela = new RsTable({ columns: colunas, pageSize: 20 })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
-    await tabela.irParaPagina(1)
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
+    await tabela.goToPage(1)
 
     // total=41 com pageSize=20 → 3 páginas; página 3 é válida
-    await tabela.irParaPagina(3)
+    await tabela.goToPage(3)
     const url = new URL(String(fetchMock.mock.calls[1]![0]), 'http://localhost')
     expect(url.searchParams.get('page')).toBe('3')
     expect(url.searchParams.get('per_page')).toBe('20')
-    expect(tabela.getEstado().totalPages).toBe(3)
+    expect(tabela.getState().totalPages).toBe(3)
   })
 
   it('deve emitir dados:carregados com dados do servidor', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => respostaLaravel(dados)))
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
-    tabela.on('dados:carregados', handler)
+    tabela.on('data:loaded', handler)
 
-    await tabela.irParaPagina(1)
+    await tabela.goToPage(1)
     expect(handler).toHaveBeenCalledOnce()
   })
 
@@ -121,12 +121,12 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
 
     const tabela = new RsTable({ columns: colunas })
 
-    tabela.usarAdapter(new LocalAdapter(dados.slice(0, 1)))
-    await tabela.irParaPagina(1)
+    tabela.useAdapter(new LocalAdapter(dados.slice(0, 1)))
+    await tabela.goToPage(1)
     expect(tabela.getTotal()).toBe(1)
 
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
-    await tabela.irParaPagina(1)
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
+    await tabela.goToPage(1)
     expect(tabela.getTotal()).toBe(3)
   })
 })
@@ -136,12 +136,12 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
     vi.stubGlobal('fetch', vi.fn(async () => respostaJson({ message: 'Server Error' }, 500)))
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
-    tabela.on('erro', handler)
+    tabela.on('error', handler)
 
-    await tabela.irParaPagina(1)
+    await tabela.goToPage(1)
 
     expect(handler).toHaveBeenCalledOnce()
     const erro = handler.mock.calls[0]![0] as Record<string, unknown>
@@ -152,12 +152,12 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
     vi.stubGlobal('fetch', vi.fn(async () => respostaJson('Not Found', 404)))
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
-    tabela.on('erro', handler)
+    tabela.on('error', handler)
 
-    await expect(tabela.irParaPagina(1)).resolves.toBeUndefined()
+    await expect(tabela.goToPage(1)).resolves.toBeUndefined()
     expect(String((handler.mock.calls[0]![0] as Record<string, unknown>).received)).toContain(
       'HTTP 404'
     )
@@ -169,14 +169,14 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
     }))
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
-    tabela.on('erro', handler)
+    tabela.on('error', handler)
 
-    await tabela.irParaPagina(1)
+    await tabela.goToPage(1)
     expect(String((handler.mock.calls[0]![0] as Record<string, unknown>).received)).toContain(
-      'falha de rede'
+      'network failure'
     )
   })
 
@@ -184,12 +184,12 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
     vi.stubGlobal('fetch', vi.fn(async () => respostaJson({ qualquer: 'coisa' })))
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
-    tabela.on('erro', handler)
+    tabela.on('error', handler)
 
-    await expect(tabela.irParaPagina(1)).resolves.toBeUndefined()
+    await expect(tabela.goToPage(1)).resolves.toBeUndefined()
     expect(handler).toHaveBeenCalledOnce()
   })
 
@@ -210,23 +210,23 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
     vi.stubGlobal('fetch', fetchMock)
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos', { timeout: 1000 }))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos', { timeout: 1000 }))
 
     const handler = vi.fn()
-    tabela.on('erro', handler)
+    tabela.on('error', handler)
 
-    const primeira = tabela.irParaPagina(1)
+    const primeira = tabela.goToPage(1)
     await vi.advanceTimersByTimeAsync(1001)
     await expect(primeira).resolves.toBeUndefined()
 
     expect(handler).toHaveBeenCalledOnce()
     expect(String((handler.mock.calls[0]![0] as Record<string, unknown>).received)).toContain(
-      'timeout de 1000ms'
+      'timeout of 1000ms'
     )
 
     vi.useRealTimers()
-    await tabela.irParaPagina(1)
-    expect(tabela.getLinhas()).toHaveLength(3)
+    await tabela.goToPage(1)
+    expect(tabela.getRows()).toHaveLength(3)
     expect(tabela.getTotal()).toBe(3)
   })
 
@@ -238,17 +238,17 @@ describe('Integracao — erros de rede viram evento `erro` (RsTable continua viv
     vi.stubGlobal('fetch', fetchMock)
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const erros = vi.fn()
-    tabela.on('erro', erros)
+    tabela.on('error', erros)
 
-    await tabela.irParaPagina(1)
+    await tabela.goToPage(1)
     expect(erros).toHaveBeenCalledOnce()
-    expect(tabela.getLinhas()).toHaveLength(0)
+    expect(tabela.getRows()).toHaveLength(0)
 
-    await tabela.irParaPagina(1)
-    expect(tabela.getLinhas()).toHaveLength(3)
+    await tabela.goToPage(1)
+    expect(tabela.getRows()).toHaveLength(3)
     expect(tabela.getTotal()).toBe(3)
   })
 })
@@ -263,23 +263,23 @@ describe('Integracao — Falhe Alto com dados sujos vindos do servidor', () => {
     ))
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
-    tabela.on('erro', handler)
+    tabela.on('error', handler)
 
-    await tabela.irParaPagina(1)
+    await tabela.goToPage(1)
 
     expect(handler).toHaveBeenCalledOnce()
     expect(handler.mock.calls[0]![0]).toMatchObject({
       column: 'preco',
       rowIndex: 1,
-      expected: 'numero',
+      expected: 'number',
       received: 'grátis',
     })
 
     // a tabela continua viva com as linhas carregadas
-    expect(tabela.getLinhas()).toHaveLength(2)
+    expect(tabela.getRows()).toHaveLength(2)
   })
 
   it('servidor manda null → não é erro (aceito em qualquer tipo)', async () => {
@@ -290,33 +290,33 @@ describe('Integracao — Falhe Alto com dados sujos vindos do servidor', () => {
     ))
 
     const tabela = new RsTable({ columns: colunas })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
-    tabela.on('erro', handler)
+    tabela.on('error', handler)
 
-    await tabela.irParaPagina(1)
+    await tabela.goToPage(1)
     expect(handler).not.toHaveBeenCalled()
-    expect(tabela.getLinhas()).toHaveLength(1)
+    expect(tabela.getRows()).toHaveLength(1)
   })
 
   it('dado aninhado do servidor chega plano no Core (achatado pelo adapter)', async () => {
     const colunasComCategoria: ColumnDefinition[] = [
-      coluna('id', { type: 'numero' }),
-      coluna('categoria_nome', { type: 'texto' }),
+      column('id', { type: 'number' }),
+      column('categoria_nome', { type: 'text' }),
     ]
     vi.stubGlobal('fetch', vi.fn(async () =>
       respostaLaravel([{ id: 1, categoria: { nome: 'Bebidas' } }])
     ))
 
     const tabela = new RsTable({ columns: colunasComCategoria })
-    tabela.usarAdapter(new LaravelAdapter('/api/produtos'))
+    tabela.useAdapter(new LaravelAdapter('/api/produtos'))
 
     const handler = vi.fn()
-    tabela.on('erro', handler)
+    tabela.on('error', handler)
 
-    await tabela.irParaPagina(1)
+    await tabela.goToPage(1)
     expect(handler).not.toHaveBeenCalled()
-    expect(tabela.getLinhas()[0]!.categoria_nome!.raw).toBe('Bebidas')
+    expect(tabela.getRows()[0]!.categoria_nome!.raw).toBe('Bebidas')
   })
 })

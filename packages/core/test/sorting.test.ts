@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { ordenarArray } from '@rsdata/core'
+import { sortArray } from '@rsdata/core'
 import type { Row } from '@rsdata/core'
 
-describe('ordenarArray — texto', () => {
+describe('sortArray — texto', () => {
   const dados: Row[] = [
     { nome: 'Zebrinha' },
     { nome: 'Abacate' },
@@ -10,17 +10,17 @@ describe('ordenarArray — texto', () => {
   ]
 
   it('asc — ordem alfabetica crescente', () => {
-    const result = ordenarArray(dados, 'nome', 'asc')
+    const result = sortArray(dados, 'nome', 'asc')
     expect(result.map((r) => r.nome)).toEqual(['Abacate', 'Manga', 'Zebrinha'])
   })
 
   it('desc — ordem alfabetica decrescente', () => {
-    const result = ordenarArray(dados, 'nome', 'desc')
+    const result = sortArray(dados, 'nome', 'desc')
     expect(result.map((r) => r.nome)).toEqual(['Zebrinha', 'Manga', 'Abacate'])
   })
 })
 
-describe('ordenarArray — numero', () => {
+describe('sortArray — numero', () => {
   const dados: Row[] = [
     { preco: 99.9 },
     { preco: 10.5 },
@@ -28,17 +28,17 @@ describe('ordenarArray — numero', () => {
   ]
 
   it('asc — ordem numerica crescente', () => {
-    const result = ordenarArray(dados, 'preco', 'asc')
+    const result = sortArray(dados, 'preco', 'asc')
     expect(result.map((r) => r.preco)).toEqual([10.5, 50, 99.9])
   })
 
   it('desc — ordem numerica decrescente', () => {
-    const result = ordenarArray(dados, 'preco', 'desc')
+    const result = sortArray(dados, 'preco', 'desc')
     expect(result.map((r) => r.preco)).toEqual([99.9, 50, 10.5])
   })
 })
 
-describe('ordenarArray — data', () => {
+describe('sortArray — data', () => {
   const dados: Row[] = [
     { data: new Date('2024-12-31') },
     { data: new Date('2024-01-15') },
@@ -46,21 +46,21 @@ describe('ordenarArray — data', () => {
   ]
 
   it('asc — ordem cronologica crescente', () => {
-    const result = ordenarArray(dados, 'data', 'asc')
+    const result = sortArray(dados, 'data', 'asc')
     expect(result[0]!.data).toEqual(new Date('2024-01-15'))
     expect(result[1]!.data).toEqual(new Date('2024-06-01'))
     expect(result[2]!.data).toEqual(new Date('2024-12-31'))
   })
 
   it('desc — ordem cronologica decrescente', () => {
-    const result = ordenarArray(dados, 'data', 'desc')
+    const result = sortArray(dados, 'data', 'desc')
     expect(result[0]!.data).toEqual(new Date('2024-12-31'))
     expect(result[1]!.data).toEqual(new Date('2024-06-01'))
     expect(result[2]!.data).toEqual(new Date('2024-01-15'))
   })
 })
 
-describe('ordenarArray — booleano', () => {
+describe('sortArray — booleano', () => {
   const dados: Row[] = [
     { ativo: true },
     { ativo: false },
@@ -68,21 +68,21 @@ describe('ordenarArray — booleano', () => {
   ]
 
   it('asc — false antes de true', () => {
-    const result = ordenarArray(dados, 'ativo', 'asc')
+    const result = sortArray(dados, 'ativo', 'asc')
     expect(result[0]!.ativo).toBe(false)
     expect(result[1]!.ativo).toBe(true)
     expect(result[2]!.ativo).toBe(true)
   })
 
   it('desc — true antes de false', () => {
-    const result = ordenarArray(dados, 'ativo', 'desc')
+    const result = sortArray(dados, 'ativo', 'desc')
     expect(result[0]!.ativo).toBe(true)
     expect(result[1]!.ativo).toBe(true)
     expect(result[2]!.ativo).toBe(false)
   })
 })
 
-describe('ordenarArray — valores nulos/undefined', () => {
+describe('sortArray — valores nulos/undefined', () => {
   const dados: Row[] = [
     { nome: 'B' },
     { nome: null },
@@ -91,7 +91,7 @@ describe('ordenarArray — valores nulos/undefined', () => {
   ]
 
   it('nulos vao para o final em asc', () => {
-    const result = ordenarArray(dados, 'nome', 'asc')
+    const result = sortArray(dados, 'nome', 'asc')
     expect(result[0]!.nome).toBe('A')
     expect(result[1]!.nome).toBe('B')
     expect(result[2]!.nome).toBeNull()
@@ -99,7 +99,7 @@ describe('ordenarArray — valores nulos/undefined', () => {
   })
 
   it('nulos vao para o final em desc', () => {
-    const result = ordenarArray(dados, 'nome', 'desc')
+    const result = sortArray(dados, 'nome', 'desc')
     expect(result[0]!.nome).toBe('B')
     expect(result[1]!.nome).toBe('A')
     expect(result[2]!.nome).toBeNull()
@@ -107,26 +107,26 @@ describe('ordenarArray — valores nulos/undefined', () => {
   })
 })
 
-describe('ordenarArray — dados repetidos', () => {
+describe('sortArray — dados repetidos', () => {
   it('valores repetidos mantem ordem estavel', () => {
     const dados: Row[] = [
       { preco: 10, id: 1 },
       { preco: 10, id: 2 },
       { preco: 10, id: 3 },
     ]
-    const result = ordenarArray(dados, 'preco', 'asc')
+    const result = sortArray(dados, 'preco', 'asc')
     expect(result.map((r) => r.id)).toEqual([1, 2, 3])
   })
 })
 
-describe('ordenarArray — casos de borda', () => {
+describe('sortArray — casos de borda', () => {
   it('array vazio', () => {
-    const result = ordenarArray([], 'coluna', 'asc')
+    const result = sortArray([], 'coluna', 'asc')
     expect(result).toEqual([])
   })
 
   it('array com um unico elemento', () => {
-    const result = ordenarArray([{ nome: 'A' }], 'nome', 'asc')
+    const result = sortArray([{ nome: 'A' }], 'nome', 'asc')
     expect(result).toEqual([{ nome: 'A' }])
   })
 
@@ -135,7 +135,7 @@ describe('ordenarArray — casos de borda', () => {
       { nome: 'B' },
       { nome: 'A' },
     ]
-    const result = ordenarArray(dados, 'inexistente', 'asc')
+    const result = sortArray(dados, 'inexistente', 'asc')
     expect(result).toHaveLength(2)
   })
 
@@ -144,7 +144,7 @@ describe('ordenarArray — casos de borda', () => {
       { nome: 'B' },
       { nome: 'A' },
     ]
-    const result = ordenarArray(dados, 'nome', 'asc')
+    const result = sortArray(dados, 'nome', 'asc')
     expect(result).not.toBe(dados)
     expect(dados[0]!.nome).toBe('B')
     expect(dados[1]!.nome).toBe('A')
