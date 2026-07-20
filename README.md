@@ -214,7 +214,7 @@ RosiumData is in the *dogfooding* phase—created primarily to address an intern
 
 ## License
 
-To be defined before public release.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
