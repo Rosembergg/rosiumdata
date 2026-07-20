@@ -76,7 +76,7 @@
 ### D-007: Filtro por método explícito
 
 **Data:** Discovery — Etapa 3 (Arquitetura)
-**Decisão:** A API de filtro é explícita: `tabela.filtrar({ column: 'preco', operator: 'gt', value: 50 })`.
+**Decisão:** A API de filtro é explícita: `tabela.filtrar({ column: 'preco', operator: '>', value: 50 })`.
 **Motivo:** Princípio #6 — explícito acima de mágico. O dev lê e entende cada filtro na hora. Sem DSLs obscuros ou objetos mágicos aninhados.
 **Alternativa considerada:** Builder encadeado (`.where('preco').greaterThan(50)`). Objeto simples (`{ preco: { gt: 50 } }`). Ambas rejeitadas por serem menos explícitas ou menos familiares.
 **Reversível:** Dificilmente. Define a API pública do Data Engine. Mas a API pode ser estendida com syntax sugar no futuro.

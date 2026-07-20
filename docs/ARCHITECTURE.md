@@ -130,7 +130,7 @@ const tabela = new RsTable({ columns: [...] })
 tabela.usarAdapter(adapter)
 
 // Estado
-tabela.filtrar({ column: 'preco', operator: 'gt', value: 50 })
+tabela.filtrar({ column: 'preco', operator: '>', value: 50 })
 tabela.ordenar('nome', 'asc')
 tabela.irParaPagina(2)
 

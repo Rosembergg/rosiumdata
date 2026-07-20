@@ -7,7 +7,8 @@
  * Personalização: sobrescreva as variáveis abaixo no seu próprio CSS.
  * Ex.:  :root { --rs-accent: #f59e0b; --rs-radius-lg: 4px; }
  *
- * Modo escuro: automático via prefers-color-scheme (sem toggle manual).
+ * Modo escuro: automático via prefers-color-scheme OU via classe .dark no
+ * <html> (compatível com Tailwind darkMode: 'class').
  */
 
 :root {
@@ -112,6 +113,46 @@
     --rs-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
     --rs-shadow-menu: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
+}
+
+/* Modo escuro via classe (ex.: apps com Tailwind darkMode: 'class') */
+:root.dark {
+  --rs-page-bg: #0f172a;
+  --rs-surface: #1e293b;
+  --rs-surface-alt: #162132;
+  --rs-border: #334155;
+  --rs-border-soft: #283548;
+  --rs-text: #f1f5f9;
+  --rs-text-muted: #94a3b8;
+  --rs-text-subtle: #64748b;
+
+  --rs-row-hover: rgba(205, 233, 242, 0.06);
+  --rs-focus-ring: rgba(101, 186, 136, 0.35);
+  --rs-accent-soft: rgba(101, 186, 136, 0.18);
+
+  --rs-badge-bg: rgba(205, 233, 242, 0.14);
+  --rs-badge-text: #cde9f2;
+  --rs-badge-success-bg: rgba(102, 179, 46, 0.2);
+  --rs-badge-success-text: #8fd45c;
+  --rs-badge-neutral-bg: #334155;
+  --rs-badge-neutral-text: #94a3b8;
+  --rs-badge-warning-bg: rgba(245, 158, 11, 0.16);
+  --rs-badge-warning-text: #fbbf24;
+
+  --rs-error-bg: rgba(220, 38, 38, 0.12);
+  --rs-error-border: rgba(220, 38, 38, 0.35);
+  --rs-error-text: #fca5a5;
+  --rs-danger: #f87171;
+  --rs-danger-soft: rgba(220, 38, 38, 0.12);
+
+  --rs-skeleton-a: #283548;
+  --rs-skeleton-b: #334155;
+
+  --rs-page-current-bg: #65ba88;
+  --rs-page-current-text: #0f172a;
+
+  --rs-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --rs-shadow-menu: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* ---------- Container e card ---------- */

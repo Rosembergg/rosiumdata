@@ -859,7 +859,7 @@ O QUE IMPLEMENTAR:
 
 2. TRADUÇÃO Query → LARAVEL (packages/core/src/adapter/laravel.ts):
    - Filtros → query params no formato Laravel: filter[coluna][operador]=valor
-     Ex: Query { filters: [{ column: 'preco', operator: 'gt', value: 50 }] }
+     Ex: Query { filters: [{ column: 'preco', operator: '>', value: 50 }] }
      → ?filter[preco][gt]=50
    - Ordenação → ?sort=nome (asc) ou ?sort=-nome (desc)
    - Paginação → ?page=3&per_page=20

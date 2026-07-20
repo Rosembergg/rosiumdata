@@ -239,7 +239,7 @@ export function useRsTable(
     definicoes.value = estado.columns
     chavesVisiveis.value = estado.visibleColumns
 
-    if (chavePersistencia) {
+    if (chavePersistencia && typeof window !== 'undefined') {
       salvarPreferencias(chavePersistencia, {
         colunasVisiveis: estado.visibleColumns,
         pageSize: estado.pageSize,

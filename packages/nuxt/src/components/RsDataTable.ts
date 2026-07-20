@@ -1,4 +1,4 @@
-import { defineComponent, computed, h, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, h, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import type { PropType, VNode } from 'vue'
 import { useRsTable } from '../composables/useRsTable'
 import type {
@@ -36,10 +36,12 @@ const ICONE_DENSIDADE = 'M3 6h18M3 12h18M3 18h18'
 
 /**
  * Detecta ambiente de desenvolvimento (Vite define import.meta.env.DEV).
- * Fora do Vite (Node puro, bundlers sem env), assume produção — o modo
- * seguro do Falhe Alto.
+ * Durante SSR, sempre retorna false para garantir HTML consistente entre
+ * servidor e cliente (evita mismatch de hidratação).
+ * Fora do Vite (Node puro, bundlers sem env), assume produção.
  */
 export function ambienteDev(): boolean {
+  if (typeof window === 'undefined') return false
   try {
     const env = (import.meta as unknown as { env?: { DEV?: boolean } }).env
     return env?.DEV === true
@@ -121,7 +123,12 @@ export const RsDataTable = defineComponent({
     /* Propaga o gatilho de action do Render para o consumidor Vue */
     contexto.on('action', (payload) => emit('action', payload))
 
-    const modoDebug = computed(() => props.debug ?? ambienteDev())
+    /**
+     * Falhe Alto debug: sempre false durante SSR e hidratação inicial para
+     * garantir HTML idêntico entre servidor e cliente. O valor real é
+     * definido APÓS a montagem completa (onMounted + nextTick).
+     */
+    const debugEfetivo = ref(false)
 
     /* Estado de UI (sessão apenas — sem persistência, sem lógica de dado) */
     const filtrosAbertos = ref(false)
@@ -145,6 +152,10 @@ export const RsDataTable = defineComponent({
       document.addEventListener('click', aoClicarFora)
       document.addEventListener('keydown', aoTeclar)
       void contexto.carregar()
+      /* Debug real: só após hidratação SSR — evita mismatch em data-rs-error */
+      void nextTick(() => {
+        debugEfetivo.value = props.debug ?? ambienteDev()
+      })
     })
 
     onUnmounted(() => {
@@ -245,7 +256,7 @@ export const RsDataTable = defineComponent({
      * sutil na célula (sem internals) e a tabela continua funcionando.
      */
     function bannerErros(): VNode | null {
-      if (!modoDebug.value || contexto.erros.value.length === 0) return null
+      if (!debugEfetivo.value || contexto.erros.value.length === 0) return null
       return h('div', { class: 'rs-error-banner', role: 'alert' }, [
         h('strong', { class: 'rs-error-banner-title' }, [
           `Falhe Alto: ${contexto.erros.value.length} dado(s) inválido(s)`,
@@ -277,7 +288,7 @@ export const RsDataTable = defineComponent({
             h('div', { class: 'rs-table-wrap' }, [
               h('table', { class: 'rs-table' }, [
                 h(RsThead, { contexto }),
-                h(RsTbody, { contexto, debug: modoDebug.value }),
+                h(RsTbody, { contexto, debug: debugEfetivo.value }),
               ]),
             ]),
             h(RsPagination, { contexto }),
