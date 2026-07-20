@@ -69,7 +69,7 @@ O jeito mais rápido: crie um arquivo CSS no seu projeto e sobrescreva as variá
 
 ```ts
 // plugins/rsdata.ts
-import { RsData } from '@rsdata/nuxt'
+import { RsData } from '@rosiumdata/nuxt'
 import '~/assets/tema-rsdata.css'      // ← seu tema
 
 export default defineNuxtPlugin((nuxtApp) => {

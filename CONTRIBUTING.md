@@ -35,7 +35,7 @@ main (sempre deployável)
 
 - [ ] Não viola nenhum dos 7 princípios (`docs/PRINCIPLES.md`).
 - [ ] Não quebra a Linha Sagrada (estilo nunca vaza para dado).
-- [ ] Não adiciona dependência externa ao Core (`@rsdata/core` é zero-dep).
+- [ ] Não adiciona dependência externa ao Core (`@rosiumdata/core` é zero-dep).
 - [ ] Código é explícito — sem mágica escondida (Princípio #6).
 - [ ] Testes cobrem o novo comportamento.
 - [ ] Se for uma feature nova, está alinhada com o Roadmap e o `FEATURES.md`.
@@ -72,8 +72,8 @@ Nesses casos, **abra uma issue primeiro** para discutir.
 ```
 RSdata/
 ├── packages/
-│   ├── core/        ← @rsdata/core (JS/TS puro, zero-dep)
-│   └── nuxt/        ← @rsdata/nuxt (casca Vue/Nuxt)
+│   ├── core/        ← @rosiumdata/core (JS/TS puro, zero-dep)
+│   └── nuxt/        ← @rosiumdata/nuxt (casca Vue/Nuxt)
 ├── docs/            ← Documentação detalhada
 ├── .ai/             ← Guias para IAs
 ├── VISION.md

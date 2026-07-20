@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { EventEmitter } from '@rsdata/core'
+import { EventEmitter } from '@rosiumdata/core'
 
 describe('EventEmitter', () => {
   it('deve registrar e chamar listener', () => {

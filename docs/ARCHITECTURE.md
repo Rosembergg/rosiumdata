@@ -226,14 +226,14 @@ Desenhar a **estrutura visual** da tabela: linhas, células, cabeçalho, corpo, 
 
 ### Headless
 
-> O Render Engine é a **casca** que veste o cérebro (Core). O Core é JavaScript puro — funciona em qualquer lugar. O Render Engine conhece o framework (Nuxt/Vue hoje). Portar para React no futuro = criar `packages/react/` com uma nova casca, mantendo `@rsdata/core` **intacto**.
+> O Render Engine é a **casca** que veste o cérebro (Core). O Core é JavaScript puro — funciona em qualquer lugar. O Render Engine conhece o framework (Nuxt/Vue hoje). Portar para React no futuro = criar `packages/react/` com uma nova casca, mantendo `@rosiumdata/core` **intacto**.
 
 ```
-@rsdata/core (JS puro, zero-dep)
+@rosiumdata/core (JS puro, zero-dep)
         │
-        ├── @rsdata/nuxt (casca Vue/Nuxt)     ← HOJE
-        ├── @rsdata/react (casca React)        ← futuro
-        └── @rsdata/web-component (HTML puro)  ← futuro
+        ├── @rosiumdata/nuxt (casca Vue/Nuxt)     ← HOJE
+        ├── @rosiumdata/react (casca React)        ← futuro
+        └── @rosiumdata/web-component (HTML puro)  ← futuro
 ```
 
 ### Actions (botão gatilho)
@@ -300,7 +300,7 @@ Funcionalidades opcionais que estendem a RSdata sem inchar o Core.
 
 ## CORE VS PLUGIN: A FRONTEIRA
 
-| Core (`@rsdata/core`, zero-dep) | Plugin (bordas) |
+| Core (`@rosiumdata/core`, zero-dep) | Plugin (bordas) |
 |---|---|
 | Mostrar dados em linhas/colunas | Exportação (Excel/CSV) |
 | Ordenação | |
@@ -332,7 +332,7 @@ Funcionalidades opcionais que estendem a RSdata sem inchar o Core.
 
 ## REGRAS INVioláveis
 
-1. **O Core NUNCA tem dependências externas de runtime.** Zero. Comprovável pelo `package.json` de `@rsdata/core`.
+1. **O Core NUNCA tem dependências externas de runtime.** Zero. Comprovável pelo `package.json` de `@rosiumdata/core`.
 2. **A Linha Sagrada NUNCA é quebrada.** Estilo não vaza para dado. Dado não carrega estilo.
 3. **Nenhuma camada "pula" outra.** Data Engine não chama o Render diretamente. O fluxo é sempre Adapter → Engine → Render → Theme.
 4. **Nenhum release sai com dívida técnica.** Soluções temporárias (caminho A) não sobrevivem a um release.
@@ -345,7 +345,7 @@ Funcionalidades opcionais que estendem a RSdata sem inchar o Core.
 ```
 RSdata/
 ├── packages/
-│   ├── core/                   ← @rsdata/core (JS puro, zero-dep)
+│   ├── core/                   ← @rosiumdata/core (JS puro, zero-dep)
 │   │   └── src/
 │   │       ├── engine/         ← Data Engine (RsTable, estado, eventos)
 │   │       ├── columns/        ← Definição de colunas e tipos
@@ -357,7 +357,7 @@ RSdata/
 │   │       ├── events/         ← Sistema de eventos (observer)
 │   │       └── index.ts        ← API pública
 │   │
-│   └── nuxt/                   ← @rsdata/nuxt (casca Vue/Nuxt)
+│   └── nuxt/                   ← @rosiumdata/nuxt (casca Vue/Nuxt)
 │       └── src/
 │           ├── components/     ← RsTable, RsColumn, etc.
 │           ├── composables/    ← useRsTable() — conecta Core ao Vue

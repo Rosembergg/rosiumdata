@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import { RsTable, LocalAdapter, column } from '@rsdata/core'
-import type { DataAdapter, Query, Row } from '@rsdata/core'
-import { useRsTable } from '@rsdata/nuxt'
+import { RsTable, LocalAdapter, column } from '@rosiumdata/core'
+import type { DataAdapter, Query, Row } from '@rosiumdata/core'
+import { useRsTable } from '@rosiumdata/nuxt'
 
 const DADOS: Row[] = [
   { id: 1, nome: 'Coca-Cola', preco: 5.99, ativo: true, status: 1 },

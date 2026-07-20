@@ -107,7 +107,7 @@ Funcionalidades que estarão na primeira versão estável. Organizadas por fase.
 
 | Feature | Descrição | Fase |
 |---|---|---|
-| **Casca React (`@rsdata/react`)** | Render Engine para React, usando o mesmo `@rsdata/core`. | Futuro |
+| **Casca React (`@rosiumdata/react`)** | Render Engine para React, usando o mesmo `@rosiumdata/core`. | Futuro |
 | **Casca Web Component (`<rs-table>`)** | Render Engine como elemento HTML nativo — funciona em qualquer framework. | Futuro |
 | **Casca Vue vanilla** | Render Engine para Vue puro (sem Nuxt). | Futuro |
 

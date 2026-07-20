@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { RsTable, LocalAdapter, column } from '@rsdata/core'
-import type { Row } from '@rsdata/core'
+import { RsTable, LocalAdapter, column } from '@rosiumdata/core'
+import type { Row } from '@rosiumdata/core'
 import {
   RsDataTable,
   RsTbody,
@@ -12,8 +12,8 @@ import {
   columnActions,
   errorMessage,
   readPreferences,
-} from '@rsdata/nuxt'
-import type { ActionDefinition, RsActionEvent } from '@rsdata/nuxt'
+} from '@rosiumdata/nuxt'
+import type { ActionDefinition, RsActionEvent } from '@rosiumdata/nuxt'
 
 const DADOS: Row[] = [
   { id: 1, nome: 'Coca-Cola', preco: 5.99, status: 1 },

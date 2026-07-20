@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { VERSION, NAME } from '@rsdata/nuxt'
+import { VERSION, NAME } from '@rosiumdata/nuxt'
 
-describe('@rsdata/nuxt — smoke test', () => {
+describe('@rosiumdata/nuxt — smoke test', () => {
   it('deve exportar NAME', () => {
-    expect(NAME).toBe('@rsdata/nuxt')
+    expect(NAME).toBe('@rosiumdata/nuxt')
   })
 
   it('deve exportar VERSION', () => {

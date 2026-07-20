@@ -42,7 +42,7 @@
 > Core = zero dependências. Dependências externas só nas bordas, isoladas por interface, substituíveis. Se a lib morrer, a RSdata sobrevive.
 
 **Regra:**
-- O **Core** (`@rsdata/core`) tem **zero dependências externas de runtime**. Nenhuma. É TypeScript puro.
+- O **Core** (`@rosiumdata/core`) tem **zero dependências externas de runtime**. Nenhuma. É TypeScript puro.
 - Quando uma dependência externa é inevitável (ex: lib para gerar .xlsx), ela:
   - Vive **fora do Core** (em um plugin ou na borda de um adapter).
   - É **isolada** atrás de uma interface interna. O Core nunca chama a lib diretamente.

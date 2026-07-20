@@ -1,7 +1,21 @@
 {
-  "name": "@rsdata/nuxt",
+  "name": "@rosiumdata/nuxt",
   "version": "0.0.1",
-  "description": "RSdata Render Engine — casca Vue/Nuxt para o Data Engine",
+  "description": "RSdata Render Engine — Vue/Nuxt skin for the Data Engine",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rosembergg/RSdata"
+  },
+  "keywords": [
+    "datagrid",
+    "data-grid",
+    "table",
+    "nuxt",
+    "vue",
+    "render-engine"
+  ],
+  "author": "Rafael Melo Rosemberg <rrosembergg.45@gmail.com> (https://github.com/Rosembergg)",
   "type": "module",
   "exports": {
     ".": {
@@ -26,7 +40,7 @@
     "vue": "^3.4.0"
   },
   "dependencies": {
-    "@rsdata/core": "*"
+    "@rosiumdata/core": "^0.0.1"
   },
   "devDependencies": {
     "@vue/test-utils": "^2.4.11",

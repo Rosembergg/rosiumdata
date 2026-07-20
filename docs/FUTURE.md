@@ -9,12 +9,12 @@
 
 A arquitetura headless foi desenhada exatamente para isso: o Core não sabe qual framework está usando.
 
-### Casca React (`@rsdata/react`)
-**Visão:** um pacote que importa `@rsdata/core` e fornece componentes e hooks React equivalentes ao que `@rsdata/nuxt` faz hoje com Vue.
+### Casca React (`@rosiumdata/react`)
+**Visão:** um pacote que importa `@rosiumdata/core` e fornece componentes e hooks React equivalentes ao que `@rosiumdata/nuxt` faz hoje com Vue.
 **Quando:** quando houver demanda real (usuários React pedindo) ou quando o autor quiser validar a universalidade do Core.
 **Esforço:** médio. O Core não muda. É "só" escrever a casca — componentes, hooks, conexão de reatividade.
 
-### Casca Vue vanilla (`@rsdata/vue`)
+### Casca Vue vanilla (`@rosiumdata/vue`)
 **Visão:** mesma lógica do Nuxt, mas sem a dependência de Nuxt — funciona em qualquer projeto Vue 3 (Vite, Vue CLI, etc.).
 **Quando:** quando houver demanda de usuários Vue que não usam Nuxt.
 

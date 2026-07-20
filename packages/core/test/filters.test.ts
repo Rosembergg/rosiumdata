@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { applyFilters } from '@rsdata/core'
-import type { Row, Filter } from '@rsdata/core'
+import { applyFilters } from '@rosiumdata/core'
+import type { Row, Filter } from '@rosiumdata/core'
 
 const dados: Row[] = [
   { id: 1, nome: 'Produto A', preco: 10.5, ativo: true, criadoEm: '2024-01-15', status: 1 },

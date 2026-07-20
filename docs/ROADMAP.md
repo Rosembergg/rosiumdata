@@ -33,12 +33,12 @@ O desenvolvimento segue o **Caminho A — Núcleo Primeiro**: cada camada é con
 **Entregas:**
 - [ ] Inicializar monorepo com npm workspaces
 - [ ] Criar `packages/core/package.json` (zero dependências)
-- [ ] Criar `packages/nuxt/package.json` (depende de `@rsdata/core`)
+- [ ] Criar `packages/nuxt/package.json` (depende de `@rosiumdata/core`)
 - [ ] Configurar TypeScript (`tsconfig.json`) em ambos os pacotes
 - [ ] Configurar unbuild para build de cada pacote
 - [ ] Configurar Vitest
-- [ ] Criar estrutura de pastas do `@rsdata/core`
-- [ ] Criar estrutura de pastas do `@rsdata/nuxt`
+- [ ] Criar estrutura de pastas do `@rosiumdata/core`
+- [ ] Criar estrutura de pastas do `@rosiumdata/nuxt`
 - [ ] CI mínimo (rodar testes no push)
 
 **Duração estimada:** horas (setup único, sem código de negócio).
@@ -158,7 +158,7 @@ Funcionalidades planejadas para após o MVP. Sem ordem fixa; priorizadas conform
 | Seleção de linhas (checkbox) | Média | Lógica é Core, visual é Render/Plugin. |
 | Cache de dados | Baixa | Refinamento de performance. Stateless é suficiente para MVP. |
 | Adapter para outras APIs | Baixa | Conforme demanda da comunidade. |
-| Casca React (`@rsdata/react`) | Futuro | Novo Render Engine, mesmo Core. |
+| Casca React (`@rosiumdata/react`) | Futuro | Novo Render Engine, mesmo Core. |
 | Casca Web Component (`<rs-table>`) | Futuro | HTML puro, funciona em qualquer framework. |
 | Drag-and-drop visual de colunas | Muito futuro | Luxo. "Bem depois, e só se precisar." |
 | Internacionalização (i18n) | Futuro | Plugin. |

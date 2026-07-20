@@ -2,8 +2,8 @@
 // trocar LocalAdapter por LaravelAdapter NÃO exige mudar nada no Core.
 // O mesmo fluxo da Fase 2, agora com o dado vindo "da rede" (fetch mockado).
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { RsTable, column, LaravelAdapter } from '@rsdata/core'
-import type { ColumnDefinition, Row } from '@rsdata/core'
+import { RsTable, column, LaravelAdapter } from '@rosiumdata/core'
+import type { ColumnDefinition, Row } from '@rosiumdata/core'
 
 const colunas: ColumnDefinition[] = [
   column('id', { type: 'number' }),
@@ -116,7 +116,7 @@ describe('Integracao RsTable + LaravelAdapter — fluxo completo', () => {
   })
 
   it('troca de LocalAdapter → LaravelAdapter é transparente para o Core', async () => {
-    const { LocalAdapter } = await import('@rsdata/core')
+    const { LocalAdapter } = await import('@rosiumdata/core')
     vi.stubGlobal('fetch', vi.fn(async () => respostaLaravel(dados)))
 
     const tabela = new RsTable({ columns: colunas })

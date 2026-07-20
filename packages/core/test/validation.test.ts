@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { validateRow, validateRows, column } from '@rsdata/core'
-import type { ColumnDefinition } from '@rsdata/core'
+import { validateRow, validateRows, column } from '@rosiumdata/core'
+import type { ColumnDefinition } from '@rosiumdata/core'
 
 describe('validateRow() — Falhe Alto', () => {
   const colunas: ColumnDefinition[] = [

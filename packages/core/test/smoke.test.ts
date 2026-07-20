@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { VERSION, NAME } from '@rsdata/core'
+import { VERSION, NAME } from '@rosiumdata/core'
 
-describe('@rsdata/core — smoke test', () => {
+describe('@rosiumdata/core — smoke test', () => {
   it('deve exportar NAME', () => {
-    expect(NAME).toBe('@rsdata/core')
+    expect(NAME).toBe('@rosiumdata/core')
   })
 
   it('deve exportar VERSION', () => {

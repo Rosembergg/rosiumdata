@@ -1,5 +1,5 @@
 {
-  "name": "rsdata-monorepo",
+  "name": "rosiumdata-monorepo",
   "private": true,
   "workspaces": [
     "packages/*"

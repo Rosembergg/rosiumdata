@@ -1,6 +1,6 @@
 import { computed, ref, shallowRef, getCurrentScope, onScopeDispose } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
-import { RsTable, DEFAULT_ALIGNMENT, DEFAULT_OPERATOR, column } from '@rsdata/core'
+import { RsTable, DEFAULT_ALIGNMENT, DEFAULT_OPERATOR, column } from '@rosiumdata/core'
 import type {
   ActionDefinition,
   ColumnAlignment,
@@ -11,7 +11,7 @@ import type {
   SortDirection,
   TransformedRow,
   ValidationError,
-} from '@rsdata/core'
+} from '@rosiumdata/core'
 
 export type {
   ColumnAlignment,
@@ -24,7 +24,7 @@ export type {
   ValidationError,
 }
 
-export type { RsTable } from '@rsdata/core'
+export type { RsTable } from '@rosiumdata/core'
 
 /**
  * Definição declarativa de uma action (gatilho).
@@ -47,7 +47,7 @@ export interface RsActionEvent {
  *
  * As actions são guardadas em `options.actions`. O Core tipa `options`
  * como `Record<string, unknown> & { actions?: ActionDefinition[] }`
- * — ver interface ColumnDefinition em @rsdata/core.
+ * — ver interface ColumnDefinition em @rosiumdata/core.
  */
 export function actionColumn(
   key: string,

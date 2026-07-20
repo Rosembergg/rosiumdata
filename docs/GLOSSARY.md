@@ -15,7 +15,7 @@ Peça que traduz o mundo externo (API REST, GraphQL, array local, banco de dados
 ---
 
 ### Headless
-Arquitetura onde o **cérebro** (lógica, estado, regras de negócio) é completamente independente da **interface visual** (framework, componentes). Na RSdata, o Core (`@rsdata/core`) é headless — JavaScript/TypeScript puro, funciona em qualquer lugar. A interface é uma "casca" (`@rsdata/nuxt`) que veste o cérebro. Portar para React = nova casca, mesmo cérebro.
+Arquitetura onde o **cérebro** (lógica, estado, regras de negócio) é completamente independente da **interface visual** (framework, componentes). Na RSdata, o Core (`@rosiumdata/core`) é headless — JavaScript/TypeScript puro, funciona em qualquer lugar. A interface é uma "casca" (`@rosiumdata/nuxt`) que veste o cérebro. Portar para React = nova casca, mesmo cérebro.
 
 → Ver: `docs/ARCHITECTURE.md` — Camada 3
 
@@ -38,7 +38,7 @@ Uma linha de dados onde cada campo é um valor simples — sem objetos aninhados
 ---
 
 ### Core
-O núcleo da RSdata: `@rsdata/core`. Contém o Data Engine + a interface do Adapter + definição de colunas e tipos + validação + sistema de eventos. É JavaScript/TypeScript puro, **zero dependências externas**, headless. Não contém: renderização, tema, plugins. É sagrado — "não pode ficar alterando o tempo todo".
+O núcleo da RSdata: `@rosiumdata/core`. Contém o Data Engine + a interface do Adapter + definição de colunas e tipos + validação + sistema de eventos. É JavaScript/TypeScript puro, **zero dependências externas**, headless. Não contém: renderização, tema, plugins. É sagrado — "não pode ficar alterando o tempo todo".
 
 → Ver: `docs/ARCHITECTURE.md` — Core vs Plugin
 
@@ -52,7 +52,7 @@ Funcionalidade opcional que estende a RSdata sem inchar o Core. Vive nas bordas 
 ---
 
 ### Casca
-Apelido para o **Render Engine** — a camada que "veste" o cérebro (Core) com uma interface visual. Hoje a casca é Nuxt/Vue (`@rsdata/nuxt`). Amanhã pode ser React, Web Components, ou qualquer framework. A casca conhece o framework; o cérebro não.
+Apelido para o **Render Engine** — a camada que "veste" o cérebro (Core) com uma interface visual. Hoje a casca é Nuxt/Vue (`@rosiumdata/nuxt`). Amanhã pode ser React, Web Components, ou qualquer framework. A casca conhece o framework; o cérebro não.
 
 → Ver: `docs/ARCHITECTURE.md` — Camada 3
 

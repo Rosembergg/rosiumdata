@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { RsTable, LocalAdapter, column } from '@rsdata/core'
-import type { DataAdapter, Row } from '@rsdata/core'
+import { RsTable, LocalAdapter, column } from '@rosiumdata/core'
+import type { DataAdapter, Row } from '@rosiumdata/core'
 import {
   RsDataTable,
   RsThead,
@@ -11,7 +11,7 @@ import {
   RsFilters,
   useRsTable,
   RsData,
-} from '@rsdata/nuxt'
+} from '@rosiumdata/nuxt'
 import { visiblePages } from '../src/components/RsPagination'
 import { convertOptionKey, FILTER_DEBOUNCE_MS } from '../src/components/RsFilters'
 import { createApp, defineComponent, h } from 'vue'

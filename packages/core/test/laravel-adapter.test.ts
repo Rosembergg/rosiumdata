@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { LaravelAdapter, LARAVEL_OPERATOR } from '@rsdata/core'
-import type { Row, Query } from '@rsdata/core'
+import { LaravelAdapter, LARAVEL_OPERATOR } from '@rosiumdata/core'
+import type { Row, Query } from '@rosiumdata/core'
 
 function criarQuery(overrides?: Partial<Query>): Query {
   return {

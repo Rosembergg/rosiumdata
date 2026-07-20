@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import { RsTable, column } from '@rsdata/core'
-import type { DataAdapter, ColumnDefinition, Filter, FetchResult, Row, Query } from '@rsdata/core'
+import { RsTable, column } from '@rosiumdata/core'
+import type { DataAdapter, ColumnDefinition, Filter, FetchResult, Row, Query } from '@rosiumdata/core'
 
 function criarMockAdapter(dados: Row[]): DataAdapter {
   return {

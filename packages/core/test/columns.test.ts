@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { column, formatDefaultValue, DEFAULT_ALIGNMENT, DEFAULT_OPERATORS } from '@rsdata/core'
-import type { ColumnType } from '@rsdata/core'
+import { column, formatDefaultValue, DEFAULT_ALIGNMENT, DEFAULT_OPERATORS } from '@rosiumdata/core'
+import type { ColumnType } from '@rosiumdata/core'
 
 describe('column() — factory de definicao de coluna', () => {
   it('deve criar coluna com tipo texto por padrao', () => {

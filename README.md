@@ -45,8 +45,8 @@ While not published on npm yet, use a local path in your Nuxt project:
 ```json
 {
   "dependencies": {
-    "@rsdata/core": "file:../RStable/packages/core",
-    "@rsdata/nuxt": "file:../RStable/packages/nuxt"
+    "@rosiumdata/core": "file:../RStable/packages/core",
+    "@rosiumdata/nuxt": "file:../RStable/packages/nuxt"
   }
 }
 ```
@@ -59,8 +59,8 @@ npm install
 
 ```ts
 // plugins/rsdata.ts
-import { RsData } from '@rsdata/nuxt'
-import '@rsdata/nuxt/theme/default.css'
+import { RsData } from '@rosiumdata/nuxt'
+import '@rosiumdata/nuxt/theme/default.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(RsData)
@@ -75,7 +75,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 </template>
 
 <script setup>
-import { column, LocalAdapter } from '@rsdata/core'
+import { column, LocalAdapter } from '@rosiumdata/core'
 
 const columns = [
   column('id',     { type: 'number',  label: 'ID' }),
@@ -105,7 +105,7 @@ const adapter = new LocalAdapter([
 ## Key features
 
 ### 🧠 Headless architecture
-The Core (`@rsdata/core`) is pure TypeScript — zero framework dependencies. It runs anywhere. The Nuxt package is just a "skin" that renders the brain. Port to React tomorrow: new skin, same brain.
+The Core (`@rosiumdata/core`) is pure TypeScript — zero framework dependencies. It runs anywhere. The Nuxt package is just a "skin" that renders the brain. Port to React tomorrow: new skin, same brain.
 
 ### 🔴 The Sacred Line
 **Data transformation** (e.g. `1 → "Active"`, `$100.00`) lives in the Data Engine and goes to exports. **Visual presentation** (green, bold, centered) lives in the Theme and **never** touches your data. Export is always clean, always calculable.
@@ -130,7 +130,7 @@ const adapter = new LaravelAdapter('https://api.example.com/products', {
 Invalid data (e.g. `null` where a number was expected) is never silently swallowed. In dev mode, RSdata points exactly at the broken cell with column, row, expected type, and received value. In production, a subtle indicator keeps the table alive without exposing internals.
 
 ### ⚡ Zero dependencies in the Core
-`@rsdata/core` has **zero runtime dependencies**. Literally `"dependencies": {}`. Every dependency lives in isolated plugins or adapters. If a library dies, RSdata doesn't.
+`@rosiumdata/core` has **zero runtime dependencies**. Literally `"dependencies": {}`. Every dependency lives in isolated plugins or adapters. If a library dies, RSdata doesn't.
 
 ### 🌐 Locale-aware formatting (default pt-BR)
 Numbers, dates, and currencies are formatted via the native `Intl` API — zero dependencies. Default is Brazilian Portuguese (`R$ 1.000,00`, `DD/MM/YYYY`). Change with one line: `new RsTable({ columns, locale: 'en-US' })`. Per-column override for multi-currency tables. [Full guide →](docs/USAGE.md#10-locale--formatting)
@@ -155,9 +155,9 @@ Numbers, dates, and currencies are formatted via the native `Intl` API — zero 
 
 | Layer | Package | Responsibility | Never |
 |---|---|---|---|
-| **Data Source** | `@rsdata/core` | Adapter: translates the outside world (API, array, DB) into flat data | Never writes data (read-only) |
-| **Data Engine** | `@rsdata/core` | Brain: state, filters, sorting, pagination, data transformation, validation | Never draws, never knows where data comes from |
-| **Render Engine** | `@rsdata/nuxt` | Skin: Vue components that draw the skeleton. The only layer that knows the framework | Never touches data |
+| **Data Source** | `@rosiumdata/core` | Adapter: translates the outside world (API, array, DB) into flat data | Never writes data (read-only) |
+| **Data Engine** | `@rosiumdata/core` | Brain: state, filters, sorting, pagination, data transformation, validation | Never draws, never knows where data comes from |
+| **Render Engine** | `@rosiumdata/nuxt` | Skin: Vue components that draw the skeleton. The only layer that knows the framework | Never touches data |
 | **Theme** | CSS file | Skin: colors, fonts, spacing. Pure CSS, zero framework deps | Never alters structure |
 
 ---

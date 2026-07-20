@@ -45,7 +45,7 @@ export { THEME_DEFAULT_CSS } from './theme'
  * permanece <RsTable>.
  *
  * O theme é opcional e importado separadamente:
- * import '@rsdata/nuxt/theme/default.css'
+ * import '@rosiumdata/nuxt/theme/default.css'
  */
 export const RsData: Plugin = {
   install(app: App) {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { sortArray } from '@rsdata/core'
-import type { Row } from '@rsdata/core'
+import { sortArray } from '@rosiumdata/core'
+import type { Row } from '@rosiumdata/core'
 
 describe('sortArray — texto', () => {
   const dados: Row[] = [

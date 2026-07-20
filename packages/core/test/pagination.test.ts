@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateTotalPages, validatePage } from '@rsdata/core'
+import { calculateTotalPages, validatePage } from '@rosiumdata/core'
 
 describe('calculateTotalPages()', () => {
   it('deve calcular paginas corretamente', () => {

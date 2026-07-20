@@ -16,8 +16,8 @@
 #### Estrutura do repositório
 - [x] Inicializar repositório Git (`git init`)
 - [x] Criar `package.json` raiz com npm workspaces
-- [x] Criar `packages/core/package.json` (`@rsdata/core`, zero dependências)
-- [x] Criar `packages/nuxt/package.json` (`@rsdata/nuxt`, depende de `@rsdata/core`)
+- [x] Criar `packages/core/package.json` (`@rosiumdata/core`, zero dependências)
+- [x] Criar `packages/nuxt/package.json` (`@rosiumdata/nuxt`, depende de `@rosiumdata/core`)
 
 #### TypeScript
 - [x] Criar `tsconfig.json` base na raiz
@@ -153,10 +153,10 @@
 - **Total: 194 testes passando (91 novos)**
 
 #### Exports
-- [x] `LocalAdapter` exportado de `@rsdata/core`
-- [x] `aplicarFiltros` exportado de `@rsdata/core`
-- [x] `ordenarArray` exportado de `@rsdata/core`
-- [x] `paginarArray` exportado de `@rsdata/core`
+- [x] `LocalAdapter` exportado de `@rosiumdata/core`
+- [x] `aplicarFiltros` exportado de `@rosiumdata/core`
+- [x] `ordenarArray` exportado de `@rosiumdata/core`
+- [x] `paginarArray` exportado de `@rosiumdata/core`
 - [x] `npm run build` compila sem erros
 - [x] `packages/core/package.json` continua com zero dependências
 
@@ -184,7 +184,7 @@
 #### Theme Default
 - [x] `theme/default.css` — CSS puro próprio, zero framework, zero `@import` externo, zero `!important`
 - [x] Classes previsíveis: `.rs-table`, `.rs-thead`, `.rs-tbody`, `.rs-row`, `.rs-cell`, `.rs-pagination`, `.rs-filters`, `.rs-loading`, `.rs-empty`, `.rs-sortable`, `.rs-sorted-asc/desc`, `.rs-align-*`, `.rs-filter-*`, `.rs-page-*`
-- [x] Importável via `import '@rsdata/nuxt/theme/default.css'` (export no package.json)
+- [x] Importável via `import '@rosiumdata/nuxt/theme/default.css'` (export no package.json)
 
 #### Plugin
 - [x] Plugin `RsData` — `app.use(RsData)` registra os 5 componentes globalmente (Vue e Nuxt via `nuxtApp.vueApp.use`)
@@ -278,7 +278,7 @@
 | DT-026 | `converterChaveOpcao()` no RsFilters: chave numérica de `options` vira `Number` | Inputs HTML entregam sempre string; o operador `igual` do Core usa igualdade estrita. Conversão de intenção do usuário, não transformação de dado |
 | DT-027 | Filtro de seleção usa `col.options` da definição da coluna | `fetchFilterOptions()` do adapter NÃO é alcançável: o Core não o expõe (ver "buraco de contrato" abaixo) |
 | DT-028 | CSS distribuído cru: export `./theme/default.css` → `src/theme/default.css` | CSS não precisa de build; `files` do package.json inclui o arquivo. `build.config.ts` intocado |
-| DT-029 | `@vue/test-utils` + `happy-dom` como devDependencies do `@rsdata/nuxt` | Só para testes de componente. Ambiente DOM por arquivo via `// @vitest-environment happy-dom` (`vitest.config.ts` intocado) |
+| DT-029 | `@vue/test-utils` + `happy-dom` como devDependencies do `@rosiumdata/nuxt` | Só para testes de componente. Ambiente DOM por arquivo via `// @vitest-environment happy-dom` (`vitest.config.ts` intocado) |
 | DT-030 | Cleanup automático de listeners via `onScopeDispose` + `desconectar()` explícito | Dentro de componente desconecta sozinho no unmount; fora de componente o dev chama `desconectar()` |
 | DT-031 | Plugin `RsData` como export nomeado (sem default export) | Explícito (Princípio #6) e evita warning de bundle misto named/default no unbuild |
 | DT-032 | Componente principal exportado como `RsDataTable` (revisão) | Evita colisão de nome com a classe `RsTable` do Core em imports. O nome público no template permanece `<RsTable>` (registrado pelo plugin) |
@@ -410,8 +410,8 @@ Redesign do Theme default (card, toolbar, header claro, badges, skeleton, dark m
 - **Total: 352 testes passando (73 novos)**
 
 #### Exports
-- [x] `LaravelAdapter`, `OPERADOR_LARAVEL` + tipo `LaravelAdapterOptions` exportados de `@rsdata/core`
-- [x] `npm run build` compila sem erros; `@rsdata/core` continua com zero dependências
+- [x] `LaravelAdapter`, `OPERADOR_LARAVEL` + tipo `LaravelAdapterOptions` exportados de `@rosiumdata/core`
+- [x] `npm run build` compila sem erros; `@rosiumdata/core` continua com zero dependências
 
 ---
 

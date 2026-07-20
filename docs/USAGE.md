@@ -32,8 +32,8 @@ While RSdata is not published on the npm registry, use a local path in your Nuxt
 ```json
 {
   "dependencies": {
-    "@rsdata/core": "file:../RStable/packages/core",
-    "@rsdata/nuxt": "file:../RStable/packages/nuxt"
+    "@rosiumdata/core": "file:../RStable/packages/core",
+    "@rosiumdata/nuxt": "file:../RStable/packages/nuxt"
   }
 }
 ```
@@ -50,7 +50,7 @@ npm install
 ### When published on npm (future)
 
 ```bash
-npm install @rsdata/core @rsdata/nuxt
+npm install @rosiumdata/core @rosiumdata/nuxt
 ```
 
 ### Registering in Nuxt
@@ -59,8 +59,8 @@ Create a plugin file at `plugins/rsdata.ts`:
 
 ```ts
 // frontend/plugins/rsdata.ts
-import { RsData } from '@rsdata/nuxt'
-import '@rsdata/nuxt/theme/default.css'
+import { RsData } from '@rosiumdata/nuxt'
+import '@rosiumdata/nuxt/theme/default.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.use(RsData)
@@ -81,7 +81,7 @@ The simplest case: local data, no server. Just `columns` + `adapter` as props �
 </template>
 
 <script setup>
-import { column, LocalAdapter } from '@rsdata/core'
+import { column, LocalAdapter } from '@rosiumdata/core'
 
 const columns = [
   column('id',     { type: 'number',  label: 'ID' }),
@@ -109,7 +109,7 @@ const adapter = new LocalAdapter([
 Creates a column definition:
 
 ```ts
-import { column } from '@rsdata/core'
+import { column } from '@rosiumdata/core'
 
 column('field_name', {
   type: 'text',          // required — defines the behavior
@@ -198,8 +198,8 @@ The first in the list is the default used by `<RsFilters>` inputs.
 ### Programmatic API
 
 ```ts
-import { RsTable } from '@rsdata/core'
-import { useRsTable } from '@rsdata/nuxt'
+import { RsTable } from '@rosiumdata/core'
+import { useRsTable } from '@rosiumdata/nuxt'
 
 const table = new RsTable({ columns })
 table.useAdapter(adapter)
@@ -256,8 +256,8 @@ Columns of type `'action'` render buttons per row. RSdata emits an event with `{
 ### Defining actions
 
 ```ts
-import { column } from '@rsdata/core'
-import { actionColumn } from '@rsdata/nuxt'
+import { column } from '@rosiumdata/core'
+import { actionColumn } from '@rosiumdata/nuxt'
 
 const columns = [
   column('id', { type: 'number', label: 'ID' }),
@@ -305,7 +305,7 @@ function handleAction(event) {
 For prototypes, tests, or data already in the frontend.
 
 ```ts
-import { LocalAdapter } from '@rsdata/core'
+import { LocalAdapter } from '@rosiumdata/core'
 
 const adapter = new LocalAdapter([
   { id: 1, name: 'Coca-Cola', price: 5.99 },
@@ -322,7 +322,7 @@ Filters, sorts, and paginates in the browser. Ideal for up to ~500 rows.
 For production: the server filters, sorts, and paginates. The browser only displays.
 
 ```ts
-import { LaravelAdapter } from '@rsdata/core'
+import { LaravelAdapter } from '@rosiumdata/core'
 
 const adapter = new LaravelAdapter('https://api.example.com/api/products', {
   headers: { Authorization: 'Bearer your-token' },
@@ -393,7 +393,7 @@ public function index(Request $request)
 Implement the `DataAdapter` interface:
 
 ```ts
-import type { DataAdapter, Query, FetchResult, Row, FilterOption } from '@rsdata/core'
+import type { DataAdapter, Query, FetchResult, Row, FilterOption } from '@rosiumdata/core'
 
 class MyAdapter implements DataAdapter {
   async fetch(query: Query): Promise<FetchResult> {
@@ -504,7 +504,7 @@ The default CSS is imported in the plugin:
 
 ```ts
 // plugins/rsdata.ts
-import '@rsdata/nuxt/theme/default.css'
+import '@rosiumdata/nuxt/theme/default.css'
 ```
 
 ### Quick customization (colors)
@@ -545,7 +545,7 @@ What is saved: column order, visible columns, page size.
 
 ## 13. COMPLETE API
 
-### `@rsdata/core` — main exports
+### `@rosiumdata/core` — main exports
 
 | Export | Type | Description |
 |---|---|---|
@@ -582,7 +582,7 @@ What is saved: column order, visible columns, page size.
 | `.on('error', fn)` | Event: error (Fail Loud) |
 | `.on('state:changed', fn)` | Event: state changed |
 
-### `@rsdata/nuxt` — main exports
+### `@rosiumdata/nuxt` — main exports
 
 | Export | Type | Description |
 |---|---|---|
@@ -641,8 +641,8 @@ Other events are on the **Core instance** (`RsTable`), via `table.on(...)`:
 </template>
 
 <script setup>
-import { column, LaravelAdapter } from '@rsdata/core'
-import { actionColumn } from '@rsdata/nuxt'
+import { column, LaravelAdapter } from '@rosiumdata/core'
+import { actionColumn } from '@rosiumdata/nuxt'
 
 const columns = [
   column('id',       { type: 'number',  label: 'ID' }),

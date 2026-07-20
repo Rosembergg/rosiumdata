@@ -7,5 +7,5 @@ export default defineBuildConfig({
   rollup: {
     emitCJS: true,
   },
-  externals: ['vue', 'nuxt', '@rsdata/core'],
+  externals: ['vue', 'nuxt', '@rosiumdata/core'],
 })

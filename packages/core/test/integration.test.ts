@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import { RsTable, column, LocalAdapter } from '@rsdata/core'
-import type { ColumnDefinition, Row } from '@rsdata/core'
+import { RsTable, column, LocalAdapter } from '@rosiumdata/core'
+import type { ColumnDefinition, Row } from '@rosiumdata/core'
 
 const colunas: ColumnDefinition[] = [
   column('id', { type: 'number' }),

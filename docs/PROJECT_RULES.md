@@ -13,7 +13,7 @@
 ## REGRAS DE CÓDIGO
 
 ### R1 — Core intocável
-- `@rsdata/core` tem **zero** dependências de runtime. Comprove com `npm ls --production` dentro do pacote.
+- `@rosiumdata/core` tem **zero** dependências de runtime. Comprove com `npm ls --production` dentro do pacote.
 - Nenhum código do Core importa Vue, React, Nuxt, ou qualquer framework.
 - O Core é TypeScript puro. Sempre.
 

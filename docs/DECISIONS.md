@@ -32,11 +32,11 @@
 ### D-003: Core zero dependências
 
 **Data:** Discovery — Etapa 2 (Filosofia)
-**Decisão:** O `@rsdata/core` tem zero dependências externas de runtime. Literalmente nenhuma.
+**Decisão:** O `@rosiumdata/core` tem zero dependências externas de runtime. Literalmente nenhuma.
 **Motivo:** Soberania — se uma dependência morre, a RSdata não morre junto. O Core é sagrado. Dependências externas, quando inevitáveis, vivem isoladas em plugins/adapters nas bordas.
 **Alternativa considerada:** Dependências criteriosas dentro do Core. Rejeitada: qualquer dependência no Core compromete a soberania.
 **Reversível:** Não. Princípio fundador.
-**Impacto:** Tudo que exija lib externa (ex: gerar .xlsx) é Plugin, nunca Core. O `package.json` do `@rsdata/core` comprova: zero `dependencies`.
+**Impacto:** Tudo que exija lib externa (ex: gerar .xlsx) é Plugin, nunca Core. O `package.json` do `@rosiumdata/core` comprova: zero `dependencies`.
 
 ---
 

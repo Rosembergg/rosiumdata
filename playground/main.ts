@@ -1,7 +1,7 @@
 import { createApp, defineComponent, h } from 'vue'
-import { RsTable as RsTableCore, LocalAdapter, coluna } from '@rsdata/core'
-import { RsData, RsDataTable } from '@rsdata/nuxt'
-import '@rsdata/nuxt/theme/default.css'
+import { RsTable as RsTableCore, LocalAdapter, coluna } from '@rosiumdata/core'
+import { RsData, RsDataTable } from '@rosiumdata/nuxt'
+import '@rosiumdata/nuxt/theme/default.css'
 
 const dados = [
   { id: 1, nome: 'Coca-Cola 2L', preco: 9.99, ativo: true, status: 1, criadoEm: '2026-01-15' },
