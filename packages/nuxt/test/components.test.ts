@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { RsTable, LocalAdapter, coluna } from '@rsdata/core'
+import { RsTable, LocalAdapter, column } from '@rsdata/core'
 import type { DataAdapter, Row } from '@rsdata/core'
 import {
   RsDataTable,
@@ -12,8 +12,8 @@ import {
   useRsTable,
   RsData,
 } from '@rsdata/nuxt'
-import { paginasVisiveis } from '../src/components/RsPagination'
-import { converterChaveOpcao, DEBOUNCE_FILTRO_MS } from '../src/components/RsFilters'
+import { visiblePages } from '../src/components/RsPagination'
+import { convertOptionKey, FILTER_DEBOUNCE_MS } from '../src/components/RsFilters'
 import { createApp, defineComponent, h } from 'vue'
 
 const DADOS: Row[] = [
@@ -26,23 +26,23 @@ const DADOS: Row[] = [
 
 function criarColunas() {
   return [
-    coluna('id', { type: 'numero' }),
-    coluna('nome', { type: 'texto', label: 'Nome' }),
-    coluna('preco', { type: 'numero', label: 'Preço', mask: 'R$ #.##0,00' }),
-    coluna('ativo', { type: 'booleano', label: 'Ativo' }),
-    coluna('status', { type: 'selecao', label: 'Status', options: { 1: 'Ativo', 2: 'Inativo' } }),
+    column('id', { type: 'number' }),
+    column('nome', { type: 'text', label: 'Nome' }),
+    column('preco', { type: 'number', label: 'Preço', mask: 'R$ #.##0,00' }),
+    column('ativo', { type: 'boolean', label: 'Ativo' }),
+    column('status', { type: 'select', label: 'Status', options: { 1: 'Ativo', 2: 'Inativo' } }),
   ]
 }
 
 function montarTabela(dados: Row[] = DADOS, pageSize = 2) {
-  const tabela = new RsTable({ columns: criarColunas(), pageSize })
-  tabela.usarAdapter(new LocalAdapter(dados))
-  const wrapper = mount(RsDataTable, { props: { tabela } })
-  return { tabela, wrapper }
+  const table = new RsTable({ columns: criarColunas(), pageSize })
+  table.useAdapter(new LocalAdapter(dados))
+  const wrapper = mount(RsDataTable, { props: { table } })
+  return { table, wrapper }
 }
 
 function aguardarDebounce(): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, DEBOUNCE_FILTRO_MS + 20))
+  return new Promise((resolve) => setTimeout(resolve, FILTER_DEBOUNCE_MS + 20))
 }
 
 describe('<RsTable> — renderização', () => {
@@ -74,7 +74,7 @@ describe('<RsTable> — renderização', () => {
     const primeira = wrapper.findAll('tbody tr')[0]!
     expect(primeira.text()).toContain('R$')
     expect(primeira.text()).toContain('5,99')
-    expect(primeira.text()).toContain('Sim')
+    expect(primeira.text()).toContain('Yes')
     expect(primeira.text()).toContain('Ativo')
   })
 
@@ -92,14 +92,14 @@ describe('<RsTable> — renderização', () => {
   })
 
   it('lança erro explícito sem tabela nem columns+adapter', () => {
-    expect(() => mount(RsDataTable)).toThrow(/tabela/)
+    expect(() => mount(RsDataTable)).toThrow(/table/)
   })
 
   it('respeita colunas escondidas', async () => {
-    const tabela = new RsTable({ columns: criarColunas(), pageSize: 2 })
-    tabela.usarAdapter(new LocalAdapter(DADOS))
-    tabela.esconderColuna('id')
-    const wrapper = mount(RsDataTable, { props: { tabela } })
+    const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
+    table.useAdapter(new LocalAdapter(DADOS))
+    table.hideColumn('id')
+    const wrapper = mount(RsDataTable, { props: { table } })
     await flushPromises()
 
     const headers = wrapper.findAll('th').map((th) => th.text())
@@ -140,18 +140,18 @@ describe('<RsThead> — cabeçalho clicável', () => {
 
   it('coluna com sortable: false não ordena', async () => {
     const colunas = [
-      coluna('id', { type: 'numero' }),
-      coluna('nome', { type: 'texto', sortable: false }),
+      column('id', { type: 'number' }),
+      column('nome', { type: 'text', sortable: false }),
     ]
-    const tabela = new RsTable({ columns: colunas, pageSize: 10 })
-    tabela.usarAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(tabela)
+    const table = new RsTable({ columns: colunas, pageSize: 10 })
+    table.useAdapter(new LocalAdapter(DADOS))
+    const ctx = useRsTable(table)
     const wrapper = mount(RsThead, { props: { contexto: ctx } })
 
     const thNome = wrapper.findAll('th')[1]!
     expect(thNome.classes()).not.toContain('rs-sortable')
     await thNome.trigger('click')
-    expect(ctx.ordenacao.value).toBeUndefined()
+    expect(ctx.sortState.value).toBeUndefined()
   })
 })
 
@@ -162,7 +162,7 @@ describe('<RsTbody> — estados', () => {
 
     const vazio = wrapper.find('tr.rs-empty')
     expect(vazio.exists()).toBe(true)
-    expect(vazio.text()).toContain('Nenhum registro')
+    expect(vazio.text()).toContain('No records')
   })
 
   it('mostra "Carregando..." enquanto o fetch está pendente', async () => {
@@ -171,14 +171,14 @@ describe('<RsTbody> — estados', () => {
       fetch: () => new Promise((resolve) => { resolver = resolve }),
       fetchAll: async () => [],
     }
-    const tabela = new RsTable({ columns: criarColunas(), pageSize: 2 })
-    tabela.usarAdapter(adapterLento)
-    const wrapper = mount(RsDataTable, { props: { tabela } })
+    const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
+    table.useAdapter(adapterLento)
+    const wrapper = mount(RsDataTable, { props: { table } })
     await wrapper.vm.$nextTick()
 
     const loading = wrapper.find('tr.rs-loading')
     expect(loading.exists()).toBe(true)
-    expect(loading.text()).toContain('Carregando...')
+    expect(loading.text()).toContain('Loading...')
 
     resolver({ rows: DADOS.slice(0, 2), total: 5 })
     await flushPromises()
@@ -194,18 +194,18 @@ describe('<RsPagination> — navegação', () => {
     await flushPromises()
 
     expect(wrapper.find('.rs-pagination-info').text()).toBe(
-      'Página 1 de 3 — Total: 5 registros',
+      'Page 1 of 3 — Total: 5 records',
     )
   })
 
   it('Anterior desabilitado na página 1, Próximo desabilitado na última', async () => {
-    const { wrapper, tabela } = montarTabela()
+    const { wrapper, table } = montarTabela()
     await flushPromises()
 
     expect(wrapper.find('.rs-page-prev').attributes('disabled')).toBeDefined()
     expect(wrapper.find('.rs-page-next').attributes('disabled')).toBeUndefined()
 
-    await tabela.irParaPagina(3)
+    await table.goToPage(3)
     await flushPromises()
 
     expect(wrapper.find('.rs-page-prev').attributes('disabled')).toBeUndefined()
@@ -219,7 +219,7 @@ describe('<RsPagination> — navegação', () => {
     await wrapper.find('.rs-page-next').trigger('click')
     await flushPromises()
 
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Página 2 de 3')
+    expect(wrapper.find('.rs-pagination-info').text()).toContain('Page 2 of 3')
     expect(wrapper.findAll('tbody tr')[0]!.text()).toContain('Agua')
   })
 
@@ -233,16 +233,16 @@ describe('<RsPagination> — navegação', () => {
     await botao3.trigger('click')
     await flushPromises()
 
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Página 3 de 3')
+    expect(wrapper.find('.rs-pagination-info').text()).toContain('Page 3 of 3')
     expect(wrapper.findAll('tbody tr')[0]!.text()).toContain('Cerveja')
   })
 
   it('paginasVisiveis renderiza todas com poucas páginas e resume com muitas', () => {
-    expect(paginasVisiveis(1, 3)).toEqual([1, 2, 3])
-    expect(paginasVisiveis(1, 7)).toEqual([1, 2, 3, 4, 5, 6, 7])
-    expect(paginasVisiveis(5, 20)).toEqual([1, '...', 4, 5, 6, '...', 20])
-    expect(paginasVisiveis(1, 20)).toEqual([1, 2, '...', 20])
-    expect(paginasVisiveis(20, 20)).toEqual([1, '...', 19, 20])
+    expect(visiblePages(1, 3)).toEqual([1, 2, 3])
+    expect(visiblePages(1, 7)).toEqual([1, 2, 3, 4, 5, 6, 7])
+    expect(visiblePages(5, 20)).toEqual([1, '...', 4, 5, 6, '...', 20])
+    expect(visiblePages(1, 20)).toEqual([1, 2, '...', 20])
+    expect(visiblePages(20, 20)).toEqual([1, '...', 19, 20])
   })
 })
 
@@ -252,20 +252,20 @@ describe('<RsFilters> — filtros por tipo', () => {
     await flushPromises()
 
     const filtros = wrapper.find('.rs-filters')
-    expect(filtros.find('.rs-filter-texto input[type="text"]').exists()).toBe(true)
-    expect(filtros.findAll('.rs-filter-numero input[type="number"]').length).toBe(4)
-    expect(filtros.find('.rs-filter-selecao select').exists()).toBe(true)
-    expect(filtros.find('.rs-filter-booleano select').exists()).toBe(true)
+    expect(filtros.find('.rs-filter-text input[type="text"]').exists()).toBe(true)
+    expect(filtros.findAll('.rs-filter-number input[type="number"]').length).toBe(4)
+    expect(filtros.find('.rs-filter-select select').exists()).toBe(true)
+    expect(filtros.find('.rs-filter-boolean select').exists()).toBe(true)
   })
 
   it('não renderiza filtro para coluna filterable: false', async () => {
     const colunas = [
-      coluna('id', { type: 'numero', filterable: false }),
-      coluna('nome', { type: 'texto' }),
+      column('id', { type: 'number', filterable: false }),
+      column('nome', { type: 'text' }),
     ]
-    const tabela = new RsTable({ columns: colunas, pageSize: 10 })
-    tabela.usarAdapter(new LocalAdapter(DADOS))
-    const ctx = useRsTable(tabela)
+    const table = new RsTable({ columns: colunas, pageSize: 10 })
+    table.useAdapter(new LocalAdapter(DADOS))
+    const ctx = useRsTable(table)
     const wrapper = mount(RsFilters, { props: { contexto: ctx } })
 
     expect(wrapper.findAll('.rs-filter')).toHaveLength(1)
@@ -273,27 +273,27 @@ describe('<RsFilters> — filtros por tipo', () => {
   })
 
   it('input de texto dispara filtrar() com operador padrão (após debounce)', async () => {
-    const { wrapper, tabela } = montarTabela(DADOS, 10)
+    const { wrapper, table } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const input = wrapper.find('.rs-filter-texto input')
+    const input = wrapper.find('.rs-filter-text input')
     await input.setValue('co')
 
-    expect(tabela.getEstado().filters).toEqual([])
+    expect(table.getState().filters).toEqual([])
 
     await aguardarDebounce()
     await flushPromises()
 
     const linhas = wrapper.findAll('tbody tr')
     expect(linhas).toHaveLength(2)
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Total: 2 registros')
+    expect(wrapper.find('.rs-pagination-info').text()).toContain('Total: 2 records')
   })
 
   it('limpar o input de texto remove o filtro', async () => {
     const { wrapper } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const input = wrapper.find('.rs-filter-texto input')
+    const input = wrapper.find('.rs-filter-text input')
     await input.setValue('co')
     await aguardarDebounce()
     await flushPromises()
@@ -305,18 +305,18 @@ describe('<RsFilters> — filtros por tipo', () => {
   })
 
   it('inputs de número filtram por intervalo (entre)', async () => {
-    const { wrapper, tabela } = montarTabela(DADOS, 10)
+    const { wrapper, table } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const campos = wrapper.findAll('.rs-filter-numero')
+    const campos = wrapper.findAll('.rs-filter-number')
     const filtroPreco = campos.find((c) => c.text().includes('Preço'))!
     await filtroPreco.find('.rs-filter-min').setValue('4')
     await filtroPreco.find('.rs-filter-max').setValue('6')
     await aguardarDebounce()
     await flushPromises()
 
-    expect(tabela.getEstado().filters).toEqual([
-      { column: 'preco', operator: 'entre', value: [4, 6] },
+    expect(table.getState().filters).toEqual([
+      { column: 'preco', operator: 'between', value: [4, 6] },
     ])
     const nomes = wrapper.findAll('tbody tr').map((tr) => tr.text())
     expect(nomes.some((n) => n.includes('Coca-Cola'))).toBe(true)
@@ -325,17 +325,17 @@ describe('<RsFilters> — filtros por tipo', () => {
   })
 
   it('apenas mínimo usa operador >=', async () => {
-    const { wrapper, tabela } = montarTabela(DADOS, 10)
+    const { wrapper, table } = montarTabela(DADOS, 10)
     await flushPromises()
 
     const filtroPreco = wrapper
-      .findAll('.rs-filter-numero')
+      .findAll('.rs-filter-number')
       .find((c) => c.text().includes('Preço'))!
     await filtroPreco.find('.rs-filter-min').setValue('7')
     await aguardarDebounce()
     await flushPromises()
 
-    expect(tabela.getEstado().filters).toEqual([
+    expect(table.getState().filters).toEqual([
       { column: 'preco', operator: '>=', value: 7 },
     ])
     expect(wrapper.findAll('tbody tr')).toHaveLength(2)
@@ -345,7 +345,7 @@ describe('<RsFilters> — filtros por tipo', () => {
     const { wrapper } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const select = wrapper.find('.rs-filter-selecao select')
+    const select = wrapper.find('.rs-filter-select select')
     await select.setValue('2')
     await flushPromises()
 
@@ -359,7 +359,7 @@ describe('<RsFilters> — filtros por tipo', () => {
     const { wrapper } = montarTabela(DADOS, 10)
     await flushPromises()
 
-    const select = wrapper.find('.rs-filter-booleano select')
+    const select = wrapper.find('.rs-filter-boolean select')
     await select.setValue('false')
     await flushPromises()
 
@@ -371,19 +371,19 @@ describe('<RsFilters> — filtros por tipo', () => {
   })
 
   it('converterChaveOpcao converte chave numérica e preserva texto', () => {
-    expect(converterChaveOpcao('1')).toBe(1)
-    expect(converterChaveOpcao('2.5')).toBe(2.5)
-    expect(converterChaveOpcao('ativo')).toBe('ativo')
+    expect(convertOptionKey('1')).toBe(1)
+    expect(convertOptionKey('2.5')).toBe(2.5)
+    expect(convertOptionKey('ativo')).toBe('ativo')
   })
 
   it('debounce agrupa digitação rápida em uma única chamada de fetch', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ rows: [], total: 0 })
-    const tabela = new RsTable({ columns: criarColunas(), pageSize: 10 })
-    tabela.usarAdapter({ fetch: fetchMock, fetchAll: async () => [] })
-    const ctx = useRsTable(tabela)
+    const table = new RsTable({ columns: criarColunas(), pageSize: 10 })
+    table.useAdapter({ fetch: fetchMock, fetchAll: async () => [] })
+    const ctx = useRsTable(table)
     const wrapper = mount(RsFilters, { props: { contexto: ctx } })
 
-    const input = wrapper.find('.rs-filter-texto input')
+    const input = wrapper.find('.rs-filter-text input')
     await input.setValue('c')
     await input.setValue('co')
     await input.setValue('coc')
@@ -396,19 +396,19 @@ describe('<RsFilters> — filtros por tipo', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        filters: [{ column: 'nome', operator: 'contem', value: 'coc' }],
+        filters: [{ column: 'nome', operator: 'contains', value: 'coc' }],
       }),
     )
   })
 
   it('unmount cancela debounce pendente', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ rows: [], total: 0 })
-    const tabela = new RsTable({ columns: criarColunas(), pageSize: 10 })
-    tabela.usarAdapter({ fetch: fetchMock, fetchAll: async () => [] })
-    const ctx = useRsTable(tabela)
+    const table = new RsTable({ columns: criarColunas(), pageSize: 10 })
+    table.useAdapter({ fetch: fetchMock, fetchAll: async () => [] })
+    const ctx = useRsTable(table)
     const wrapper = mount(RsFilters, { props: { contexto: ctx } })
 
-    await wrapper.find('.rs-filter-texto input').setValue('co')
+    await wrapper.find('.rs-filter-text input').setValue('co')
     wrapper.unmount()
 
     await aguardarDebounce()
@@ -423,11 +423,11 @@ describe('Integração — fluxo completo (filtro + ordenação + paginação)',
     const { wrapper } = montarTabela(DADOS, 2)
     await flushPromises()
 
-    const inputNome = wrapper.find('.rs-filter-texto input')
+    const inputNome = wrapper.find('.rs-filter-text input')
     await inputNome.setValue('a')
     await aguardarDebounce()
     await flushPromises()
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Total: 4 registros')
+    expect(wrapper.find('.rs-pagination-info').text()).toContain('Total: 4 records')
 
     const thPreco = wrapper.findAll('th').find((th) => th.text().includes('Preço'))!
     await thPreco.trigger('click')
@@ -436,21 +436,21 @@ describe('Integração — fluxo completo (filtro + ordenação + paginação)',
 
     await wrapper.find('.rs-page-next').trigger('click')
     await flushPromises()
-    expect(wrapper.find('.rs-pagination-info').text()).toContain('Página 2 de 2')
+    expect(wrapper.find('.rs-pagination-info').text()).toContain('Page 2 of 2')
     const linhas = wrapper.findAll('tbody tr')
     expect(linhas[0]!.text()).toContain('Coca-Cola')
     expect(linhas[1]!.text()).toContain('Cerveja')
   })
 
   it('unmount desconecta os listeners do Core', async () => {
-    const { wrapper, tabela } = montarTabela()
+    const { wrapper, table } = montarTabela()
     await flushPromises()
 
     const handler = vi.fn()
-    tabela.on('dados:carregados', handler)
+    table.on('data:loaded', handler)
     wrapper.unmount()
 
-    await tabela.irParaPagina(2)
+    await table.goToPage(2)
     expect(handler).toHaveBeenCalled()
   })
 })
@@ -477,7 +477,7 @@ describe('Toolbar — filtros expansíveis', () => {
     expect(painel.exists()).toBe(true)
     expect(painel.classes()).not.toContain('rs-filters-open')
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Filtros'))!
+    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Filters'))!
     await botao.trigger('click')
     expect(painel.classes()).toContain('rs-filters-open')
 
@@ -486,12 +486,12 @@ describe('Toolbar — filtros expansíveis', () => {
   })
 
   it('badge de contagem mostra o número de filtros ativos', async () => {
-    const { wrapper, tabela } = montarTabela(DADOS, 10)
+    const { wrapper, table } = montarTabela(DADOS, 10)
     await flushPromises()
 
     expect(wrapper.find('.rs-badge-count').exists()).toBe(false)
 
-    await tabela.filtrar({ column: 'nome', operator: 'contem', value: 'co' })
+    await table.filter({ column: 'nome', operator: 'contains', value: 'co' })
     await flushPromises()
 
     expect(wrapper.find('.rs-badge-count').text()).toBe('1')
@@ -503,7 +503,7 @@ describe('Toolbar — menu de colunas', () => {
     const { wrapper } = montarTabela()
     await flushPromises()
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Colunas'))!
+    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Columns'))!
     await botao.trigger('click')
 
     const itens = wrapper.findAll('.rs-menu-item')
@@ -520,12 +520,12 @@ describe('Toolbar — menu de colunas', () => {
   })
 
   it('clique fora fecha o menu de colunas', async () => {
-    const tabela = new RsTable({ columns: criarColunas(), pageSize: 2 })
-    tabela.usarAdapter(new LocalAdapter(DADOS))
-    const wrapper = mount(RsDataTable, { props: { tabela }, attachTo: document.body })
+    const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
+    table.useAdapter(new LocalAdapter(DADOS))
+    const wrapper = mount(RsDataTable, { props: { table }, attachTo: document.body })
     await flushPromises()
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Colunas'))!
+    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Columns'))!
     await botao.trigger('click')
     expect(wrapper.find('.rs-menu').exists()).toBe(true)
 
@@ -544,7 +544,7 @@ describe('Toolbar — densidade', () => {
 
     expect(wrapper.find('.rs-table-container').classes()).not.toContain('rs-density-compact')
 
-    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Densidade'))!
+    const botao = wrapper.findAll('.rs-btn').find((b) => b.text().includes('Density'))!
     await botao.trigger('click')
     expect(wrapper.find('.rs-table-container').classes()).toContain('rs-density-compact')
 
@@ -582,9 +582,9 @@ describe('Skeleton loading', () => {
       fetch: () => new Promise((resolve) => { resolver = resolve }),
       fetchAll: async () => [],
     }
-    const tabela = new RsTable({ columns: criarColunas(), pageSize: 2 })
-    tabela.usarAdapter(adapterLento)
-    const wrapper = mount(RsDataTable, { props: { tabela } })
+    const table = new RsTable({ columns: criarColunas(), pageSize: 2 })
+    table.useAdapter(adapterLento)
+    const wrapper = mount(RsDataTable, { props: { table } })
     await wrapper.vm.$nextTick()
 
     expect(wrapper.findAll('.rs-skeleton').length).toBeGreaterThan(0)
@@ -603,9 +603,9 @@ describe('Empty state', () => {
     await flushPromises()
 
     const vazio = wrapper.find('tr.rs-empty')
-    expect(vazio.find('.rs-empty-title').text()).toBe('Nenhum registro encontrado')
+    expect(vazio.find('.rs-empty-title').text()).toBe('No records found')
     expect(vazio.find('.rs-empty-desc').text()).toBe(
-      'Tente ajustar os filtros ou limpar a busca.',
+      'Try adjusting filters or clearing search.',
     )
     expect(vazio.find('.rs-empty-icon').exists()).toBe(true)
   })

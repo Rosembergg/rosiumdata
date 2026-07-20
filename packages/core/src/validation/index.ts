@@ -46,63 +46,63 @@ function validarSelecao(value: unknown, colDef: ColumnDefinition): boolean {
   return key in colDef.options
 }
 
-const VALIDADORES: Record<ColumnType, (value: unknown, colDef: ColumnDefinition) => boolean> = {
-  texto: (v) => validarTexto(v),
-  numero: (v) => validarNumero(v),
-  data: (v) => validarData(v),
-  'data-hora': (v) => validarDataHora(v),
-  booleano: (v) => validarBooleano(v),
-  selecao: (v, colDef) => validarSelecao(v, colDef),
-  acao: () => true,
+const VALIDATORS: Record<ColumnType, (value: unknown, colDef: ColumnDefinition) => boolean> = {
+  text: (v) => validarTexto(v),
+  number: (v) => validarNumero(v),
+  date: (v) => validarData(v),
+  datetime: (v) => validarDataHora(v),
+  boolean: (v) => validarBooleano(v),
+  select: (v, colDef) => validarSelecao(v, colDef),
+  action: () => true,
 }
 
-const TIPO_ESPERADO: Record<ColumnType, string> = {
-  texto: 'texto',
-  numero: 'numero',
-  data: 'data valida',
-  'data-hora': 'data-hora valida',
-  booleano: 'booleano',
-  selecao: 'opcao valida',
-  acao: '',
+const EXPECTED_TYPE: Record<ColumnType, string> = {
+  text: 'text',
+  number: 'number',
+  date: 'valid date',
+  datetime: 'valid date-hora',
+  boolean: 'boolean',
+  select: 'valid option',
+  action: '',
 }
 
-export function validarLinha(
+export function validateRow(
   row: Row,
   rowIndex: number,
   columns: ColumnDefinition[],
 ): ValidationError[] {
-  const erros: ValidationError[] = []
+  const errors: ValidationError[] = []
 
   for (const colDef of columns) {
-    if (colDef.type === 'acao') continue
+    if (colDef.type === 'action') continue
 
     const value = row[colDef.key]
-    const validador = VALIDADORES[colDef.type]
-    const valido = validador(value, colDef)
+    const validator = VALIDATORS[colDef.type]
+    const isValid = validator(value, colDef)
 
-    if (!valido) {
-      erros.push({
+    if (!isValid) {
+      errors.push({
         column: colDef.key,
         rowIndex,
-        expected: TIPO_ESPERADO[colDef.type],
+        expected: EXPECTED_TYPE[colDef.type],
         received: value,
       })
     }
   }
 
-  return erros
+  return errors
 }
 
-export function validarLinhas(
+export function validateRows(
   rows: Row[],
   columns: ColumnDefinition[],
 ): ValidationError[] {
-  const erros: ValidationError[] = []
+  const errors: ValidationError[] = []
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]!
-    erros.push(...validarLinha(row, i, columns))
+    errors.push(...validateRow(row, i, columns))
   }
 
-  return erros
+  return errors
 }

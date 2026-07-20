@@ -1,4 +1,4 @@
-export type ColumnType = 'texto' | 'numero' | 'data' | 'data-hora' | 'booleano' | 'selecao' | 'acao'
+export type ColumnType = 'text' | 'number' | 'date' | 'datetime' | 'boolean' | 'select' | 'action'
 
 export type ColumnAlignment = 'left' | 'center' | 'right'
 
@@ -22,6 +22,10 @@ export interface ColumnDefinition {
   filterable?: boolean
   visible?: boolean
   exportAsFormatted?: boolean
+  /** Override the table locale for this column only (e.g. 'en-US', 'de-DE') */
+  locale?: string
+  /** ISO currency code (e.g. 'USD', 'EUR', 'BRL'). Default: inferred from locale */
+  currency?: string
 }
 
 export interface ColumnConfig {
@@ -37,10 +41,14 @@ export interface ColumnConfig {
   filterable?: boolean
   visible?: boolean
   exportAsFormatted?: boolean
+  /** Override the table locale for this column only */
+  locale?: string
+  /** ISO currency code (e.g. 'USD', 'EUR'). Default: inferred from locale */
+  currency?: string
 }
 
-export function coluna(key: string, config: ColumnConfig): ColumnDefinition {
-  const type = config.type ?? 'texto'
+export function column(key: string, config: ColumnConfig): ColumnDefinition {
+  const type = config.type ?? 'text'
   return {
     key,
     type,
@@ -52,43 +60,44 @@ export function coluna(key: string, config: ColumnConfig): ColumnDefinition {
     defaultOperator: config.defaultOperator,
     alignment: config.alignment,
     sortable: config.sortable,
-    filterable: config.filterable ?? (type !== 'acao'),
+    filterable: config.filterable ?? (type !== 'action'),
     visible: config.visible ?? true,
     exportAsFormatted: config.exportAsFormatted ?? false,
+    locale: config.locale,
+    currency: config.currency,
   }
 }
 
-export const ALINHAMENTO_PADRAO: Record<ColumnType, ColumnAlignment> = {
-  texto: 'left',
-  numero: 'right',
-  data: 'center',
-  'data-hora': 'center',
-  booleano: 'center',
-  selecao: 'left',
-  acao: 'center',
+export const DEFAULT_ALIGNMENT: Record<ColumnType, ColumnAlignment> = {
+  text: 'left',
+  number: 'right',
+  date: 'center',
+  datetime: 'center',
+  boolean: 'center',
+  select: 'left',
+  action: 'center',
 }
 
-function formatarNumero(value: unknown, colDef: ColumnDefinition): string {
+function formatNumber(value: unknown, colDef: ColumnDefinition, locale: string): string {
   const num = typeof value === 'number' ? value : Number(value)
   if (isNaN(num)) return String(value)
 
+  const currency = colDef.currency ?? (locale.startsWith('pt') ? 'BRL' : undefined)
+
   if (colDef.mask) {
-    if (/R\$/i.test(colDef.mask)) {
-      return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      }).format(num)
-    }
-    return new Intl.NumberFormat('pt-BR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
+    return new Intl.NumberFormat(locale, {
+      style: currency ? 'currency' : 'decimal',
+      ...(currency ? { currency } : { minimumFractionDigits: 0, maximumFractionDigits: 2 }),
     }).format(num)
   }
 
-  return String(value)
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(num)
 }
 
-export function formatarValorPadrao(value: unknown, colDef: ColumnDefinition): string {
+export function formatDefaultValue(value: unknown, colDef: ColumnDefinition, locale: string): string {
   if (value === null || value === undefined) return ''
 
   if (colDef.options) {
@@ -97,25 +106,25 @@ export function formatarValorPadrao(value: unknown, colDef: ColumnDefinition): s
   }
 
   switch (colDef.type) {
-    case 'booleano':
-      return value ? 'Sim' : 'Nao'
+    case 'boolean':
+      return value ? 'Yes' : 'No'
 
-    case 'numero':
-      return formatarNumero(value, colDef)
+    case 'number':
+      return formatNumber(value, colDef, locale)
 
-    case 'data': {
+    case 'date': {
       const date = value instanceof Date ? value : new Date(String(value))
       if (isNaN(date.getTime())) return String(value)
-      return date.toLocaleDateString('pt-BR')
+      return date.toLocaleDateString(locale)
     }
 
-    case 'data-hora': {
+    case 'datetime': {
       const date = value instanceof Date ? value : new Date(String(value))
       if (isNaN(date.getTime())) return String(value)
-      return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      return date.toLocaleDateString(locale) + ' ' + date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
     }
 
-    case 'acao':
+    case 'action':
       return ''
 
     default:

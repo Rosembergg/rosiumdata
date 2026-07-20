@@ -8,7 +8,7 @@
 
 ## SEU TRABALHO
 
-Quando o usuário reportar um erro, você deve:
+Quando o usuário reportar um erro:
 
 1. **Ler o erro completo** — stack trace, mensagem, arquivo, linha
 2. **Diagnosticar a causa-raiz** — NÃO apenas o sintoma
@@ -35,16 +35,31 @@ Quando o usuário reportar um erro, você deve:
 | Pacote | Pasta | O que contém |
 |---|---|---|
 | Core | `packages/core/src/engine/` | `RsTable` — instância viva, estado, eventos |
-| Core | `packages/core/src/columns/` | Tipos de coluna, `coluna()`, `ActionDefinition` |
+| Core | `packages/core/src/columns/` | Tipos de coluna, `column()`, `ActionDefinition`, locale/currency |
 | Core | `packages/core/src/adapter/` | `DataAdapter`, `LocalAdapter`, `LaravelAdapter` |
 | Core | `packages/core/src/filters/` | Operadores de filtro |
-| Core | `packages/core/src/sorting/` | Ordenação |
+| Core | `packages/core/src/sorting/` | Ordenação com `localeCompare` |
 | Core | `packages/core/src/pagination/` | Paginação |
 | Core | `packages/core/src/validation/` | Falhe Alto |
 | Core | `packages/core/src/events/` | `EventEmitter` |
 | Nuxt | `packages/nuxt/src/composables/` | `useRsTable()` — ponte Core ↔ Vue |
 | Nuxt | `packages/nuxt/src/components/` | Componentes Vue (`.ts` com `h()`) |
 | Nuxt | `packages/nuxt/src/theme/` | CSS padrão |
+
+### Referência rápida da API (a API foi migrada de PT para EN)
+
+| Categoria | Identificadores |
+|---|---|
+| **Tipos de coluna** | `'text'`, `'number'`, `'date'`, `'datetime'`, `'boolean'`, `'select'`, `'action'` |
+| **Fábrica de coluna** | `column(key, config)` |
+| **Fábrica de ação** | `actionColumn(key, actions)` |
+| **Métodos do Core** | `.useAdapter()`, `.filter()`, `.sort()`, `.goToPage()`, `.setPageSize()`, `.getRows()`, `.getTotal()`, `.getState()`, `.hideColumn()`, `.showColumn()`, `.reorderColumns()`, `.getFilterOptions()` |
+| **Eventos** | `'error'`, `'data:loaded'`, `'state:changed'` |
+| **Operadores** | `'contains'`, `'equals'`, `'startsWith'`, `'endsWith'`, `'between'`, `'before'`, `'after'`, `=`, `>`, `<`, `>=`, `<=` |
+| **Props dos componentes** | `:columns`, `:adapter`, `:table`, `:pageSize`, `:debug`, `:persistence` |
+| **Constantes** | `DEFAULT_OPERATORS`, `DEFAULT_OPERATOR`, `DEFAULT_ALIGNMENT`, `applyFilters()`, `sortArray()`, `paginateArray()`, `calculateTotalPages()`, `formatDefaultValue()`, `validateRow()`, `validateRows()` |
+| **Composable** | `useRsTable()`, `readPreferences()`, `savePreferences()` |
+| **Locale** | `new RsTable({ columns, locale: 'pt-BR' })` — padrão é `'pt-BR'` |
 
 ---
 
@@ -54,7 +69,7 @@ Quando o usuário reportar um erro, você deve:
 2. **Linha Sagrada NUNCA é quebrada.** Dado e estilo não se misturam.
 3. **Nada de mágica.** Comportamento visível no código de uso (Princípio #6).
 4. **Testes NÃO podem quebrar.** `npm test` deve passar após qualquer correção.
-5. **Mudanças mínimas.** Corrija SÓ o necessário. Nada de refatorar o que não está quebrado.
+5. **Mudanças mínimas.** Corrija SÓ o necessário. Nunca refatore o que não está quebrado.
 6. **Nunca altere `build.config.ts`, `tsconfig.json`, `vitest.config.ts`** sem perguntar.
 
 ---
@@ -82,7 +97,7 @@ cat packages/nuxt/package.json | grep exports  # Deve apontar para ./dist/
 
 **Diagnóstico:**
 - Verifique se o plugin `RsData` está sendo usado: `app.use(RsData)` no `plugins/rsdata.ts`
-- Verifique se o componente foi exportado em `packages/nuxt/src/index.ts`
+- Verifique se o componente está exportado em `packages/nuxt/src/index.ts`
 
 ---
 
@@ -108,8 +123,8 @@ cat packages/nuxt/package.json | grep exports  # Deve apontar para ./dist/
 
 **Diagnóstico:**
 ```ts
-// No componente, teste o adapter isolado
-const adapter = new LocalAdapter([{ id: 1, nome: 'Teste' }])
+// Teste o adapter isolado
+const adapter = new LocalAdapter([{ id: 1, name: 'Teste' }])
 const result = await adapter.fetch({ filters: [], page: 1, pageSize: 20 })
 console.log(result) // Deve ter { rows: [...], total: 1 }
 ```
@@ -119,13 +134,14 @@ console.log(result) // Deve ter { rows: [...], total: 1 }
 ### Erro: filtro não funciona
 
 **Causas:**
-- `LaravelAdapter`: o backend não está processando os query params `filter[coluna][operador]`
-- `LocalAdapter`: operador não corresponde ao tipo da coluna (ex: `>` em coluna `texto`)
-- Coluna foi definida com `filterable: false`
+- `LaravelAdapter`: o backend não está processando os query params `filter[column][operator]`
+- `LocalAdapter`: operador não corresponde ao tipo da coluna (ex: `>` em coluna `text`)
+- Coluna definida com `filterable: false`
+- Usando operador antigo em português (`contem`, `igual`) — foram renomeados para `contains`, `equals`
 
 **Diagnóstico:**
-- Verifique a URL que o adapter está chamando (Network tab)
-- Teste o filtro programaticamente: `tabela.filtrar({ column: 'preco', operator: '>', value: 10 })`
+- Verifique a URL que o adapter está chamando (aba Network)
+- Teste programaticamente: `table.filter({ column: 'price', operator: '>', value: 10 })`
 
 ---
 
@@ -133,12 +149,12 @@ console.log(result) // Deve ter { rows: [...], total: 1 }
 
 **Causas:**
 - Coluna definida com `sortable: false`
-- O componente `RsThead` não está emitindo o clique corretamente
-- O backend (`LaravelAdapter`) não está processando `sort=nome` ou `sort=-nome`
+- Componente `RsThead` não está emitindo o clique corretamente
+- Backend (`LaravelAdapter`) não está processando `sort=name` ou `sort=-name`
 
 **Diagnóstico:**
-- Verifique Network tab: a URL deve incluir `?sort=nome` ou `?sort=-nome`
-- Teste programaticamente: `tabela.ordenar('nome', 'asc')`
+- Verifique a aba Network: a URL deve incluir `?sort=name` ou `?sort=-name`
+- Teste programaticamente: `table.sort('name', 'asc')`
 
 ---
 
@@ -150,8 +166,8 @@ console.log(result) // Deve ter { rows: [...], total: 1 }
 
 **Diagnóstico:**
 ```ts
-const estado = tabela.getEstado()
-console.log({ page: estado.page, pageSize: estado.pageSize, total: estado.total, totalPages: estado.totalPages })
+const state = table.getState()
+console.log({ page: state.page, pageSize: state.pageSize, total: state.total, totalPages: state.totalPages })
 ```
 
 ---
@@ -159,12 +175,12 @@ console.log({ page: estado.page, pageSize: estado.pageSize, total: estado.total,
 ### Erro: actions não disparam evento
 
 **Causas:**
-- Coluna não foi definida com `colunaAcao()` do `@rsdata/nuxt`
-- O evento `@action` não está sendo escutado no `<RsTable>`
-- O componente `RsActions` não está recebendo as actions via `col.options.actions`
+- Coluna não foi definida com `actionColumn()` do `@rsdata/nuxt`
+- Evento `@action` não está sendo escutado no `<RsTable>`
+- Componente `RsActions` não está recebendo as actions via `col.options.actions`
 
 **Diagnóstico:**
-- Verifique se `colunaAcao('acoes', [...])` está no array de colunas
+- Verifique se `actionColumn('actions', [...])` está no array de colunas
 - Verifique se `<RsTable @action="handleAction" />` tem o listener
 - Confira se as actions estão em `col.options.actions` no componente
 
@@ -179,10 +195,142 @@ console.log({ page: estado.page, pageSize: estado.pageSize, total: estado.total,
 
 **Diagnóstico:**
 ```ts
-tabela.on('erro', (e) => console.log('Falhe Alto:', e))
+table.on('error', (e) => console.log('Falhe Alto:', e))
 // Force um dado inválido no LocalAdapter para testar:
-const adapter = new LocalAdapter([{ preco: 'grátis' }]) // era pra ser numero
+const adapter = new LocalAdapter([{ price: 'grátis' }]) // era pra ser number
 ```
+
+---
+
+### Erro: `.filter()`, `.sort()`, `.getRows()` etc. não encontrados (MIGRAÇÃO)
+
+**Causa:** O projeto foi atualizado da API antiga em português para a nova API em inglês.
+
+**Todos os métodos renomeados:**
+
+| Antigo (PT) | Novo (EN) |
+|---|---|
+| `.usarAdapter()` | `.useAdapter()` |
+| `.filtrar()` | `.filter()` |
+| `.ordenar()` | `.sort()` |
+| `.irParaPagina()` | `.goToPage()` |
+| `.getLinhas()` | `.getRows()` |
+| `.getEstado()` | `.getState()` |
+| `.getOpcoesFiltro()` | `.getFilterOptions()` |
+| `.esconderColuna()` | `.hideColumn()` |
+| `.mostrarColuna()` | `.showColumn()` |
+| `.reordenarColunas()` | `.reorderColumns()` |
+
+**Todos os tipos de coluna renomeados:**
+
+| Antigo (PT) | Novo (EN) |
+|---|---|
+| `'texto'` | `'text'` |
+| `'numero'` | `'number'` |
+| `'booleano'` | `'boolean'` |
+| `'selecao'` | `'select'` |
+| `'acao'` | `'action'` |
+| `'data-hora'` | `'datetime'` |
+
+**Todos os operadores renomeados:**
+
+| Antigo (PT) | Novo (EN) |
+|---|---|
+| `'contem'` | `'contains'` |
+| `'igual'` | `'equals'` |
+| `'comeca_com'` | `'startsWith'` |
+| `'termina_com'` | `'endsWith'` |
+| `'entre'` | `'between'` |
+| `'antes'` | `'before'` |
+| `'depois'` | `'after'` |
+
+**Todos os eventos renomeados:**
+
+| Antigo (PT) | Novo (EN) |
+|---|---|
+| `'erro'` | `'error'` |
+| `'dados:carregados'` | `'data:loaded'` |
+| `'estado:alterado'` | `'state:changed'` |
+
+**Todas as props renomeadas:**
+
+| Antigo (PT) | Novo (EN) |
+|---|---|
+| `:tabela` | `:table` |
+| `:persistencia` | `:persistence` |
+
+**Todas as funções/constantes renomeadas:**
+
+| Antigo (PT) | Novo (EN) |
+|---|---|
+| `coluna()` | `column()` |
+| `colunaAcao()` | `actionColumn()` |
+| `formatarValorPadrao()` | `formatDefaultValue()` |
+| `ALINHAMENTO_PADRAO` | `DEFAULT_ALIGNMENT` |
+| `OPERADORES_PADRAO` | `DEFAULT_OPERATORS` |
+| `OPERADOR_PADRAO` | `DEFAULT_OPERATOR` |
+| `aplicarFiltros()` | `applyFilters()` |
+| `inverterDirecao()` | `invertDirection()` |
+| `ordenarArray()` | `sortArray()` |
+| `calcularTotalPaginas()` | `calculateTotalPages()` |
+| `validarPagina()` | `validatePage()` |
+| `paginarArray()` | `paginateArray()` |
+| `validarLinha()` | `validateRow()` |
+| `validarLinhas()` | `validateRows()` |
+| `chaveLinha()` | `rowKey()` |
+| `acoesDaColuna()` | `columnActions()` |
+| `mensagemErro()` | `errorMessage()` |
+| `ambienteDev()` | `isDevEnvironment()` |
+| `lerPreferencias()` | `readPreferences()` |
+| `salvarPreferencias()` | `savePreferences()` |
+
+---
+
+### Erro: locale não funciona
+
+**Causas:**
+- Locale não foi configurado no construtor da `RsTable` → padrão é `'pt-BR'`
+- Campos `locale` ou `currency` por coluna não foram preenchidos no `ColumnDefinition`
+- API `Intl` não disponível (extremamente raro — todos navegadores modernos e Node 18+ possuem)
+
+**Diagnóstico:**
+```ts
+// Verifique o locale atual
+const state = table.getState()
+console.log(state.locale) // 'pt-BR' (padrão) ou o que você configurou
+
+// Configure locale global
+const table = new RsTable({ columns, locale: 'en-US' })
+// → $1,000.00 | 12/25/2024
+
+// Sobrescreva por coluna
+column('price_usd', {
+  type: 'number',
+  locale: 'en-US',
+  currency: 'USD',
+  mask: '$ #,##0.00'
+})
+
+// Verifique a formatação
+import { formatDefaultValue } from '@rsdata/core'
+const col = column('price', { type: 'number', locale: 'de-DE', mask: '#.##0,00' })
+console.log(formatDefaultValue(1000, col, 'de-DE')) // "1.000,00"
+```
+
+---
+
+### Erro: formatação de número com moeda ou separador errado
+
+**Causas:**
+- `locale` padrão é `'pt-BR'` → `R$ 1.000,00` (vírgula decimal, ponto de milhar)
+- `locale: 'en-US'` → `$1,000.00` (ponto decimal, vírgula de milhar)
+- `currency` não especificado → detectado automaticamente do locale (`pt-BR` usa `BRL`)
+- `mask` não corresponde ao locale configurado
+
+**Diagnóstico:**
+- Para formato brasileiro: use `locale: 'pt-BR'` ou nenhuma config (padrão)
+- Para formato americano: use `locale: 'en-US'`, `currency: 'USD'`
+- Para customizado: configure ambos `locale` e `currency` explicitamente
 
 ---
 

@@ -14,13 +14,13 @@ export type {
 
 export { LocalAdapter } from './adapter/local'
 
-export { LaravelAdapter, OPERADOR_LARAVEL } from './adapter/laravel'
+export { LaravelAdapter, LARAVEL_OPERATOR } from './adapter/laravel'
 export type { LaravelAdapterOptions } from './adapter/laravel'
 
 export {
-  coluna,
-  formatarValorPadrao,
-  ALINHAMENTO_PADRAO,
+  column,
+  formatDefaultValue,
+  DEFAULT_ALIGNMENT,
 } from './columns'
 export type {
   ColumnType,
@@ -34,19 +34,19 @@ export { RsTable } from './engine'
 export type { TransformedCell, TransformedRow, RsTableState } from './engine'
 
 export {
-  OPERADORES_PADRAO,
-  OPERADOR_PADRAO,
-  aplicarFiltros,
+  DEFAULT_OPERATORS,
+  DEFAULT_OPERATOR,
+  applyFilters,
 } from './filters'
 
 export type { SortDirection } from './sorting'
-export { inverterDirecao, ordenarArray } from './sorting'
+export { invertDirection, sortArray } from './sorting'
 
 export {
-  calcularTotalPaginas,
-  validarPagina,
-  paginarArray,
+  calculateTotalPages,
+  validatePage,
+  paginateArray,
 } from './pagination'
 
-export { validarLinha, validarLinhas } from './validation'
+export { validateRow, validateRows } from './validation'
 export type { ValidationError } from './validation'

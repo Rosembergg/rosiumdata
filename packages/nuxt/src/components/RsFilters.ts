@@ -2,25 +2,25 @@ import { defineComponent, h, onUnmounted, reactive } from 'vue'
 import type { PropType, VNode } from 'vue'
 import type { ColumnDefinition, UseRsTableContext } from '../composables/useRsTable'
 
-interface IntervaloLocal {
+interface LocalRange {
   min: string
   max: string
 }
 
 /**
- * Atraso (ms) entre a digitação e a chamada de filtrar(). Evita rajada de
- * requisições com adapters server-side. Selects não usam debounce (mudança
- * discreta). Responsabilidade do componente de UI, não do Core.
+ * Delay (ms) between typing and calling filter(). Avoids burst of
+ * requests with server-side adapters. Selects don't use debounce (discrete
+ * change). Responsibility of the UI component, not the Core.
  */
-export const DEBOUNCE_FILTRO_MS = 300
+export const FILTER_DEBOUNCE_MS = 300
 
 /**
- * Inputs HTML entregam sempre strings. Converte a intenção do usuário
- * para o valor que o Core espera, sem transformar o dado em si.
+ * HTML inputs always deliver strings. Converts user intent
+ * to the value the Core expects, without transforming the data itself.
  */
-export function converterChaveOpcao(chave: string): string | number {
-  if (chave !== '' && !isNaN(Number(chave))) return Number(chave)
-  return chave
+export function convertOptionKey(key: string): string | number {
+  if (key !== '' && !isNaN(Number(key))) return Number(key)
+  return key
 }
 
 export const RsFilters = defineComponent({
@@ -32,13 +32,13 @@ export const RsFilters = defineComponent({
     },
   },
   setup(props) {
-    const intervalos = reactive<Record<string, IntervaloLocal>>({})
+    const ranges = reactive<Record<string, LocalRange>>({})
     const timers = new Map<string, ReturnType<typeof setTimeout>>()
 
-    function comDebounce(key: string, fn: () => void): void {
-      const pendente = timers.get(key)
-      if (pendente) clearTimeout(pendente)
-      timers.set(key, setTimeout(fn, DEBOUNCE_FILTRO_MS))
+    function withDebounce(key: string, fn: () => void): void {
+      const pending = timers.get(key)
+      if (pending) clearTimeout(pending)
+      timers.set(key, setTimeout(fn, FILTER_DEBOUNCE_MS))
     }
 
     onUnmounted(() => {
@@ -46,175 +46,175 @@ export const RsFilters = defineComponent({
       timers.clear()
     })
 
-    function intervalo(key: string): IntervaloLocal {
-      if (!intervalos[key]) {
-        intervalos[key] = { min: '', max: '' }
+    function rangeValue(key: string): LocalRange {
+      if (!ranges[key]) {
+        ranges[key] = { min: '', max: '' }
       }
-      return intervalos[key]!
+      return ranges[key]!
     }
 
-    function filtravel(col: ColumnDefinition): boolean {
-      return col.filterable !== false && col.type !== 'acao'
+    function isFilterable(col: ColumnDefinition): boolean {
+      return col.filterable !== false && col.type !== 'action'
     }
 
-    function filtrarTexto(col: ColumnDefinition, valor: string): void {
-      void props.contexto.filtrar({
+    function filterText(col: ColumnDefinition, value: string): void {
+      void props.contexto.filter({
         column: col.key,
-        operator: props.contexto.operadorPadrao(col),
-        value: valor,
+        operator: props.contexto.defaultOperator(col),
+        value: value,
       })
     }
 
-    function filtrarNumero(col: ColumnDefinition): void {
-      const { min, max } = intervalo(col.key)
+    function filterNumber(col: ColumnDefinition): void {
+      const { min, max } = rangeValue(col.key)
       if (min !== '' && max !== '') {
-        void props.contexto.filtrar({
+        void props.contexto.filter({
           column: col.key,
-          operator: 'entre',
+          operator: 'between',
           value: [Number(min), Number(max)],
         })
       } else if (min !== '') {
-        void props.contexto.filtrar({ column: col.key, operator: '>=', value: Number(min) })
+        void props.contexto.filter({ column: col.key, operator: '>=', value: Number(min) })
       } else if (max !== '') {
-        void props.contexto.filtrar({ column: col.key, operator: '<=', value: Number(max) })
+        void props.contexto.filter({ column: col.key, operator: '<=', value: Number(max) })
       } else {
-        void props.contexto.filtrar({ column: col.key, operator: '=', value: '' })
+        void props.contexto.filter({ column: col.key, operator: '=', value: '' })
       }
     }
 
-    function filtrarData(col: ColumnDefinition): void {
-      const { min, max } = intervalo(col.key)
+    function filterDate(col: ColumnDefinition): void {
+      const { min, max } = rangeValue(col.key)
       if (min !== '' && max !== '') {
-        void props.contexto.filtrar({ column: col.key, operator: 'entre', value: [min, max] })
+        void props.contexto.filter({ column: col.key, operator: 'between', value: [min, max] })
       } else if (min !== '') {
-        void props.contexto.filtrar({ column: col.key, operator: 'depois', value: min })
+        void props.contexto.filter({ column: col.key, operator: 'after', value: min })
       } else if (max !== '') {
-        void props.contexto.filtrar({ column: col.key, operator: 'antes', value: max })
+        void props.contexto.filter({ column: col.key, operator: 'before', value: max })
       } else {
-        void props.contexto.filtrar({ column: col.key, operator: 'entre', value: '' })
+        void props.contexto.filter({ column: col.key, operator: 'between', value: '' })
       }
     }
 
-    function filtrarSelecao(col: ColumnDefinition, valor: string): void {
-      void props.contexto.filtrar({
+    function filterSelect(col: ColumnDefinition, value: string): void {
+      void props.contexto.filter({
         column: col.key,
-        operator: 'igual',
-        value: valor === '' ? '' : converterChaveOpcao(valor),
+        operator: 'equals',
+        value: value === '' ? '' : convertOptionKey(value),
       })
     }
 
-    function filtrarBooleano(col: ColumnDefinition, valor: string): void {
-      void props.contexto.filtrar({
+    function filterBoolean(col: ColumnDefinition, value: string): void {
+      void props.contexto.filter({
         column: col.key,
-        operator: 'igual',
-        value: valor === '' ? '' : valor === 'true',
+        operator: 'equals',
+        value: value === '' ? '' : value === 'true',
       })
     }
 
-    function inputTexto(col: ColumnDefinition): VNode {
+    function textInput(col: ColumnDefinition): VNode {
       return h('input', {
         type: 'text',
         class: 'rs-filter-input',
-        placeholder: 'Filtrar...',
+        placeholder: 'Filter...',
         onInput: (e: Event) => {
-          const valor = (e.target as HTMLInputElement).value
-          comDebounce(col.key, () => filtrarTexto(col, valor))
+          const value = (e.target as HTMLInputElement).value
+          withDebounce(col.key, () => filterText(col, value))
         },
       })
     }
 
-    function inputsNumero(col: ColumnDefinition): VNode[] {
+    function numberInputs(col: ColumnDefinition): VNode[] {
       return [
         h('input', {
           type: 'number',
           class: 'rs-filter-input rs-filter-min',
-          placeholder: 'Mínimo',
-          value: intervalo(col.key).min,
+          placeholder: 'Min',
+          value: rangeValue(col.key).min,
           onInput: (e: Event) => {
-            intervalo(col.key).min = (e.target as HTMLInputElement).value
-            comDebounce(col.key, () => filtrarNumero(col))
+            rangeValue(col.key).min = (e.target as HTMLInputElement).value
+            withDebounce(col.key, () => filterNumber(col))
           },
         }),
         h('input', {
           type: 'number',
           class: 'rs-filter-input rs-filter-max',
-          placeholder: 'Máximo',
-          value: intervalo(col.key).max,
+          placeholder: 'Max',
+          value: rangeValue(col.key).max,
           onInput: (e: Event) => {
-            intervalo(col.key).max = (e.target as HTMLInputElement).value
-            comDebounce(col.key, () => filtrarNumero(col))
+            rangeValue(col.key).max = (e.target as HTMLInputElement).value
+            withDebounce(col.key, () => filterNumber(col))
           },
         }),
       ]
     }
 
-    function inputsData(col: ColumnDefinition): VNode[] {
+    function dateInputs(col: ColumnDefinition): VNode[] {
       return [
         h('input', {
           type: 'date',
           class: 'rs-filter-input rs-filter-min',
-          'aria-label': 'Início',
-          value: intervalo(col.key).min,
+          'aria-label': 'Start',
+          value: rangeValue(col.key).min,
           onInput: (e: Event) => {
-            intervalo(col.key).min = (e.target as HTMLInputElement).value
-            comDebounce(col.key, () => filtrarData(col))
+            rangeValue(col.key).min = (e.target as HTMLInputElement).value
+            withDebounce(col.key, () => filterDate(col))
           },
         }),
         h('input', {
           type: 'date',
           class: 'rs-filter-input rs-filter-max',
-          'aria-label': 'Fim',
-          value: intervalo(col.key).max,
+          'aria-label': 'End',
+          value: rangeValue(col.key).max,
           onInput: (e: Event) => {
-            intervalo(col.key).max = (e.target as HTMLInputElement).value
-            comDebounce(col.key, () => filtrarData(col))
+            rangeValue(col.key).max = (e.target as HTMLInputElement).value
+            withDebounce(col.key, () => filterDate(col))
           },
         }),
       ]
     }
 
-    function selectSelecao(col: ColumnDefinition): VNode {
-      const opcoes = Object.entries(col.options ?? {}).map(([valor, label]) =>
-        h('option', { value: valor }, label),
+    function selectSelect(col: ColumnDefinition): VNode {
+      const options = Object.entries(col.options ?? {}).map(([value, label]) =>
+        h('option', { value }, label),
       )
       return h(
         'select',
         {
           class: 'rs-filter-input rs-filter-select',
-          onChange: (e: Event) => filtrarSelecao(col, (e.target as HTMLSelectElement).value),
+          onChange: (e: Event) => filterSelect(col, (e.target as HTMLSelectElement).value),
         },
-        [h('option', { value: '' }, 'Todos'), ...opcoes],
+        [h('option', { value: '' }, 'All'), ...options],
       )
     }
 
-    function selectBooleano(col: ColumnDefinition): VNode {
+    function selectBoolean(col: ColumnDefinition): VNode {
       return h(
         'select',
         {
           class: 'rs-filter-input rs-filter-select',
-          onChange: (e: Event) => filtrarBooleano(col, (e.target as HTMLSelectElement).value),
+          onChange: (e: Event) => filterBoolean(col, (e.target as HTMLSelectElement).value),
         },
         [
-          h('option', { value: '' }, 'Todos'),
-          h('option', { value: 'true' }, 'Sim'),
-          h('option', { value: 'false' }, 'Não'),
+          h('option', { value: '' }, 'All'),
+          h('option', { value: 'true' }, 'Yes'),
+          h('option', { value: 'false' }, 'No'),
         ],
       )
     }
 
-    function camposPorTipo(col: ColumnDefinition): VNode[] {
+    function fieldsByType(col: ColumnDefinition): VNode[] {
       switch (col.type) {
-        case 'numero':
-          return inputsNumero(col)
-        case 'data':
-        case 'data-hora':
-          return inputsData(col)
-        case 'selecao':
-          return [selectSelecao(col)]
-        case 'booleano':
-          return [selectBooleano(col)]
+        case 'number':
+          return numberInputs(col)
+        case 'date':
+        case 'datetime':
+          return dateInputs(col)
+        case 'select':
+          return [selectSelect(col)]
+        case 'boolean':
+          return [selectBoolean(col)]
         default:
-          return [inputTexto(col)]
+          return [textInput(col)]
       }
     }
 
@@ -222,10 +222,10 @@ export const RsFilters = defineComponent({
       h(
         'div',
         { class: 'rs-filters' },
-        props.contexto.colunas.value.filter(filtravel).map((col) =>
+        props.contexto.columns.value.filter(isFilterable).map((col) =>
           h('div', { key: col.key, class: ['rs-filter', `rs-filter-${col.type}`] }, [
             h('label', { class: 'rs-filter-label' }, col.label ?? col.key),
-            h('div', { class: 'rs-filter-fields' }, camposPorTipo(col)),
+            h('div', { class: 'rs-filter-fields' }, fieldsByType(col)),
           ]),
         ),
       )

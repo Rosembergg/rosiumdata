@@ -53,8 +53,8 @@ O desenvolvimento segue o **Caminho A — Núcleo Primeiro**: cada camada é con
 
 **Entregas:**
 - [ ] Classe `RsTable` (instância viva com estado)
-- [ ] API explícita: `.filtrar()`, `.ordenar()`, `.irParaPagina()`
-- [ ] Leitura: `.getLinhas()`, `.getTotal()`, `.getEstado()`
+- [ ] API explícita: `.filter()`, `.sort()`, `.goToPage()`
+- [ ] Leitura: `.getRows()`, `.getTotal()`, `.getState()`
 - [ ] Definição de colunas com tipos (`texto`, `numero`, `data`, `booleano`, `selecao`, `acao`)
 - [ ] Cada tipo como pacote de comportamento pronto (filtro, ordenação, alinhamento)
 - [ ] Transformação de DADO (valor) — Linha Sagrada lado dado
@@ -62,7 +62,7 @@ O desenvolvimento segue o **Caminho A — Núcleo Primeiro**: cada camada é con
 - [ ] Falhe Alto: validação de dado imperfeito (coluna + linha + esperado vs. recebido)
 - [ ] Sistema de eventos (`dados:carregados`, `erro`, `estado:alterado`)
 - [ ] Interface do Adapter definida (contrato TypeScript)
-- [ ] Gerenciamento de colunas: `.esconderColuna()`, `.mostrarColuna()`, `.reordenarColunas()`
+- [ ] Gerenciamento de colunas: `.hideColumn()`, `.showColumn()`, `.reorderColumns()`
 - [ ] Cobertura de testes com Vitest
 
 **Não inclui:** adapter real (só a interface), renderização, tema, actions visuais.

@@ -7,7 +7,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.0.1-blue" alt="Version">
-  <img src="https://img.shields.io/badge/tests-352%20passing-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-376%20passing-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/core%20deps-zero-success" alt="Zero dependencies">
   <img src="https://img.shields.io/badge/status-v1.0%20MVP-orange" alt="Status">
   <img src="https://img.shields.io/badge/license-TBD-lightgrey" alt="License">
@@ -75,16 +75,16 @@ export default defineNuxtPlugin((nuxtApp) => {
 </template>
 
 <script setup>
-import { coluna, LocalAdapter } from '@rsdata/core'
+import { column, LocalAdapter } from '@rsdata/core'
 
 const columns = [
-  coluna('id',     { type: 'numero',  label: 'ID' }),
-  coluna('name',   { type: 'texto',   label: 'Name' }),
-  coluna('price',  { type: 'numero',  label: 'Price', mask: '$ #.##0,00' }),
-  coluna('status', { type: 'selecao', label: 'Status', options: {
+  column('id',     { type: 'number',  label: 'ID' }),
+  column('name',   { type: 'text',    label: 'Name' }),
+  column('price',  { type: 'number',  label: 'Price', mask: '$ #,##0.00' }),
+  column('status', { type: 'select',  label: 'Status', options: {
     entries: { 1: 'Active', 2: 'Inactive' }
   }}),
-  coluna('actions', { type: 'acao', options: { actions: [
+  column('actions', { type: 'action', options: { actions: [
     { key: 'edit', label: 'Edit' },
     { key: 'delete', label: 'Delete', danger: true },
   ]}}),
@@ -131,6 +131,9 @@ Invalid data (e.g. `null` where a number was expected) is never silently swallow
 
 ### ⚡ Zero dependencies in the Core
 `@rsdata/core` has **zero runtime dependencies**. Literally `"dependencies": {}`. Every dependency lives in isolated plugins or adapters. If a library dies, RSdata doesn't.
+
+### 🌐 Locale-aware formatting (default pt-BR)
+Numbers, dates, and currencies are formatted via the native `Intl` API — zero dependencies. Default is Brazilian Portuguese (`R$ 1.000,00`, `DD/MM/YYYY`). Change with one line: `new RsTable({ columns, locale: 'en-US' })`. Per-column override for multi-currency tables. [Full guide →](docs/USAGE.md#10-locale--formatting)
 
 ---
 
@@ -181,7 +184,7 @@ Invalid data (e.g. `null` where a number was expected) is never silently swallow
 | **TypeScript** | Language — strict mode |
 | **npm** | Package manager — workspaces |
 | **unbuild** | Build — CJS + ESM + types |
-| **Vitest** | Tests — 352 passing |
+| **Vitest** | Tests — 376 passing |
 | **Nuxt 3 / Vue 3** | Render Engine |
 | **CSS puro** | Theme — zero dependencies |
 
@@ -192,12 +195,12 @@ Invalid data (e.g. `null` where a number was expected) is never silently swallow
 | Phase | What | Status |
 |---|---|---|
 | 0 | Setup: monorepo, TS, build, tests | ✅ |
-| 1 | Data Engine + Column types (6 types) | ✅ |
+| 1 | Data Engine + Column types (7 types) | ✅ |
 | 2 | Local adapter (in-memory array) | ✅ |
 | 3 | Render Engine Nuxt + Theme default | ✅ |
 | 4 | Actions + Fail Loud (visual) | ✅ |
 | 5 | Server-side adapter (Laravel) | ✅ |
-| **v1.0** | **MVP complete — 352 tests passing** | ✅ |
+| **v1.0** | **MVP complete — 376 tests passing** | ✅ |
 | Post-1.0 | Export (CSV/Excel), row selection, cache | Backlog |
 
 ---

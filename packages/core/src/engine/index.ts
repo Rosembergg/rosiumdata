@@ -1,10 +1,10 @@
 import type { ColumnDefinition } from '../columns'
 import type { DataAdapter, Filter, FilterOption, Query, Row } from '../adapter'
 import { EventEmitter } from '../events'
-import { formatarValorPadrao } from '../columns'
-import { validarLinhas } from '../validation'
+import { formatDefaultValue } from '../columns'
+import { validateRows } from '../validation'
 import type { ValidationError } from '../validation'
-import { calcularTotalPaginas, validarPagina } from '../pagination'
+import { calculateTotalPages, validatePage } from '../pagination'
 
 export interface TransformedCell {
   raw: unknown
@@ -24,6 +24,7 @@ export interface RsTableState {
   rows: TransformedRow[]
   visibleColumns: string[]
   columnOrder: string[]
+  locale: string
 }
 
 export class RsTable {
@@ -37,10 +38,12 @@ export class RsTable {
   private currentRows: TransformedRow[] = []
   private visibleColumns: Set<string>
   private events: EventEmitter
+  private locale: string
 
-  constructor(config: { columns: ColumnDefinition[]; pageSize?: number }) {
+  constructor(config: { columns: ColumnDefinition[]; pageSize?: number; locale?: string }) {
     this.columns = config.columns
     this.pageSize = config.pageSize ?? 20
+    this.locale = config.locale ?? 'pt-BR'
     this.events = new EventEmitter()
 
     const visibleKeys = config.columns
@@ -49,11 +52,11 @@ export class RsTable {
     this.visibleColumns = new Set(visibleKeys)
   }
 
-  usarAdapter(adapter: DataAdapter): void {
+  useAdapter(adapter: DataAdapter): void {
     this.adapter = adapter
   }
 
-  async filtrar(filter: Filter): Promise<void> {
+  async filter(filter: Filter): Promise<void> {
     const existingIndex = this.filters.findIndex((f) => f.column === filter.column)
     if (existingIndex !== -1) {
       if (filter.value === '' || filter.value === null || filter.value === undefined) {
@@ -71,21 +74,21 @@ export class RsTable {
     await this.fetchData()
   }
 
-  async ordenar(column: string, direction: 'asc' | 'desc'): Promise<void> {
+  async sort(column: string, direction: 'asc' | 'desc'): Promise<void> {
     this.sortState = { column, direction }
     this.currentPage = 1
     await this.fetchData()
   }
 
-  async irParaPagina(n: number): Promise<void> {
-    const totalPages = calcularTotalPaginas(this.totalRows, this.pageSize)
-    this.currentPage = validarPagina(n, totalPages)
+  async goToPage(n: number): Promise<void> {
+    const totalPages = calculateTotalPages(this.totalRows, this.pageSize)
+    this.currentPage = validatePage(n, totalPages)
     await this.fetchData()
   }
 
   async setPageSize(n: number): Promise<void> {
     if (typeof n !== 'number' || n <= 0 || !Number.isFinite(n)) {
-      this.events.emit('erro', {
+      this.events.emit('error', {
         column: '',
         rowIndex: -1,
         expected: 'pageSize > 0 (number)',
@@ -98,7 +101,7 @@ export class RsTable {
     await this.fetchData()
   }
 
-  getLinhas(): TransformedRow[] {
+  getRows(): TransformedRow[] {
     return this.currentRows
   }
 
@@ -106,7 +109,7 @@ export class RsTable {
     return this.totalRows
   }
 
-  getEstado(): RsTableState {
+  getState(): RsTableState {
     return {
       columns: this.columns,
       filters: [...this.filters],
@@ -114,20 +117,21 @@ export class RsTable {
       page: this.currentPage,
       pageSize: this.pageSize,
       total: this.totalRows,
-      totalPages: calcularTotalPaginas(this.totalRows, this.pageSize),
+      totalPages: calculateTotalPages(this.totalRows, this.pageSize),
       rows: this.currentRows,
       visibleColumns: [...this.visibleColumns],
       columnOrder: this.getColumnOrder(),
+      locale: this.locale,
     }
   }
 
-  async getOpcoesFiltro(column: string): Promise<FilterOption[]> {
+  async getFilterOptions(column: string): Promise<FilterOption[]> {
     if (!this.adapter) {
-      this.events.emit('erro', {
+      this.events.emit('error', {
         column: '',
         rowIndex: -1,
-        expected: 'adapter configurado',
-        received: 'nenhum adapter',
+        expected: 'adapter configured',
+        received: 'no adapter',
       })
       return []
     }
@@ -137,27 +141,27 @@ export class RsTable {
     try {
       return await this.adapter.fetchFilterOptions(column)
     } catch (err) {
-      this.events.emit('erro', {
+      this.events.emit('error', {
         column: '',
         rowIndex: -1,
-        expected: 'fetchFilterOptions bem-sucedido',
+        expected: 'fetchFilterOptions successful',
         received: err instanceof Error ? err.message : String(err),
       })
       return []
     }
   }
 
-  esconderColuna(key: string): void {
+  hideColumn(key: string): void {
     this.visibleColumns.delete(key)
-    this.emitEstadoAlterado()
+    this.emitStateChanged()
   }
 
-  mostrarColuna(key: string): void {
+  showColumn(key: string): void {
     this.visibleColumns.add(key)
-    this.emitEstadoAlterado()
+    this.emitStateChanged()
   }
 
-  reordenarColunas(keys: string[]): void {
+  reorderColumns(keys: string[]): void {
     const currentOrder = this.getColumnOrder()
     const currentlyVisible = [...this.visibleColumns]
 
@@ -175,7 +179,7 @@ export class RsTable {
     }
 
     this.visibleColumns = new Set(reordered)
-    this.emitEstadoAlterado()
+    this.emitStateChanged()
   }
 
   on(event: string, handler: (...args: unknown[]) => void): void {
@@ -192,11 +196,11 @@ export class RsTable {
 
   private async fetchData(): Promise<void> {
     if (!this.adapter) {
-      this.events.emit('erro', {
+      this.events.emit('error', {
         column: '',
         rowIndex: -1,
-        expected: 'adapter configurado',
-        received: 'nenhum adapter',
+        expected: 'adapter configured',
+        received: 'no adapter',
       })
       return
     }
@@ -206,25 +210,26 @@ export class RsTable {
       sort: this.sortState ? { ...this.sortState } : undefined,
       page: this.currentPage,
       pageSize: this.pageSize,
+      locale: this.locale,
     }
 
     try {
       const result = await this.adapter.fetch(query)
       this.totalRows = result.total
 
-      const validationErrors = validarLinhas(result.rows, this.columns)
+      const validationErrors = validateRows(result.rows, this.columns)
       for (const err of validationErrors) {
-        this.events.emit('erro', err)
+        this.events.emit('error', err)
       }
 
       this.currentRows = this.transformRows(result.rows)
-      this.events.emit('dados:carregados', this.currentRows)
-      this.emitEstadoAlterado()
+      this.events.emit('data:loaded', this.currentRows)
+      this.emitStateChanged()
     } catch (err) {
-      this.events.emit('erro', {
+      this.events.emit('error', {
         column: '',
         rowIndex: -1,
-        expected: 'fetch bem-sucedido',
+        expected: 'fetch successful',
         received: err instanceof Error ? err.message : String(err),
       })
     }
@@ -235,9 +240,10 @@ export class RsTable {
       const transformed: TransformedRow = {}
       for (const colDef of this.columns) {
         const rawValue = row[colDef.key]
+        const effectiveLocale = colDef.locale ?? this.locale
         const displayValue = colDef.transform
           ? String(colDef.transform(rawValue))
-          : formatarValorPadrao(rawValue, colDef)
+          : formatDefaultValue(rawValue, colDef, effectiveLocale)
 
         transformed[colDef.key] = {
           raw: rawValue,
@@ -248,7 +254,7 @@ export class RsTable {
     })
   }
 
-  private emitEstadoAlterado(): void {
-    this.events.emit('estado:alterado', this.getEstado())
+  private emitStateChanged(): void {
+    this.events.emit('state:changed', this.getState())
   }
 }

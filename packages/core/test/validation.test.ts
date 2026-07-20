@@ -1,19 +1,19 @@
 import { describe, it, expect } from 'vitest'
-import { validarLinha, validarLinhas, coluna } from '@rsdata/core'
+import { validateRow, validateRows, column } from '@rsdata/core'
 import type { ColumnDefinition } from '@rsdata/core'
 
-describe('validarLinha() — Falhe Alto', () => {
+describe('validateRow() — Falhe Alto', () => {
   const colunas: ColumnDefinition[] = [
-    coluna('nome', { type: 'texto' }),
-    coluna('preco', { type: 'numero' }),
-    coluna('ativo', { type: 'booleano' }),
-    coluna('criadoEm', { type: 'data' }),
-    coluna('status', { type: 'selecao', options: { 1: 'Ativo', 2: 'Inativo' } }),
-    coluna('acoes', { type: 'acao' }),
+    column('nome', { type: 'text' }),
+    column('preco', { type: 'number' }),
+    column('ativo', { type: 'boolean' }),
+    column('criadoEm', { type: 'date' }),
+    column('status', { type: 'select', options: { 1: 'Ativo', 2: 'Inativo' } }),
+    column('acoes', { type: 'action' }),
   ]
 
   it('deve validar linha com todos os dados corretos', () => {
-    const erros = validarLinha({
+    const erros = validateRow({
       nome: 'Produto',
       preco: 10.5,
       ativo: true,
@@ -26,7 +26,7 @@ describe('validarLinha() — Falhe Alto', () => {
   })
 
   it('deve aceitar null/undefined em qualquer coluna', () => {
-    const erros = validarLinha({
+    const erros = validateRow({
       nome: null,
       preco: undefined,
       ativo: null,
@@ -38,20 +38,20 @@ describe('validarLinha() — Falhe Alto', () => {
   })
 
   it('deve detectar numero invalido', () => {
-    const erros = validarLinha({
+    const erros = validateRow({
       nome: 'OK',
       preco: 'nao-e-numero',
     }, 0, colunas)
 
     const erroPreco = erros.find((e) => e.column === 'preco')
     expect(erroPreco).toBeDefined()
-    expect(erroPreco!.expected).toBe('numero')
+    expect(erroPreco!.expected).toBe('number')
     expect(erroPreco!.received).toBe('nao-e-numero')
     expect(erroPreco!.rowIndex).toBe(0)
   })
 
   it('deve detectar booleano invalido', () => {
-    const erros = validarLinha({
+    const erros = validateRow({
       nome: 'OK',
       preco: 10,
       ativo: 'sim',
@@ -59,11 +59,11 @@ describe('validarLinha() — Falhe Alto', () => {
 
     const erroAtivo = erros.find((e) => e.column === 'ativo')
     expect(erroAtivo).toBeDefined()
-    expect(erroAtivo!.expected).toBe('booleano')
+    expect(erroAtivo!.expected).toBe('boolean')
   })
 
   it('deve detectar data invalida', () => {
-    const erros = validarLinha({
+    const erros = validateRow({
       nome: 'OK',
       preco: 10,
       criadoEm: 'data-invalida-totalmente',
@@ -71,11 +71,11 @@ describe('validarLinha() — Falhe Alto', () => {
 
     const erroData = erros.find((e) => e.column === 'criadoEm')
     expect(erroData).toBeDefined()
-    expect(erroData!.expected).toBe('data valida')
+    expect(erroData!.expected).toBe('valid date')
   })
 
   it('deve detectar selecao fora das opcoes', () => {
-    const erros = validarLinha({
+    const erros = validateRow({
       nome: 'OK',
       preco: 10,
       status: 99,
@@ -83,12 +83,12 @@ describe('validarLinha() — Falhe Alto', () => {
 
     const erroStatus = erros.find((e) => e.column === 'status')
     expect(erroStatus).toBeDefined()
-    expect(erroStatus!.expected).toBe('opcao valida')
+    expect(erroStatus!.expected).toBe('valid option')
     expect(erroStatus!.received).toBe(99)
   })
 
   it('deve ignorar coluna tipo acao na validacao', () => {
-    const erros = validarLinha({
+    const erros = validateRow({
       nome: 'OK',
       preco: 10,
       acoes: 'qualquer-coisa',
@@ -98,7 +98,7 @@ describe('validarLinha() — Falhe Alto', () => {
   })
 
   it('deve retornar erro com column, rowIndex, expected e received', () => {
-    const erros = validarLinha({
+    const erros = validateRow({
       nome: 123,
       preco: 'abc',
     }, 5, colunas)
@@ -113,10 +113,10 @@ describe('validarLinha() — Falhe Alto', () => {
   })
 })
 
-describe('validarLinhas() — validacao em lote', () => {
+describe('validateRows() — validacao em lote', () => {
   const colunas: ColumnDefinition[] = [
-    coluna('nome', { type: 'texto' }),
-    coluna('preco', { type: 'numero' }),
+    column('nome', { type: 'text' }),
+    column('preco', { type: 'number' }),
   ]
 
   it('deve validar multiplas linhas', () => {
@@ -127,7 +127,7 @@ describe('validarLinhas() — validacao em lote', () => {
       { nome: 'D', preco: 'tambem-errado' },
     ]
 
-    const erros = validarLinhas(rows, colunas)
+    const erros = validateRows(rows, colunas)
 
     expect(erros).toHaveLength(2)
     expect(erros[0]!.rowIndex).toBe(1)
@@ -142,12 +142,12 @@ describe('validarLinhas() — validacao em lote', () => {
       { nome: 'B', preco: 20 },
     ]
 
-    const erros = validarLinhas(rows, colunas)
+    const erros = validateRows(rows, colunas)
     expect(erros).toHaveLength(0)
   })
 
   it('deve retornar array vazio para lista vazia', () => {
-    const erros = validarLinhas([], colunas)
+    const erros = validateRows([], colunas)
     expect(erros).toHaveLength(0)
   })
 })

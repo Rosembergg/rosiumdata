@@ -1,6 +1,6 @@
 import { computed, ref, shallowRef, getCurrentScope, onScopeDispose } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
-import { RsTable, ALINHAMENTO_PADRAO, OPERADOR_PADRAO, coluna } from '@rsdata/core'
+import { RsTable, DEFAULT_ALIGNMENT, DEFAULT_OPERATOR, column } from '@rsdata/core'
 import type {
   ActionDefinition,
   ColumnAlignment,
@@ -49,11 +49,11 @@ export interface RsActionEvent {
  * como `Record<string, unknown> & { actions?: ActionDefinition[] }`
  * — ver interface ColumnDefinition em @rsdata/core.
  */
-export function colunaAcao(
+export function actionColumn(
   key: string,
   config: { label?: string; actions: ActionDefinition[] },
 ): ColumnDefinition {
-  const def = coluna(key, { type: 'acao', label: config.label })
+  const def = column(key, { type: 'action', label: config.label })
   def.options = { actions: config.actions }
   return def
 }
@@ -62,37 +62,37 @@ export function colunaAcao(
  * Preferências de exibição persistidas em localStorage.
  * Estado de UI (nunca dado) — lógica 100% do composable, zero no Core.
  */
-export interface RsPreferencias {
-  /** Colunas visíveis, na ordem de exibição */
-  colunasVisiveis: string[]
-  /** Tamanho de página */
+export interface RsPreferences {
+  /** Visible columns, in display order */
+  visibleColumns: string[]
+  /** Page size */
   pageSize: number
 }
 
-const PREFIXO_STORAGE = 'rsdata:'
+const STORAGE_PREFIX = 'rsdata:'
 
-export function lerPreferencias(chave: string): RsPreferencias | null {
+export function readPreferences(key: string): RsPreferences | null {
   if (typeof localStorage === 'undefined') return null
   try {
-    const bruto = localStorage.getItem(PREFIXO_STORAGE + chave)
-    if (!bruto) return null
-    const dados = JSON.parse(bruto) as Partial<RsPreferencias>
-    if (!Array.isArray(dados.colunasVisiveis)) return null
+    const raw = localStorage.getItem(STORAGE_PREFIX + key)
+    if (!raw) return null
+    const data = JSON.parse(raw) as Partial<RsPreferences>
+    if (!Array.isArray(data.visibleColumns)) return null
     return {
-      colunasVisiveis: dados.colunasVisiveis.filter((k): k is string => typeof k === 'string'),
-      pageSize: typeof dados.pageSize === 'number' ? dados.pageSize : 0,
+      visibleColumns: data.visibleColumns.filter((k): k is string => typeof k === 'string'),
+      pageSize: typeof data.pageSize === 'number' ? data.pageSize : 0,
     }
   } catch {
     return null
   }
 }
 
-export function salvarPreferencias(chave: string, prefs: RsPreferencias): void {
+export function savePreferences(key: string, prefs: RsPreferences): void {
   if (typeof localStorage === 'undefined') return
   try {
-    localStorage.setItem(PREFIXO_STORAGE + chave, JSON.stringify(prefs))
+    localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(prefs))
   } catch {
-    /* storage cheio ou indisponível — preferências são conveniência, não dado */
+    /* storage full or unavailable — preferences are convenience, not data */
   }
 }
 
@@ -104,230 +104,229 @@ export interface UseRsTableOptions {
 
 export interface UseRsTableExtras {
   /**
-   * Chave de persistência de preferências (colunas visíveis, ordem, pageSize)
-   * em localStorage. Sem a chave, nada é salvo nem restaurado — comportamento
-   * explícito, visível no código de uso (Princípio #6).
+   * Persistence key for preferences (visible columns, order, pageSize)
+   * in localStorage. Without the key, nothing is saved or restored — behavior
+   * is explicit, visible in user code (Principle #6).
    */
-  persistencia?: string
+  persistence?: string
 }
 
 export interface UseRsTableContext {
-  /** Instância do Core sendo observada */
-  tabela: RsTable
+  /** Core instance being observed */
+  table: RsTable
 
-  /** Linhas da página atual (raw + display, transformadas pelo Core) */
-  linhas: Ref<TransformedRow[]>
-  /** Total de registros (todas as páginas) */
+  /** Rows of the current page (raw + display, transformed by Core) */
+  rows: Ref<TransformedRow[]>
+  /** Total record count (all pages) */
   total: Ref<number>
-  /** Página atual (1-based) */
-  paginaAtual: Ref<number>
-  /** Total de páginas */
-  totalPaginas: Ref<number>
-  /** Ordenação ativa (coluna + direção) ou undefined */
-  ordenacao: Ref<{ column: string; direction: SortDirection } | undefined>
-  /** Filtros ativos */
-  filtros: Ref<Filter[]>
-  /** Colunas visíveis, na ordem de exibição definida pelo Core */
-  colunas: ComputedRef<ColumnDefinition[]>
-  /** Todas as colunas definidas (visíveis ou não), na ordem de definição */
-  todasColunas: ComputedRef<ColumnDefinition[]>
-  /** Verdadeiro enquanto uma operação assíncrona está em andamento */
+  /** Current page (1-based) */
+  currentPage: Ref<number>
+  /** Total pages */
+  totalPages: Ref<number>
+  /** Active sort (column + direction) or undefined */
+  sortState: Ref<{ column: string; direction: SortDirection } | undefined>
+  /** Active filters */
+  filters: Ref<Filter[]>
+  /** Visible columns, in display order defined by Core */
+  columns: ComputedRef<ColumnDefinition[]>
+  /** All defined columns (visible or not), in definition order */
+  allColumns: ComputedRef<ColumnDefinition[]>
+  /** True while an async operation is in progress */
   loading: Ref<boolean>
-  /** Último erro emitido pelo Core (Falhe Alto), ou null */
-  erro: Ref<ValidationError | null>
-  /** Todos os erros emitidos desde a última operação */
-  erros: Ref<ValidationError[]>
+  /** Last error emitted by Core (Falhe Alto), or null */
+  error: Ref<ValidationError | null>
+  /** All errors emitted since last operation */
+  errors: Ref<ValidationError[]>
 
-  /** Delegam ao Core */
-  filtrar: (filter: Filter) => Promise<void>
-  ordenar: (column: string, direction: SortDirection) => Promise<void>
-  irParaPagina: (n: number) => Promise<void>
+  /** Delegate to Core */
+  filter: (filter: Filter) => Promise<void>
+  sort: (column: string, direction: SortDirection) => Promise<void>
+  goToPage: (n: number) => Promise<void>
   setPageSize: (n: number) => Promise<void>
-  esconderColuna: (key: string) => void
-  mostrarColuna: (key: string) => void
-  reordenarColunas: (keys: string[]) => void
+  hideColumn: (key: string) => void
+  showColumn: (key: string) => void
+  reorderColumns: (keys: string[]) => void
 
-  /** Dispara o primeiro fetch (recarrega a página atual) */
-  carregar: () => Promise<void>
-  /** Remove os listeners registrados no Core (chamado automaticamente no unmount) */
-  desconectar: () => void
+  /** Triggers the first fetch (reloads current page) */
+  load: () => Promise<void>
+  /** Removes listeners registered on Core (called automatically on unmount) */
+  disconnect: () => void
 
   /**
-   * Escuta eventos do Render. Hoje o único evento é 'action': disparado quando
-   * o usuário clica em um botão de ação de uma linha. O evento NÃO executa
-   * nada — apenas notifica ({ key, row }). A lógica é do consumidor.
+   * Listens to Render events. Today the only event is 'action': fired when
+   * the user clicks an action button in a row. The event does NOT execute
+   * anything — it only notifies ({ key, row }). Logic belongs to the consumer.
    */
-  on: (evento: 'action', callback: (payload: RsActionEvent) => void) => void
-  /** Remove um listener registrado com on() */
-  off: (evento: 'action', callback: (payload: RsActionEvent) => void) => void
+  on: (event: 'action', callback: (payload: RsActionEvent) => void) => void
+  /** Removes a listener registered with on() */
+  off: (event: 'action', callback: (payload: RsActionEvent) => void) => void
   /**
-   * Dispara o evento 'action' para os listeners registrados. Chamado pelos
-   * componentes de Render (RsTbody/RsActions) ao capturar o clique — nunca
-   * executa lógica de negócio.
+   * Emits the 'action' event to registered listeners. Called by Render
+   * components (RsTbody/RsActions) on click — never executes business logic.
    */
-  emitirAcao: (payload: RsActionEvent) => void
+  emitAction: (payload: RsActionEvent) => void
 
-  /** Alinhamento efetivo de uma coluna (customizado ou padrão do tipo) */
-  alinhamento: (col: ColumnDefinition) => ColumnAlignment
-  /** Operador de filtro efetivo de uma coluna (customizado ou padrão do tipo) */
-  operadorPadrao: (col: ColumnDefinition) => string
+  /** Effective alignment of a column (custom or type default) */
+  alignment: (col: ColumnDefinition) => ColumnAlignment
+  /** Effective filter operator of a column (custom or type default) */
+  defaultOperator: (col: ColumnDefinition) => string
 }
 
 export function useRsTable(
-  fonte: RsTable | UseRsTableOptions,
+  source: RsTable | UseRsTableOptions,
   extras: UseRsTableExtras = {},
 ): UseRsTableContext {
-  const chavePersistencia = extras.persistencia
-  const preferencias = chavePersistencia ? lerPreferencias(chavePersistencia) : null
+  const persistenceKey = extras.persistence
+  const preferences = persistenceKey ? readPreferences(persistenceKey) : null
 
-  const tabela = fonte instanceof RsTable ? fonte : criarTabela(fonte, preferencias)
+  const table = source instanceof RsTable ? source : createTable(source, preferences)
 
-  /* Restaura colunas visíveis e ordem via API oficial do Core */
-  if (preferencias && preferencias.colunasVisiveis.length > 0) {
-    const definidas = new Set(tabela.getEstado().columns.map((c) => c.key))
-    const salvas = preferencias.colunasVisiveis.filter((k) => definidas.has(k))
-    if (salvas.length > 0) {
-      for (const key of salvas) tabela.mostrarColuna(key)
-      for (const key of definidas) {
-        if (!salvas.includes(key)) tabela.esconderColuna(key)
+  /* Restore visible columns and order via official Core API */
+  if (preferences && preferences.visibleColumns.length > 0) {
+    const defined = new Set(table.getState().columns.map((c) => c.key))
+    const saved = preferences.visibleColumns.filter((k) => defined.has(k))
+    if (saved.length > 0) {
+      for (const key of saved) table.showColumn(key)
+      for (const key of defined) {
+        if (!saved.includes(key)) table.hideColumn(key)
       }
-      tabela.reordenarColunas(salvas)
+      table.reorderColumns(saved)
     }
   }
 
-  const estadoInicial = tabela.getEstado()
+  const initialState = table.getState()
 
-  const linhas = shallowRef<TransformedRow[]>(estadoInicial.rows)
-  const total = ref(estadoInicial.total)
-  const paginaAtual = ref(estadoInicial.page)
-  const totalPaginas = ref(estadoInicial.totalPages)
-  const ordenacao = ref(estadoInicial.sort)
-  const filtros = ref<Filter[]>(estadoInicial.filters)
+  const rows = shallowRef<TransformedRow[]>(initialState.rows)
+  const total = ref(initialState.total)
+  const currentPage = ref(initialState.page)
+  const totalPages = ref(initialState.totalPages)
+  const sortState = ref(initialState.sort)
+  const filters = ref<Filter[]>(initialState.filters)
   const loading = ref(false)
-  const erro = ref<ValidationError | null>(null)
-  const erros = ref<ValidationError[]>([])
+  const error = ref<ValidationError | null>(null)
+  const errors = ref<ValidationError[]>([])
 
-  const definicoes = shallowRef<ColumnDefinition[]>(estadoInicial.columns)
-  const chavesVisiveis = ref<string[]>(estadoInicial.visibleColumns)
+  const definitions = shallowRef<ColumnDefinition[]>(initialState.columns)
+  const visibleKeys = ref<string[]>(initialState.visibleColumns)
 
-  const colunas = computed<ColumnDefinition[]>(() =>
-    chavesVisiveis.value
-      .map((key) => definicoes.value.find((c) => c.key === key))
+  const columns = computed<ColumnDefinition[]>(() =>
+    visibleKeys.value
+      .map((key) => definitions.value.find((c) => c.key === key))
       .filter((c): c is ColumnDefinition => c !== undefined),
   )
 
-  const todasColunas = computed<ColumnDefinition[]>(() => definicoes.value)
+  const allColumns = computed<ColumnDefinition[]>(() => definitions.value)
 
-  const aoCarregarDados = (...args: unknown[]) => {
-    linhas.value = args[0] as TransformedRow[]
+  const onDataLoaded = (...args: unknown[]) => {
+    rows.value = args[0] as TransformedRow[]
   }
 
-  const aoErro = (...args: unknown[]) => {
+  const onError = (...args: unknown[]) => {
     const e = args[0] as ValidationError
-    erro.value = e
-    erros.value = [...erros.value, e]
+    error.value = e
+    errors.value = [...errors.value, e]
   }
 
-  const aoEstadoAlterado = (...args: unknown[]) => {
-    const estado = args[0] as RsTableState
-    linhas.value = estado.rows
-    total.value = estado.total
-    paginaAtual.value = estado.page
-    totalPaginas.value = estado.totalPages
-    ordenacao.value = estado.sort
-    filtros.value = estado.filters
-    definicoes.value = estado.columns
-    chavesVisiveis.value = estado.visibleColumns
+  const onStateChanged = (...args: unknown[]) => {
+    const state = args[0] as RsTableState
+    rows.value = state.rows
+    total.value = state.total
+    currentPage.value = state.page
+    totalPages.value = state.totalPages
+    sortState.value = state.sort
+    filters.value = state.filters
+    definitions.value = state.columns
+    visibleKeys.value = state.visibleColumns
 
-    if (chavePersistencia && typeof window !== 'undefined') {
-      salvarPreferencias(chavePersistencia, {
-        colunasVisiveis: estado.visibleColumns,
-        pageSize: estado.pageSize,
+    if (persistenceKey && typeof window !== 'undefined') {
+      savePreferences(persistenceKey, {
+        visibleColumns: state.visibleColumns,
+        pageSize: state.pageSize,
       })
     }
   }
 
-  tabela.on('dados:carregados', aoCarregarDados)
-  tabela.on('erro', aoErro)
-  tabela.on('estado:alterado', aoEstadoAlterado)
+  table.on('data:loaded', onDataLoaded)
+  table.on('error', onError)
+  table.on('state:changed', onStateChanged)
 
-  /* Listeners de action (Render → consumidor). Gatilho, nunca executor. */
-  const listenersAcao = new Set<(payload: RsActionEvent) => void>()
+  /* Action listeners (Render → consumer). Trigger, never executor. */
+  const actionListeners = new Set<(payload: RsActionEvent) => void>()
 
-  function on(evento: 'action', callback: (payload: RsActionEvent) => void): void {
-    if (evento === 'action') listenersAcao.add(callback)
+  function on(event: 'action', callback: (payload: RsActionEvent) => void): void {
+    if (event === 'action') actionListeners.add(callback)
   }
 
-  function off(evento: 'action', callback: (payload: RsActionEvent) => void): void {
-    if (evento === 'action') listenersAcao.delete(callback)
+  function off(event: 'action', callback: (payload: RsActionEvent) => void): void {
+    if (event === 'action') actionListeners.delete(callback)
   }
 
-  function emitirAcao(payload: RsActionEvent): void {
-    for (const listener of [...listenersAcao]) listener(payload)
+  function emitAction(payload: RsActionEvent): void {
+    for (const listener of [...actionListeners]) listener(payload)
   }
 
-  function desconectar(): void {
-    tabela.off('dados:carregados', aoCarregarDados)
-    tabela.off('erro', aoErro)
-    tabela.off('estado:alterado', aoEstadoAlterado)
-    listenersAcao.clear()
+  function disconnect(): void {
+    table.off('data:loaded', onDataLoaded)
+    table.off('error', onError)
+    table.off('state:changed', onStateChanged)
+    actionListeners.clear()
   }
 
   if (getCurrentScope()) {
-    onScopeDispose(desconectar)
+    onScopeDispose(disconnect)
   }
 
-  async function executar(operacao: () => Promise<void>): Promise<void> {
+  async function execute(operation: () => Promise<void>): Promise<void> {
     loading.value = true
-    erro.value = null
-    erros.value = []
+    error.value = null
+    errors.value = []
     try {
-      await operacao()
+      await operation()
     } finally {
       loading.value = false
     }
   }
 
   return {
-    tabela,
-    linhas,
+    table,
+    rows,
     total,
-    paginaAtual,
-    totalPaginas,
-    ordenacao,
-    filtros,
-    colunas,
-    todasColunas,
+    currentPage,
+    totalPages,
+    sortState,
+    filters,
+    columns,
+    allColumns,
     loading,
-    erro,
-    erros,
-    filtrar: (filter) => executar(() => tabela.filtrar(filter)),
-    ordenar: (column, direction) => executar(() => tabela.ordenar(column, direction)),
-    irParaPagina: (n) => executar(() => tabela.irParaPagina(n)),
-    setPageSize: (n) => executar(() => tabela.setPageSize(n)),
-    esconderColuna: (key) => tabela.esconderColuna(key),
-    mostrarColuna: (key) => tabela.mostrarColuna(key),
-    reordenarColunas: (keys) => tabela.reordenarColunas(keys),
-    carregar: () => executar(() => tabela.irParaPagina(paginaAtual.value)),
-    desconectar,
+    error,
+    errors,
+    filter: (filter) => execute(() => table.filter(filter)),
+    sort: (column, direction) => execute(() => table.sort(column, direction)),
+    goToPage: (n) => execute(() => table.goToPage(n)),
+    setPageSize: (n) => execute(() => table.setPageSize(n)),
+    hideColumn: (key) => table.hideColumn(key),
+    showColumn: (key) => table.showColumn(key),
+    reorderColumns: (keys) => table.reorderColumns(keys),
+    load: () => execute(() => table.goToPage(currentPage.value)),
+    disconnect,
     on,
     off,
-    emitirAcao,
-    alinhamento: (col) => col.alignment ?? ALINHAMENTO_PADRAO[col.type],
-    operadorPadrao: (col) => col.defaultOperator ?? OPERADOR_PADRAO[col.type],
+    emitAction,
+    alignment: (col) => col.alignment ?? DEFAULT_ALIGNMENT[col.type],
+    defaultOperator: (col) => col.defaultOperator ?? DEFAULT_OPERATOR[col.type],
   }
 }
 
-function criarTabela(
+function createTable(
   options: UseRsTableOptions,
-  preferencias: RsPreferencias | null,
+  preferences: RsPreferences | null,
 ): RsTable {
-  const pageSizeSalvo =
-    preferencias && preferencias.pageSize > 0 ? preferencias.pageSize : undefined
-  const tabela = new RsTable({
+  const savedPageSize =
+    preferences && preferences.pageSize > 0 ? preferences.pageSize : undefined
+  const table = new RsTable({
     columns: options.columns,
-    pageSize: pageSizeSalvo ?? options.pageSize,
+    pageSize: savedPageSize ?? options.pageSize,
   })
-  tabela.usarAdapter(options.adapter)
-  return tabela
+  table.useAdapter(options.adapter)
+  return table
 }

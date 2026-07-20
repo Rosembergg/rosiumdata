@@ -90,7 +90,7 @@ interface Query {
 
 interface FetchResult {
   rows: Row[]       // dados planos (flat)
-  total: number     // total de linhas (para paginação)
+  total: number     // total rows (for pagination)
 }
 
 type Row = Record<string, unknown>  // { id: 1, nome: "Coca", preco: 5.99 }
@@ -126,28 +126,28 @@ O **cérebro** da RSdata. Gerencia o estado da tabela, transforma dados e coorde
 O Data Engine é uma classe com estado mutável que emite eventos:
 
 ```ts
-const tabela = new RsTable({ columns: [...] })
-tabela.usarAdapter(adapter)
+const table = new RsTable({ columns: [...] })
+table.useAdapter(adapter)
 
-// Estado
-tabela.filtrar({ column: 'preco', operator: '>', value: 50 })
-tabela.ordenar('nome', 'asc')
-tabela.irParaPagina(2)
+// State
+table.filter({ column: 'price', operator: '>', value: 50 })
+table.sort('name', 'asc')
+table.goToPage(2)
 
-// Leitura
-tabela.getLinhas()   // dados da página atual (já transformados)
-tabela.getTotal()     // total de linhas
-tabela.getEstado()    // snapshot completo do estado
+// Reading
+table.getRows()    // current page rows (transformed)
+table.getTotal()   // total rows
+table.getState()   // full state snapshot
 
-// Colunas
-tabela.esconderColuna('id')
-tabela.mostrarColuna('id')
-tabela.reordenarColunas(['nome', 'preco', 'status'])
+// Columns
+table.hideColumn('id')
+table.showColumn('id')
+table.reorderColumns(['name', 'price', 'status'])
 
-// Eventos
-tabela.on('dados:carregados', (linhas) => { ... })
-tabela.on('erro', (erro) => { ... })           // Falhe Alto
-tabela.on('estado:alterado', (estado) => { ... })
+// Events
+table.on('data:loaded', (rows) => { ... })
+table.on('error', (err) => { ... })           // Fail Loud
+table.on('state:changed', (state) => { ... })
 ```
 
 ### A Linha Sagrada (Dado × Apresentação)
@@ -190,13 +190,13 @@ Cada coluna guarda:
 | `acao` | — | — | — | Centro |
 
 ```ts
-// Exemplo de definição de colunas
-const colunas = [
-  coluna('nome',    { type: 'texto' }),
-  coluna('preco',   { type: 'numero', mascara: 'R$ #.##0,00' }),
-  coluna('status',  { type: 'selecao', opcoes: { 1: 'Ativo', 2: 'Inativo' } }),
-  coluna('criadoEm', { type: 'data', mascara: 'DD/MM/AAAA' }),
-  coluna('acoes',   { type: 'acao' }),
+// Example column definition
+const columns = [
+  column('name',    { type: 'text' }),
+  column('price',   { type: 'number', mask: 'R$ #,##0.00' }),
+  column('status',  { type: 'select', options: { 1: 'Active', 2: 'Inactive' } }),
+  column('createdAt', { type: 'date' }),
+  column('actions', { type: 'action' }),
 ]
 ```
 

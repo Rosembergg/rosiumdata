@@ -8,7 +8,7 @@ import { RsFilters } from './components/RsFilters'
 
 export { VERSION, NAME } from './meta'
 
-export { useRsTable, colunaAcao, lerPreferencias, salvarPreferencias } from './composables/useRsTable'
+export { useRsTable, actionColumn, readPreferences, savePreferences } from './composables/useRsTable'
 export type {
   UseRsTableContext,
   UseRsTableOptions,
@@ -16,7 +16,7 @@ export type {
   RsActionDefinition,
   ActionDefinition,
   RsActionEvent,
-  RsPreferencias,
+  RsPreferences,
   ColumnAlignment,
   ColumnDefinition,
   DataAdapter,
@@ -28,9 +28,9 @@ export type {
 } from './composables/useRsTable'
 
 export { RsDataTable, RsThead, RsTbody, RsActions, RsPagination, RsFilters }
-export { acoesDaColuna } from './components/RsActions'
-export { mensagemErro } from './components/RsTbody'
-export { ambienteDev } from './components/RsDataTable'
+export { columnActions } from './components/RsActions'
+export { errorMessage } from './components/RsTbody'
+export { isDevEnvironment } from './components/RsDataTable'
 
 export { THEME_DEFAULT_CSS } from './theme'
 

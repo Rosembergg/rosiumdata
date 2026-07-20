@@ -9,7 +9,7 @@ import type {
   UseRsTableContext,
 } from '../composables/useRsTable'
 import { RsThead } from './RsThead'
-import { RsTbody, mensagemErro } from './RsTbody'
+import { RsTbody, errorMessage } from './RsTbody'
 import { RsPagination } from './RsPagination'
 import { RsFilters } from './RsFilters'
 
@@ -40,7 +40,7 @@ const ICONE_DENSIDADE = 'M3 6h18M3 12h18M3 18h18'
  * servidor e cliente (evita mismatch de hidratação).
  * Fora do Vite (Node puro, bundlers sem env), assume produção.
  */
-export function ambienteDev(): boolean {
+export function isDevEnvironment(): boolean {
   if (typeof window === 'undefined') return false
   try {
     const env = (import.meta as unknown as { env?: { DEV?: boolean } }).env
@@ -58,53 +58,53 @@ export function ambienteDev(): boolean {
 export const RsDataTable = defineComponent({
   name: 'RsDataTable',
   props: {
-    /** Instância RsTable do Core (modo controle total) */
-    tabela: {
+    /** RsTable Core instance (full control mode) */
+    table: {
       type: Object as PropType<RsTableCore>,
       default: undefined,
     },
-    /** Definição de colunas (modo rápido, junto com adapter) */
+    /** Column definition (quick mode, together with adapter) */
     columns: {
       type: Array as PropType<ColumnDefinition[]>,
       default: undefined,
     },
-    /** Adapter de dados (modo rápido, junto com columns) */
+    /** Data adapter (quick mode, together with columns) */
     adapter: {
       type: Object as PropType<DataAdapter>,
       default: undefined,
     },
-    /** Tamanho da página (modo rápido) */
+    /** Page size (quick mode) */
     pageSize: {
       type: Number,
       default: undefined,
     },
     /**
-     * Falhe Alto: true = modo dev (banner + tooltip com localização exata do
-     * erro); false = modo produção (indicador sutil, sem expor internals).
-     * Sem a prop, detecta import.meta.env.DEV.
+     * Fail Loud: true = dev mode (banner + tooltip with exact error location);
+     * false = production mode (subtle indicator, no internals exposed).
+     * Without the prop, detects import.meta.env.DEV.
      */
     debug: {
       type: Boolean,
       default: undefined,
     },
     /**
-     * Chave de persistência de preferências (colunas visíveis, ordem,
-     * pageSize) em localStorage. Sem a chave, nada é salvo nem restaurado.
+     * Persistence key for preferences (visible columns, order,
+     * pageSize) in localStorage. Without the key, nothing is saved or restored.
      */
-    persistencia: {
+    persistence: {
       type: String,
       default: undefined,
     },
   },
   emits: {
-    /** Gatilho de action: { key, row }. A RSdata não executa nada. */
+    /** Action trigger: { key, row }. RSdata never executes anything. */
     action: (payload: RsActionEvent) => payload !== undefined,
   },
   setup(props, { emit }) {
     let contexto: UseRsTableContext
 
-    if (props.tabela) {
-      contexto = useRsTable(props.tabela, { persistencia: props.persistencia })
+    if (props.table) {
+      contexto = useRsTable(props.table, { persistence: props.persistence })
     } else if (props.columns && props.adapter) {
       contexto = useRsTable(
         {
@@ -112,25 +112,25 @@ export const RsDataTable = defineComponent({
           adapter: props.adapter,
           pageSize: props.pageSize,
         },
-        { persistencia: props.persistencia },
+        { persistence: props.persistence },
       )
     } else {
       throw new Error(
-        '[RSdata] <RsTable> precisa da prop "tabela" (instância RsTable) OU das props "columns" + "adapter".',
+        '[RSdata] <RsTable> needs prop "table" (RsTable instance) OR props "columns" + "adapter".',
       )
     }
 
-    /* Propaga o gatilho de action do Render para o consumidor Vue */
+    /* Propagates action trigger from Render to Vue consumer */
     contexto.on('action', (payload) => emit('action', payload))
 
     /**
-     * Falhe Alto debug: sempre false durante SSR e hidratação inicial para
-     * garantir HTML idêntico entre servidor e cliente. O valor real é
-     * definido APÓS a montagem completa (onMounted + nextTick).
+     * Fail Loud debug: always false during SSR and initial hydration to
+     * guarantee identical HTML between server and client. The real value
+     * is set AFTER full mount (onMounted + nextTick).
      */
     const debugEfetivo = ref(false)
 
-    /* Estado de UI (sessão apenas — sem persistência, sem lógica de dado) */
+    /* UI state (session only — no persistence, no data logic) */
     const filtrosAbertos = ref(false)
     const menuColunasAberto = ref(false)
     const densidadeCompacta = ref(false)
@@ -151,10 +151,10 @@ export const RsDataTable = defineComponent({
     onMounted(() => {
       document.addEventListener('click', aoClicarFora)
       document.addEventListener('keydown', aoTeclar)
-      void contexto.carregar()
-      /* Debug real: só após hidratação SSR — evita mismatch em data-rs-error */
+      void contexto.load()
+      /* Debug real: only after SSR hydration — avoids mismatch in data-rs-error */
       void nextTick(() => {
-        debugEfetivo.value = props.debug ?? ambienteDev()
+        debugEfetivo.value = props.debug ?? isDevEnvironment()
       })
     })
 
@@ -163,20 +163,20 @@ export const RsDataTable = defineComponent({
       document.removeEventListener('keydown', aoTeclar)
     })
 
-    function colunaVisivel(key: string): boolean {
-      return contexto.colunas.value.some((c) => c.key === key)
+    function columnIsVisible(key: string): boolean {
+      return contexto.columns.value.some((c) => c.key === key)
     }
 
-    function alternarColuna(key: string): void {
-      if (colunaVisivel(key)) {
-        contexto.esconderColuna(key)
+    function toggleColumn(key: string): void {
+      if (columnIsVisible(key)) {
+        contexto.hideColumn(key)
       } else {
-        contexto.mostrarColuna(key)
+        contexto.showColumn(key)
       }
     }
 
-    function botaoFiltros(): VNode {
-      const ativos = contexto.filtros.value.length
+    function filterButton(): VNode {
+      const active = contexto.filters.value.length
       return h(
         'button',
         {
@@ -189,13 +189,13 @@ export const RsDataTable = defineComponent({
         },
         [
           icone(ICONE_FILTRO),
-          h('span', { class: 'rs-btn-label' }, 'Filtros'),
-          ativos > 0 ? h('span', { class: 'rs-badge-count' }, String(ativos)) : null,
+          h('span', { class: 'rs-btn-label' }, 'Filters'),
+          active > 0 ? h('span', { class: 'rs-badge-count' }, String(active)) : null,
         ],
       )
     }
 
-    function menuColunas(): VNode {
+    function columnsMenu(): VNode {
       return h(
         'div',
         { class: 'rs-toolbar-menu', ref: menuColunasEl },
@@ -211,19 +211,19 @@ export const RsDataTable = defineComponent({
                 menuColunasAberto.value = !menuColunasAberto.value
               },
             },
-            [icone(ICONE_COLUNAS), h('span', { class: 'rs-btn-label' }, 'Colunas')],
+            [icone(ICONE_COLUNAS), h('span', { class: 'rs-btn-label' }, 'Columns')],
           ),
           menuColunasAberto.value
             ? h(
                 'div',
                 { class: 'rs-menu', role: 'menu' },
-                contexto.todasColunas.value.map((col) =>
+                contexto.allColumns.value.map((col) =>
                   h('label', { key: col.key, class: 'rs-menu-item' }, [
                     h('input', {
                       type: 'checkbox',
                       class: 'rs-menu-check',
-                      checked: colunaVisivel(col.key),
-                      onChange: () => alternarColuna(col.key),
+                      checked: columnIsVisible(col.key),
+                      onChange: () => toggleColumn(col.key),
                     }),
                     h('span', null, col.label ?? col.key),
                   ]),
@@ -234,35 +234,35 @@ export const RsDataTable = defineComponent({
       )
     }
 
-    function botaoDensidade(): VNode {
+    function densityButton(): VNode {
       return h(
         'button',
         {
           type: 'button',
           class: ['rs-btn', { 'rs-btn-active': densidadeCompacta.value }],
           'aria-pressed': String(densidadeCompacta.value),
-          title: densidadeCompacta.value ? 'Densidade: compacta' : 'Densidade: confortável',
+          title: densidadeCompacta.value ? 'Density: compact' : 'Density: comfortable',
           onClick: () => {
             densidadeCompacta.value = !densidadeCompacta.value
           },
         },
-        [icone(ICONE_DENSIDADE), h('span', { class: 'rs-btn-label' }, 'Densidade')],
+        [icone(ICONE_DENSIDADE), h('span', { class: 'rs-btn-label' }, 'Density')],
       )
     }
 
     /**
-     * Banner do Falhe Alto — SÓ no modo debug. Grita a localização exata de
-     * cada dado inválido. Em produção, a denúncia fica restrita ao indicador
-     * sutil na célula (sem internals) e a tabela continua funcionando.
+     * Fail Loud banner — ONLY in debug mode. Screams the exact location of
+     * each invalid data. In production, the warning is limited to a subtle
+     * cell indicator (no internals) and the table continues working.
      */
-    function bannerErros(): VNode | null {
-      if (!debugEfetivo.value || contexto.erros.value.length === 0) return null
+    function errorBanner(): VNode | null {
+      if (!debugEfetivo.value || contexto.errors.value.length === 0) return null
       return h('div', { class: 'rs-error-banner', role: 'alert' }, [
         h('strong', { class: 'rs-error-banner-title' }, [
-          `Falhe Alto: ${contexto.erros.value.length} dado(s) inválido(s)`,
+          `Fail Loud: ${contexto.errors.value.length} invalid data`,
         ]),
-        ...contexto.erros.value.map((erro, i) =>
-          h('div', { key: i, class: 'rs-error-banner-item' }, mensagemErro(erro)),
+        ...contexto.errors.value.map((err, i) =>
+          h('div', { key: i, class: 'rs-error-banner-item' }, errorMessage(err)),
         ),
       ])
     }
@@ -276,10 +276,10 @@ export const RsDataTable = defineComponent({
         [
           h('div', { class: 'rs-card' }, [
             h('div', { class: 'rs-toolbar' }, [
-              h('div', { class: 'rs-toolbar-left' }, [botaoFiltros()]),
-              h('div', { class: 'rs-toolbar-right' }, [menuColunas(), botaoDensidade()]),
+              h('div', { class: 'rs-toolbar-left' }, [filterButton()]),
+              h('div', { class: 'rs-toolbar-right' }, [columnsMenu(), densityButton()]),
             ]),
-            bannerErros(),
+            errorBanner(),
             h(
               'div',
               { class: ['rs-filters-panel', { 'rs-filters-open': filtrosAbertos.value }] },

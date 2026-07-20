@@ -8,7 +8,7 @@ import type { ColumnDefinition, ActionDefinition, TransformedRow } from '../comp
  * O contrato guarda as actions em col.options.actions (ver colunaAcao() no
  * composable). Duck-typing em runtime: se não houver array, não há actions.
  */
-export function acoesDaColuna(col: ColumnDefinition): ActionDefinition[] {
+export function columnActions(col: ColumnDefinition): ActionDefinition[] {
   const options = col.options as Record<string, unknown> | undefined
   const actions = options?.['actions']
   return Array.isArray(actions) ? (actions as ActionDefinition[]) : []
@@ -18,23 +18,23 @@ export function acoesDaColuna(col: ColumnDefinition): ActionDefinition[] {
 const DESLOCAMENTO_MENU = 6
 
 /**
- * Actions de uma linha (gatilhos, nunca executores).
+ * Actions of a row (triggers, never executors).
  *
- * - 1 action: botão direto.
- * - 2+ actions: botão ⋯ que abre um dropdown renderizado no <body> (Teleport).
- *   Clique fora ou Escape fecha; clique em um item emite e fecha.
+ * - 1 action: direct button.
+ * - 2+ actions: ... button that opens a dropdown rendered in <body> (Teleport).
+ *   Click outside or Escape closes; click on an item emits and closes.
  *
- * Ao clicar, emite APENAS o evento 'action' com { key, row }. Nenhum fetch,
- * nenhuma exclusão, nenhuma navegação — a lógica é 100% do consumidor.
+ * On click, emits ONLY the 'action' event with { key, row }. No fetch,
+ * no deletion, no navigation — logic is 100% the consumer's.
  */
 export const RsActions = defineComponent({
   name: 'RsActions',
   props: {
-    acoes: {
+    actions: {
       type: Array as PropType<ActionDefinition[]>,
       required: true,
     },
-    linha: {
+    row: {
       type: Object as PropType<TransformedRow>,
       required: true,
     },
@@ -44,72 +44,72 @@ export const RsActions = defineComponent({
       typeof payload.key === 'string' && payload.row !== undefined,
   },
   setup(props, { emit }) {
-    const aberto = ref(false)
-    const botaoEl = ref<HTMLElement | null>(null)
+    const open = ref(false)
+    const buttonEl = ref<HTMLElement | null>(null)
     const menuEl = ref<HTMLElement | null>(null)
-    const posicao = ref({ top: 0, left: 0 })
+    const position = ref({ top: 0, left: 0 })
 
-    function disparar(acao: ActionDefinition): void {
-      emit('action', { key: acao.key, row: props.linha })
-      fechar()
+    function trigger(action: ActionDefinition): void {
+      emit('action', { key: action.key, row: props.row })
+      close()
     }
 
-    function aoClicarFora(e: MouseEvent): void {
-      const alvo = e.target as Node
-      if (menuEl.value?.contains(alvo)) return
-      if (botaoEl.value?.contains(alvo)) return
-      fechar()
+    function onClickOutside(e: MouseEvent): void {
+      const target = e.target as Node
+      if (menuEl.value?.contains(target)) return
+      if (buttonEl.value?.contains(target)) return
+      close()
     }
 
-    function aoTeclar(e: KeyboardEvent): void {
-      if (e.key === 'Escape') fechar()
+    function onKeydown(e: KeyboardEvent): void {
+      if (e.key === 'Escape') close()
     }
 
-    function abrir(): void {
-      const rect = botaoEl.value?.getBoundingClientRect()
+    function openMenu(): void {
+      const rect = buttonEl.value?.getBoundingClientRect()
       if (rect) {
-        posicao.value = {
+        position.value = {
           top: rect.bottom + window.scrollY + DESLOCAMENTO_MENU,
           left: rect.right + window.scrollX,
         }
       }
-      aberto.value = true
-      document.addEventListener('click', aoClicarFora)
-      document.addEventListener('keydown', aoTeclar)
+      open.value = true
+      document.addEventListener('click', onClickOutside)
+      document.addEventListener('keydown', onKeydown)
     }
 
-    function fechar(): void {
-      if (!aberto.value) return
-      aberto.value = false
-      document.removeEventListener('click', aoClicarFora)
-      document.removeEventListener('keydown', aoTeclar)
+    function close(): void {
+      if (!open.value) return
+      open.value = false
+      document.removeEventListener('click', onClickOutside)
+      document.removeEventListener('keydown', onKeydown)
     }
 
-    onUnmounted(fechar)
+    onUnmounted(close)
 
-    function botaoUnico(acao: ActionDefinition): VNode {
+    function singleButton(action: ActionDefinition): VNode {
       return h(
         'button',
         {
           type: 'button',
-          class: ['rs-action-btn', { 'rs-action-btn--danger': acao.danger === true }],
-          onClick: () => disparar(acao),
+          class: ['rs-action-btn', { 'rs-action-btn--danger': action.danger === true }],
+          onClick: () => trigger(action),
         },
-        acao.label,
+        action.label,
       )
     }
 
-    function botaoMenu(): VNode {
+    function menuButton(): VNode {
       return h(
         'button',
         {
-          ref: botaoEl,
+          ref: buttonEl,
           type: 'button',
-          class: ['rs-action-btn', 'rs-action-more', { 'rs-btn-active': aberto.value }],
+          class: ['rs-action-btn', 'rs-action-more', { 'rs-btn-active': open.value }],
           'aria-haspopup': 'menu',
-          'aria-expanded': String(aberto.value),
-          'aria-label': 'Ações',
-          onClick: () => (aberto.value ? fechar() : abrir()),
+          'aria-expanded': String(open.value),
+          'aria-label': 'Actions',
+          onClick: () => (open.value ? close() : openMenu()),
         },
         '\u22EF',
       )
@@ -124,21 +124,21 @@ export const RsActions = defineComponent({
             class: 'rs-menu rs-action-menu',
             role: 'menu',
             style: {
-              top: `${posicao.value.top}px`,
-              left: `${posicao.value.left}px`,
+              top: `${position.value.top}px`,
+              left: `${position.value.left}px`,
             },
           },
-          props.acoes.map((acao) =>
+          props.actions.map((action) =>
             h(
               'button',
               {
-                key: acao.key,
+                key: action.key,
                 type: 'button',
-                class: ['rs-menu-item', 'rs-menu-action', { 'rs-menu-item--danger': acao.danger === true }],
+                class: ['rs-menu-item', 'rs-menu-action', { 'rs-menu-item--danger': action.danger === true }],
                 role: 'menuitem',
-                onClick: () => disparar(acao),
+                onClick: () => trigger(action),
               },
-              acao.label,
+              action.label,
             ),
           ),
         ),
@@ -146,9 +146,9 @@ export const RsActions = defineComponent({
     }
 
     return () => {
-      if (props.acoes.length === 0) return null
-      if (props.acoes.length === 1) return botaoUnico(props.acoes[0]!)
-      return h('span', { class: 'rs-actions' }, [botaoMenu(), aberto.value ? dropdown() : null])
+      if (props.actions.length === 0) return null
+      if (props.actions.length === 1) return singleButton(props.actions[0]!)
+      return h('span', { class: 'rs-actions' }, [menuButton(), open.value ? dropdown() : null])
     }
   },
 })

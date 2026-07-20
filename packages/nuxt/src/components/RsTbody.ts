@@ -7,18 +7,18 @@ import type {
   UseRsTableContext,
   ValidationError,
 } from '../composables/useRsTable'
-import { RsActions, acoesDaColuna } from './RsActions'
+import { RsActions, columnActions } from './RsActions'
 
 /**
- * Key de linha para o Vue rastrear elementos DOM.
+ * Row key for Vue DOM element tracking.
  *
- * Hoje o Core não fornece um identificador único de linha, então o fallback
- * é o índice do array — adequado enquanto não há animações/transições na
- * tabela. Quando o Core fornecer um row identifier oficial (`__rowIndex`),
- * ele será usado automaticamente como key estável.
+ * Currently the Core does not provide a unique row identifier, so the fallback
+ * is the array index — adequate while there are no animations/transitions in
+ * the table. When the Core provides an official row identifier (`__rowIndex`),
+ * it will be used automatically as a stable key.
  */
-export function chaveLinha(linha: TransformedRow, index: number): string | number {
-  const id = linha['__rowIndex']?.raw
+export function rowKey(row: TransformedRow, index: number): string | number {
+  const id = row['__rowIndex']?.raw
   if (typeof id === 'string' || typeof id === 'number') return id
   return index
 }
@@ -27,15 +27,15 @@ const LINHAS_SKELETON_MIN = 3
 const LINHAS_SKELETON_MAX = 8
 
 /**
- * Mensagem de erro do Falhe Alto para tooltip/banner (apenas modo debug).
- * Localização exata: coluna + linha + esperado vs. recebido.
+ * Fail Loud error message for tooltip/banner (debug mode only).
+ * Exact location: column + row + expected vs. received.
  */
-export function mensagemErro(erro: ValidationError): string {
-  const recebido = typeof erro.received === 'string' ? `"${erro.received}"` : String(erro.received)
-  if (erro.column === '' || erro.rowIndex < 0) {
-    return `Esperava \`${erro.expected}\`, recebeu \`${recebido}\``
+export function errorMessage(err: ValidationError): string {
+  const received = typeof err.received === 'string' ? `"${err.received}"` : String(err.received)
+  if (err.column === '' || err.rowIndex < 0) {
+    return `Expected \`${err.expected}\`, received \`${received}\``
   }
-  return `Coluna \`${erro.column}\`, linha ${erro.rowIndex}, esperava \`${erro.expected}\`, recebeu \`${recebido}\``
+  return `Column \`${err.column}\`, row ${err.rowIndex}, expected \`${err.expected}\`, received \`${received}\``
 }
 
 export const RsTbody = defineComponent({
@@ -60,70 +60,70 @@ export const RsTbody = defineComponent({
   },
   setup(props, { emit }) {
     /**
-     * Célula de exibição. O valor vem SEMPRE pronto do Core (display).
-     * Colunas de seleção ganham um badge visual — só apresentação: o texto
-     * exibido é exatamente o display do Core, estilizado via CSS por
+     * Display cell. The value ALWAYS comes ready from Core (display).
+     * Select columns get a visual badge — presentation only: the displayed
+     * text is exactly the Core's display value, styled via CSS by
      * data-attribute.
      */
-    function celula(col: ColumnDefinition, linha: TransformedRow): VNode | string {
-      const display = linha[col.key]?.display ?? ''
-      if (col.type === 'selecao' && display !== '') {
+    function cell(col: ColumnDefinition, row: TransformedRow): VNode | string {
+      const display = row[col.key]?.display ?? ''
+      if (col.type === 'select' && display !== '') {
         return h('span', { class: 'rs-badge', 'data-rs-badge': display }, display)
       }
       return display
     }
 
     /**
-     * Célula de action: renderiza os gatilhos e propaga o evento 'action'
-     * ({ key, row }) para o contexto e para o pai. Nunca executa lógica.
+     * Action cell: renders triggers and propagates the 'action' event
+     * ({ key, row }) to the context and parent. Never executes logic.
      */
-    function celulaAcao(col: ColumnDefinition, linha: TransformedRow): VNode {
+    function actionCell(col: ColumnDefinition, row: TransformedRow): VNode {
       return h(RsActions, {
-        acoes: acoesDaColuna(col),
-        linha,
+        actions: columnActions(col),
+        row,
         onAction: (payload: RsActionEvent) => {
-          props.contexto.emitirAcao(payload)
+          props.contexto.emitAction(payload)
           emit('action', payload)
         },
       })
     }
 
-    /** Erro do Falhe Alto para a célula (rowIndex do Core = índice na página) */
-    function erroDaCelula(index: number, col: ColumnDefinition): ValidationError | undefined {
-      return props.contexto.erros.value.find(
+    /** Fail Loud error for the cell (Core's rowIndex = index on the page) */
+    function cellError(index: number, col: ColumnDefinition): ValidationError | undefined {
+      return props.contexto.errors.value.find(
         (e) => e.rowIndex === index && e.column === col.key,
       )
     }
 
     return () => {
-      const { colunas, linhas, loading } = props.contexto
-      const numColunas = Math.max(colunas.value.length, 1)
+      const { columns, rows, loading } = props.contexto
+      const numCols = Math.max(columns.value.length, 1)
 
       if (loading.value) {
-        const numLinhas = Math.min(
-          Math.max(linhas.value.length, LINHAS_SKELETON_MIN),
+        const numRows = Math.min(
+          Math.max(rows.value.length, LINHAS_SKELETON_MIN),
           LINHAS_SKELETON_MAX,
         )
         return h(
           'tbody',
           { class: 'rs-tbody', 'aria-busy': 'true' },
-          Array.from({ length: numLinhas }, (_, i) =>
+          Array.from({ length: numRows }, (_, i) =>
             h(
               'tr',
               { key: `skeleton-${i}`, class: 'rs-row rs-loading' },
-              colunas.value.length > 0
-                ? colunas.value.map((col, c) =>
+              columns.value.length > 0
+                ? columns.value.map((col, c) =>
                     h('td', { key: col.key, class: 'rs-cell' }, [
                       h('span', { class: 'rs-skeleton' }),
                       i === 0 && c === 0
-                        ? h('span', { class: 'rs-sr-only' }, 'Carregando...')
+                        ? h('span', { class: 'rs-sr-only' }, 'Loading...')
                         : null,
                     ]),
                   )
                 : [
-                    h('td', { class: 'rs-cell', colspan: numColunas }, [
+                    h('td', { class: 'rs-cell', colspan: numCols }, [
                       h('span', { class: 'rs-skeleton' }),
-                      i === 0 ? h('span', { class: 'rs-sr-only' }, 'Carregando...') : null,
+                      i === 0 ? h('span', { class: 'rs-sr-only' }, 'Loading...') : null,
                     ]),
                   ],
             ),
@@ -131,16 +131,16 @@ export const RsTbody = defineComponent({
         )
       }
 
-      if (linhas.value.length === 0) {
+      if (rows.value.length === 0) {
         return h('tbody', { class: 'rs-tbody' }, [
           h('tr', { class: 'rs-row rs-empty' }, [
-            h('td', { class: 'rs-cell', colspan: numColunas }, [
+            h('td', { class: 'rs-cell', colspan: numCols }, [
               h('div', { class: 'rs-empty-icon', 'aria-hidden': 'true' }),
-              h('div', { class: 'rs-empty-title' }, 'Nenhum registro encontrado'),
+              h('div', { class: 'rs-empty-title' }, 'No records found'),
               h(
                 'div',
                 { class: 'rs-empty-desc' },
-                'Tente ajustar os filtros ou limpar a busca.',
+                'Try adjusting filters or clearing search.',
               ),
             ]),
           ]),
@@ -150,51 +150,51 @@ export const RsTbody = defineComponent({
       return h(
         'tbody',
         { class: 'rs-tbody' },
-        linhas.value.map((linha, index) =>
+        rows.value.map((row, index) =>
           h(
             'tr',
-            { key: chaveLinha(linha, index), class: 'rs-row' },
-            colunas.value.map((col) => {
-              if (col.type === 'acao') {
+            { key: rowKey(row, index), class: 'rs-row' },
+            columns.value.map((col) => {
+              if (col.type === 'action') {
                 return h(
                   'td',
                   {
                     key: col.key,
-                    class: ['rs-cell', 'rs-cell-action', `rs-align-${props.contexto.alinhamento(col)}`],
+                    class: ['rs-cell', 'rs-cell-action', `rs-align-${props.contexto.alignment(col)}`],
                   },
-                  [celulaAcao(col, linha)],
+                  [actionCell(col, row)],
                 )
               }
 
-              const erro = erroDaCelula(index, col)
+              const err = cellError(index, col)
               return h(
                 'td',
                 {
                   key: col.key,
                   class: [
                     'rs-cell',
-                    `rs-align-${props.contexto.alinhamento(col)}`,
+                    `rs-align-${props.contexto.alignment(col)}`,
                     {
-                      'rs-cell--error': erro !== undefined,
-                      'rs-cell--error-debug': erro !== undefined && props.debug,
+                      'rs-cell--error': err !== undefined,
+                      'rs-cell--error-debug': err !== undefined && props.debug,
                     },
                   ],
-                  /* Detalhes do erro só no modo debug — produção não expõe internals */
-                  'data-rs-error': erro && props.debug ? mensagemErro(erro) : undefined,
+                  /* Error details only in debug mode — production does not expose internals */
+                  'data-rs-error': err && props.debug ? errorMessage(err) : undefined,
                 },
                 [
-                  erro
+                  err
                     ? h(
                         'span',
                         {
                           class: 'rs-cell-error-icon',
                           role: 'img',
-                          'aria-label': 'Dado inválido',
+                          'aria-label': 'Invalid data',
                         },
                         '\u26A0',
                       )
                     : null,
-                  celula(col, linha),
+                  cell(col, row),
                 ],
               )
             }),

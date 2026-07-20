@@ -1,32 +1,33 @@
-# USAGE.md — Guia de Uso da RSdata
+# USAGE.md — RSdata Usage Guide
 
-> Como instalar, configurar e usar a RSdata no seu projeto Nuxt 3. Do caso mais
-> simples ao mais complexo. Todos os exemplos são baseados no código real.
-
----
-
-## ÍNDICE
-
-1. [Instalação](#1-instalação)
-2. [Primeira tabela (3 linhas)](#2-primeira-tabela-3-linhas)
-3. [Colunas e Tipos](#3-colunas-e-tipos)
-4. [Filtros](#4-filtros)
-5. [Ordenação](#5-ordenação)
-6. [Paginação](#6-paginação)
-7. [Actions (botões de ação)](#7-actions-botões-de-ação)
-8. [Adapters (de onde vêm os dados)](#8-adapters-de-onde-vêm-os-dados)
-9. [Falhe Alto (validação de dados)](#9-falhe-alto-validação-de-dados)
-10. [Tema e Estilização](#10-tema-e-estilização)
-11. [Preferências Persistentes](#11-preferências-persistentes)
-12. [API Completa](#12-api-completa)
+> How to install, configure, and use RSdata in your Nuxt 3 project. From the
+> simplest case to the most complex. All examples are based on the real code.
 
 ---
 
-## 1. INSTALAÇÃO
+## INDEX
 
-### Usando localmente (antes da publicação no npm)
+1. [Installation](#1-installation)
+2. [First table (3 lines)](#2-first-table-3-lines)
+3. [Columns and Types](#3-columns-and-types)
+4. [Filters](#4-filters)
+5. [Sorting](#5-sorting)
+6. [Pagination](#6-pagination)
+7. [Actions](#7-actions)
+8. [Adapters (where data comes from)](#8-adapters-where-data-comes-from)
+9. [Fail Loud (data validation)](#9-fail-loud-data-validation)
+10. [Locale & Formatting](#10-locale--formatting)
+11. [Theme & Styling](#11-theme--styling)
+12. [Persistent Preferences](#12-persistent-preferences)
+13. [Complete API](#13-complete-api)
 
-Enquanto a RSdata não está publicada no registro npm, use o caminho local no `package.json` do seu frontend Nuxt:
+---
+
+## 1. INSTALLATION
+
+### Local usage (before npm publication)
+
+While RSdata is not published on the npm registry, use a local path in your Nuxt frontend `package.json`:
 
 ```json
 {
@@ -37,24 +38,24 @@ Enquanto a RSdata não está publicada no registro npm, use o caminho local no `
 }
 ```
 
-Ajuste `../RStable/` para o caminho real entre seu `frontend/` e a pasta `RStable/`. Depois:
+Adjust `../RStable/` to the real path between your `frontend/` and the `RStable/` folder. Then:
 
 ```bash
 cd frontend
 npm install
 ```
 
-> **Importante:** o RSdata precisa estar buildado antes. Rode `npm run build` na raiz do RStable para gerar a pasta `dist/` em ambos os pacotes. Sem isso, o import falha.
+> **Important:** RSdata must be built first. Run `npm run build` in the RSdata root to generate the `dist/` folder in both packages. Without it, the import fails.
 
-### Quando estiver publicado no npm (futuro)
+### When published on npm (future)
 
 ```bash
 npm install @rsdata/core @rsdata/nuxt
 ```
 
-### Registrando no Nuxt
+### Registering in Nuxt
 
-Crie um arquivo de plugin em `plugins/rsdata.ts`:
+Create a plugin file at `plugins/rsdata.ts`:
 
 ```ts
 // frontend/plugins/rsdata.ts
@@ -66,232 +67,224 @@ export default defineNuxtPlugin((nuxtApp) => {
 })
 ```
 
-> **Nota:** `RsData` é um **Plugin Vue**, não um Módulo Nuxt. Por isso ele é registrado via `plugins/`, não em `modules` no `nuxt.config.ts`.
+> **Note:** `RsData` is a **Vue Plugin**, not a Nuxt Module. It is registered via `plugins/`, not in `modules` in `nuxt.config.ts`.
 
 ---
 
-## 2. PRIMEIRA TABELA (3 LINHAS)
+## 2. FIRST TABLE (3 LINES)
 
-O caso mais simples: dados locais, sem servidor. Apenas `columns` + `adapter` como props — o componente faz todo o resto.
+The simplest case: local data, no server. Just `columns` + `adapter` as props — the component handles everything.
 
 ```vue
 <template>
-  <RsTable :columns="colunas" :adapter="adapter" />
+  <RsTable :columns="columns" :adapter="adapter" />
 </template>
 
 <script setup>
-import { coluna, LocalAdapter } from '@rsdata/core'
+import { column, LocalAdapter } from '@rsdata/core'
 
-const colunas = [
-  coluna('id',     { type: 'numero',  label: 'ID' }),
-  coluna('nome',   { type: 'texto',   label: 'Nome' }),
-  coluna('preco',  { type: 'numero',  label: 'Preço', mask: 'R$ #.##0,00' }),
-  coluna('status', { type: 'selecao', label: 'Status', options: {
-    1: 'Ativo', 2: 'Inativo'
-  }}),
-    colunaAcao('acoes', {
-
-    label: 'Ações',
-
-    actions: [
-
-      { key: 'editar', label: 'Editar' },
-
-      { key: 'excluir', label: 'Excluir', danger: true },
-
-    ],
-
-  }),
+const columns = [
+  column('id',     { type: 'number',  label: 'ID' }),
+  column('name',   { type: 'text',    label: 'Name' }),
+  column('price',  { type: 'number',  label: 'Price', mask: 'R$ #,##0.00' }),
+  column('status', { type: 'select',  label: 'Status', options: { 1: 'Active', 2: 'Inactive' } }),
 ]
 
 const adapter = new LocalAdapter([
-  { id: 1, nome: 'Coca-Cola', preco: 5.99, status: 1 },
-  { id: 2, nome: 'Pepsi',     preco: 4.99, status: 2 },
-  { id: 3, nome: 'Guaraná',   preco: 3.50, status: 1 },
+  { id: 1, name: 'Coca-Cola', price: 5.99, status: 1 },
+  { id: 2, name: 'Pepsi',     price: 4.99, status: 2 },
+  { id: 3, name: 'Guaraná',   price: 3.50, status: 1 },
 ])
 </script>
 ```
 
-**Resultado:** uma tabela com 4 colunas, 3 linhas, filtro, ordenação e paginação funcionando. Zero configuração além disso.
+**Result:** a table with 4 columns, 3 rows, filters, sorting, and pagination — all working. Zero configuration beyond this.
 
 ---
 
-## 3. COLUNAS E TIPOS
+## 3. COLUMNS AND TYPES
 
-### Função `coluna(key, config)`
+### `column(key, config)`
 
-Cria a definição de uma coluna:
+Creates a column definition:
 
 ```ts
-import { coluna } from '@rsdata/core'
+import { column } from '@rsdata/core'
 
-coluna('nome_do_campo', {
-  type: 'texto',        // obrigatório — define o comportamento
-  label: 'Nome',        // opcional — texto no cabeçalho (default: key)
-  mask: 'R$ #.##0,00',  // opcional — máscara de exibição (tipo 'numero')
-  transform: fn,        // opcional — transformação customizada do valor
-  options: {},          // opcional — depende do tipo
-  sortable: true,       // opcional — permite ordenar (default: true, exceto 'acao')
-  filterable: true,     // opcional — permite filtrar (default: true, exceto 'acao')
-  visible: true,        // opcional — visível na tabela (default: true)
-  alignment: 'right',   // opcional — alinhamento (default: por tipo)
+column('field_name', {
+  type: 'text',          // required — defines the behavior
+  label: 'Name',         // optional — header text (default: key)
+  mask: 'R$ #,##0.00',   // optional — display mask (number, date)
+  locale: 'pt-BR',       // optional — locale override for this column
+  currency: 'BRL',       // optional — currency ISO code
+  transform: fn,         // optional — custom value transformation
+  options: {},           // optional — depends on type
+  sortable: true,        // optional — allows sorting (default: true, except 'action')
+  filterable: true,      // optional — allows filtering (default: true, except 'action')
+  visible: true,         // optional — visible in the table (default: true)
+  alignment: 'right',    // optional — alignment (default: by type)
+  exportAsFormatted: false, // optional — export as formatted text instead of raw value
 })
 ```
 
-### Tipos disponíveis
+### Available types
 
-| Tipo | Filtro padrão | Ordenação | Alinhamento | `options` |
+| Type | Default filter | Sorting | Alignment | `options` |
 |---|---|---|---|---|
-| `'texto'` | contém | Alfabética (pt-BR) | Esquerda | — |
-| `'numero'` | `=` | Numérica | Direita | — |
-| `'data'` | entre (intervalo) | Cronológica | Centro | — |
-| `'data-hora'` | entre (intervalo) | Cronológica | Centro | — |
-| `'booleano'` | igual (dropdown Sim/Não) | Não < Sim | Centro | — (exibe `Sim`/`Nao`; use `transform` para customizar) |
-| `'selecao'` | igual (dropdown) | Pelo valor bruto | Esquerda | `{ valor: 'Rótulo' }` (mapa plano) |
-| `'acao'` | — | — | Centro | `{ actions: ActionDefinition[] }` (use `colunaAcao()`) |
+| `'text'` | contains | Alphabetical | Left | — |
+| `'number'` | `=` | Numeric | Right | — |
+| `'date'` | between (range) | Chronological | Center | — |
+| `'datetime'` | between (range) | Chronological | Center | — |
+| `'boolean'` | equals (dropdown Yes/No) | No < Yes | Center | — (displays `Yes`/`No`; use `transform` to customize) |
+| `'select'` | equals (dropdown) | By raw value | Left | `{ value: 'Label' }` (flat map) |
+| `'action'` | — | — | Center | `{ actions: ActionDefinition[] }` (use `actionColumn()`) |
 
-### Exemplos
+### Examples
 
 ```ts
-// Texto
-coluna('nome', { type: 'texto', label: 'Nome do Produto' })
+// Text
+column('name', { type: 'text', label: 'Product Name' })
 
-// Número com máscara
-coluna('preco', { type: 'numero', label: 'Preço', mask: 'R$ #.##0,00' })
+// Number with mask (locale-aware)
+column('price', { type: 'number', label: 'Price', mask: 'R$ #,##0.00' })
 
-// Data (exibe DD/MM/AAAA automaticamente, pt-BR)
-coluna('criadoEm', { type: 'data', label: 'Criado em' })
+// Date (locale-aware — pt-BR shows DD/MM/YYYY by default)
+column('createdAt', { type: 'date', label: 'Created at' })
 
-// Seleção (enum) — mapa plano valor → rótulo
-coluna('status', {
-  type: 'selecao',
+// Select (enum) — flat map value → label
+column('status', {
+  type: 'select',
   label: 'Status',
-  options: { 1: 'Ativo', 2: 'Inativo', 3: 'Pendente' }
+  options: { 1: 'Active', 2: 'Inactive', 3: 'Pending' }
 })
 
-// Booleano (exibe "Sim"/"Nao" por padrão; customize com transform)
-coluna('ativo', {
-  type: 'booleano',
-  label: 'Ativo',
-  transform: (v) => (v ? 'Habilitado' : 'Desabilitado')  // opcional
+// Boolean (displays "Yes"/"No" by default; customize with transform)
+column('active', {
+  type: 'boolean',
+  label: 'Active',
+  transform: (v) => (v ? 'Enabled' : 'Disabled')  // optional
+})
+
+// Number with US locale on a Brazilian table
+column('price_usd', {
+  type: 'number',
+  label: 'Price (USD)',
+  locale: 'en-US',
+  currency: 'USD',
+  mask: '$ #,##0.00'
 })
 ```
 
 ---
 
-## 4. FILTROS
+## 4. FILTERS
 
-Cada tipo de coluna tem operadores de filtro automáticos. Os inputs são renderizados pelo `<RsFilters>` dentro da tabela.
+Each column type has automatic filter operators. Inputs are rendered by `<RsFilters>` inside the table.
 
-### Operadores por tipo
+### Operators by type
 
-Os operadores do Core são em português. O primeiro da lista é o padrão usado pelos inputs do `<RsFilters>`.
+The first in the list is the default used by `<RsFilters>` inputs.
 
-| Tipo | Operadores |
+| Type | Operators |
 |---|---|
-| `texto` | `contem` (contém), `igual`, `comeca_com`, `termina_com` |
-| `numero` | `=`, `>`, `<`, `>=`, `<=`, `entre` |
-| `data` / `data-hora` | `entre`, `antes`, `depois`, `igual` |
-| `booleano` | `igual` |
-| `selecao` | `igual` |
+| `text` | `contains`, `equals`, `startsWith`, `endsWith` |
+| `number` | `=`, `>`, `<`, `>=`, `<=`, `between` |
+| `date` / `datetime` | `between`, `before`, `after`, `equals` |
+| `boolean` | `equals` |
+| `select` | `equals` |
 
-> **Nota:** ao usar o `LaravelAdapter`, esses operadores são traduzidos automaticamente para a URL: `contem`→`like`, `igual`/`=`→`eq`, `>`→`gt`, `<`→`lt`, `>=`→`gte`, `<=`→`lte`, `entre`→`between`, `antes`→`before`, `depois`→`after`, `comeca_com`→`starts_with`, `termina_com`→`ends_with`. No seu código Vue/TS, use sempre os nomes do Core.
+> **Note:** when using `LaravelAdapter`, these operators are automatically translated into URL query params: `contains`→`like`, `equals`/`=`→`eq`, `>`→`gt`, `<`→`lt`, `>=`→`gte`, `<=`→`lte`, `between`→`between`, `before`→`before`, `after`→`after`, `startsWith`→`starts_with`, `endsWith`→`ends_with`.
 
-### API programática
-
-Para aplicar filtro via código:
+### Programmatic API
 
 ```ts
 import { RsTable } from '@rsdata/core'
 import { useRsTable } from '@rsdata/nuxt'
 
-const tabela = new RsTable({ columns }) // instância do Core
-tabela.usarAdapter(adapter)
+const table = new RsTable({ columns })
+table.useAdapter(adapter)
 
-const { filtrar } = useRsTable(tabela)
+const { filter } = useRsTable(table)
 
-filtrar({ column: 'nome', operator: 'contem', value: 'coca' })
-filtrar({ column: 'preco', operator: '>', value: 10 })
-filtrar({ column: 'status', operator: 'igual', value: 1 }) // valor bruto, não o rótulo
+filter({ column: 'name', operator: 'contains', value: 'coke' })
+filter({ column: 'price', operator: '>', value: 10 })
+filter({ column: 'status', operator: 'equals', value: 1 }) // raw value, not label
 
-// Remover filtro: value vazio ou null
-filtrar({ column: 'nome', operator: 'contem', value: '' })
+// Remove filter: empty or null value
+filter({ column: 'name', operator: 'contains', value: '' })
 ```
 
 ---
 
-## 5. ORDENAÇÃO
+## 5. SORTING
 
-O cabeçalho da tabela é clicável. Cada clique alterna entre `asc`, `desc` e sem ordenação.
+The table header is clickable. Each click toggles between `asc`, `desc`, and no sort.
 
-### API programática
+### Programmatic API
 
 ```ts
-const { ordenar } = useRsTable(tabela)
+const { sort } = useRsTable(table)
 
-ordenar('nome', 'asc')
-ordenar('preco', 'desc')
+sort('name', 'asc')
+sort('price', 'desc')
 ```
 
 ---
 
-## 6. PAGINAÇÃO
+## 6. PAGINATION
 
-Controlada pelos botões Anterior/Próximo no rodapé da tabela. Tamanho padrão: 20 itens por página.
+Controlled by Previous/Next buttons in the table footer. Default: 20 items per page.
 
-### API programática
+### Programmatic API
 
 ```ts
-const { irParaPagina, setPageSize, getEstado } = useRsTable(tabela)
+const { goToPage, setPageSize, getState } = useRsTable(table)
 
-irParaPagina(3)
+goToPage(3)
 setPageSize(50)
 
-const estado = getEstado()
-// { page: 3, pageSize: 50, total: 200, totalPages: 4, rows: [...], ... }
+const state = getState()
+// { page: 3, pageSize: 50, total: 200, totalPages: 4, rows: [...], locale: 'pt-BR', ... }
 ```
 
 ---
 
-## 7. ACTIONS (BOTÕES DE AÇÃO)
+## 7. ACTIONS
 
-Colunas do tipo `'acao'` renderizam botões por linha. A RSdata emite um evento com `{ key, row }` — a lógica de execução é 100% sua. *"A RSdata é o transportador; você traz a arma."*
+Columns of type `'action'` render buttons per row. RSdata emits an event with `{ key, row }` — execution logic is 100% yours. *"RSdata is the messenger; you bring the weapon."*
 
-### Definindo actions
+### Defining actions
 
 ```ts
-import { coluna } from '@rsdata/core'
-import { colunaAcao } from '@rsdata/nuxt'
+import { column } from '@rsdata/core'
+import { actionColumn } from '@rsdata/nuxt'
 
-const colunas = [
-  coluna('id', { type: 'numero', label: 'ID' }),
-  coluna('nome', { type: 'texto', label: 'Nome' }),
-  colunaAcao('acoes', {
-    label: 'Ações',
-    actions: [
-      { key: 'editar', label: 'Editar' },
-      { key: 'excluir', label: 'Excluir', danger: true },
-    ],
-  }),
+const columns = [
+  column('id', { type: 'number', label: 'ID' }),
+  column('name', { type: 'text', label: 'Name' }),
+  actionColumn('actions', [
+    { key: 'edit', label: 'Edit' },
+    { key: 'delete', label: 'Delete', danger: true },
+  ]),
 ]
 ```
 
-### Capturando o clique
+### Capturing the click
 
 ```vue
 <template>
-  <RsTable :columns="colunas" :adapter="adapter" @action="handleAction" />
+  <RsTable :columns="columns" :adapter="adapter" @action="handleAction" />
 </template>
 
 <script setup>
 function handleAction(event) {
   const { key, row } = event
-  // row.raw contém o dado bruto da linha
+  // row.raw contains the raw data for the entire row
 
-  if (key === 'editar') {
-    router.push(`/produtos/${row.raw.id}/editar`)
-  } else if (key === 'excluir') {
-    confirmarExclusao(row.raw.id)
+  if (key === 'edit') {
+    router.push(`/products/${row.raw.id}/edit`)
+  } else if (key === 'delete') {
+    confirmDeletion(row.raw.id)
   }
 }
 </script>
@@ -299,55 +292,55 @@ function handleAction(event) {
 
 ### Visual
 
-- **1 ação:** botão direto na linha
-- **2+ ações:** ícone ⋯ que abre um dropdown com as opções
-- **Ação `danger: true`:** texto vermelho no dropdown
+- **1 action:** direct button on the row
+- **2+ actions:** ⋯ icon that opens a dropdown with options
+- **`danger: true` action:** red text in the dropdown
 
 ---
 
-## 8. ADAPTERS (DE ONDE VÊM OS DADOS)
+## 8. ADAPTERS (WHERE DATA COMES FROM)
 
-### 8.1 LocalAdapter (array em memória)
+### 8.1 LocalAdapter (in-memory array)
 
-Para protótipos, testes ou dados que já estão no frontend.
+For prototypes, tests, or data already in the frontend.
 
 ```ts
 import { LocalAdapter } from '@rsdata/core'
 
 const adapter = new LocalAdapter([
-  { id: 1, nome: 'Coca-Cola', preco: 5.99 },
-  { id: 2, nome: 'Pepsi',     preco: 4.99 },
+  { id: 1, name: 'Coca-Cola', price: 5.99 },
+  { id: 2, name: 'Pepsi',     price: 4.99 },
 ])
 
-<RsTable :columns="colunas" :adapter="adapter" />
+<RsTable :columns="columns" :adapter="adapter" />
 ```
 
-Filtra, ordena e pagina no navegador. Ideal para até ~500 linhas.
+Filters, sorts, and paginates in the browser. Ideal for up to ~500 rows.
 
-### 8.2 LaravelAdapter (servidor)
+### 8.2 LaravelAdapter (server)
 
-Para produção: o servidor filtra, ordena e pagina. O navegador só exibe.
+For production: the server filters, sorts, and paginates. The browser only displays.
 
 ```ts
 import { LaravelAdapter } from '@rsdata/core'
 
-const adapter = new LaravelAdapter('https://api.seudominio.com/api/produtos', {
-  headers: { Authorization: 'Bearer seu-token' },
+const adapter = new LaravelAdapter('https://api.example.com/api/products', {
+  headers: { Authorization: 'Bearer your-token' },
 })
 ```
 
-#### O que o adapter envia (request)
+#### What the adapter sends (request)
 
 ```
-GET /api/produtos?filter[preco][gt]=50&sort=nome&page=1&per_page=20
+GET /api/products?filter[price][gt]=50&sort=name&page=1&per_page=20
 ```
 
-#### O que o backend precisa retornar
+#### What the backend needs to return
 
 ```json
 {
   "data": [
-    { "id": 1, "nome": "Coca-Cola", "preco": 5.99, "status": 1 }
+    { "id": 1, "name": "Coca-Cola", "price": 5.99, "status": 1 }
   ],
   "meta": {
     "current_page": 1,
@@ -357,34 +350,34 @@ GET /api/produtos?filter[preco][gt]=50&sort=nome&page=1&per_page=20
 }
 ```
 
-- `data` (obrigatório): array de linhas
-- `meta.total` (obrigatório): total de registros. Se ausente, procura `total` na raiz
+- `data` (required): array of rows
+- `meta.total` (required): total records. If absent, looks for `total` at root level
 
-#### Exemplo de controller Laravel
+#### Example Laravel controller
 
 ```php
-// app/Http/Controllers/ProdutoController.php
+// app/Http/Controllers/ProductController.php
 public function index(Request $request)
 {
-    $query = Produto::query();
+    $query = Product::query();
 
-    // Filtros
-    foreach ($request->input('filter', []) as $coluna => $operadores) {
-        foreach ($operadores as $operador => $valor) {
-            match ($operador) {
-                'gt'      => $query->where($coluna, '>', $valor),
-                'gte'     => $query->where($coluna, '>=', $valor),
-                'lt'      => $query->where($coluna, '<', $valor),
-                'lte'     => $query->where($coluna, '<=', $valor),
-                'eq'      => $query->where($coluna, $valor),
-                'like'    => $query->where($coluna, 'like', "%{$valor}%"),
-                'between' => $query->whereBetween($coluna, $valor),
+    // Filters
+    foreach ($request->input('filter', []) as $column => $operators) {
+        foreach ($operators as $operator => $value) {
+            match ($operator) {
+                'gt'      => $query->where($column, '>', $value),
+                'gte'     => $query->where($column, '>=', $value),
+                'lt'      => $query->where($column, '<', $value),
+                'lte'     => $query->where($column, '<=', $value),
+                'eq'      => $query->where($column, $value),
+                'like'    => $query->where($column, 'like', "%{$value}%"),
+                'between' => $query->whereBetween($column, $value),
                 default   => null,
             };
         }
     }
 
-    // Ordenação
+    // Sorting
     if ($sort = $request->input('sort')) {
         $direction = str_starts_with($sort, '-') ? 'desc' : 'asc';
         $column = ltrim($sort, '-');
@@ -395,235 +388,287 @@ public function index(Request $request)
 }
 ```
 
-### 8.3 Criando seu próprio adapter
+### 8.3 Creating your own adapter
 
-Implemente a interface `DataAdapter`:
+Implement the `DataAdapter` interface:
 
 ```ts
 import type { DataAdapter, Query, FetchResult, Row, FilterOption } from '@rsdata/core'
 
-class MeuAdapter implements DataAdapter {
+class MyAdapter implements DataAdapter {
   async fetch(query: Query): Promise<FetchResult> {
-    // Recebe Query, retorna { rows, total }
+    // Receives Query, returns { rows, total }
   }
 
   async fetchAll(query: Query): Promise<Row[]> {
-    // Mesmo que fetch, mas sem paginação
+    // Same as fetch, but without pagination
   }
 
   async fetchFilterOptions?(column: string): Promise<FilterOption[]> {
-    // Opcional: retorna opções de dropdown para a coluna
+    // Optional: returns dropdown options for the column
   }
 }
 ```
 
 ---
 
-## 9. FALHE ALTO (VALIDAÇÃO DE DADOS)
+## 9. FAIL LOUD (DATA VALIDATION)
 
-A RSdata detecta dados inválidos automaticamente com base no tipo da coluna. Ex: `preco: "grátis"` onde o tipo é `numero`.
+RSdata automatically detects invalid data based on the column type. E.g. `price: "free"` where the type is `number`.
 
-### Modo DEV (`:debug="true"`)
+### DEV mode (`:debug="true"`)
 
-A tabela mostra a localização exata do erro. Útil durante desenvolvimento.
+The table shows the exact error location. Useful during development.
 
 ```vue
-<RsTable :columns="colunas" :adapter="adapter" :debug="true" />
+<RsTable :columns="columns" :adapter="adapter" :debug="true" />
 ```
 
-Exibe: ``Coluna `preco`, linha 42, esperava `numero`, recebeu `"grátis"` ``.
+Displays: ``Column `price`, row 42, expected `number`, received `"free"` ``.
 
-### Modo PRODUÇÃO (`:debug="false"` — padrão)
+### PRODUCTION mode (`:debug="false"` — default)
 
-Ícone ⚠ sutil na célula. O usuário final não vê detalhes internos. A tabela continua funcionando.
+Subtle ⚠ icon in the cell. The end user sees no internal details. The table keeps working.
 
-### Capturando erros via código
+### Capturing errors via code
 
 ```ts
-const tabela = new RsTable({ columns })
-tabela.on('erro', (erro) => {
-  // erro: { column, rowIndex, expected, received }
-  console.error(`Erro: coluna ${erro.column}, linha ${erro.rowIndex}, esperava ${erro.expected}`)
+const table = new RsTable({ columns })
+table.on('error', (err) => {
+  // err: { column, rowIndex, expected, received }
+  console.error(`Error: column ${err.column}, row ${err.rowIndex}, expected ${err.expected}`)
 })
 ```
 
 ---
 
-## 10. TEMA E ESTILIZAÇÃO
+## 10. LOCALE & FORMATTING
 
-### Theme default
+RSdata uses locale-aware formatting via the native `Intl` API (zero dependencies). The default locale is `'pt-BR'` (Brazilian Portuguese: `R$ 1.000,00`, `DD/MM/YYYY`).
 
-O CSS padrão é importado no plugin:
+### Setting a global locale
+
+```ts
+// Brazilian (default — no config needed)
+const table = new RsTable({ columns })
+
+// US English
+const table = new RsTable({ columns, locale: 'en-US' })
+// → $1,000.00 | 12/25/2024
+
+// German
+const table = new RsTable({ columns, locale: 'de-DE' })
+// → 1.000,00 € | 25.12.2024
+
+// Japanese
+const table = new RsTable({ columns, locale: 'ja-JP' })
+// → ￥1,000 | 2024/12/25
+```
+
+### Per-column override
+
+A specific column can use a different locale or currency from the table default:
+
+```ts
+const table = new RsTable({ columns, locale: 'pt-BR' })
+
+const columns = [
+  // This column uses the table's locale (pt-BR → R$)
+  column('price_brl', { type: 'number', label: 'Price (BRL)' }),
+
+  // This column overrides locale and currency
+  column('price_usd', {
+    type: 'number',
+    label: 'Price (USD)',
+    locale: 'en-US',
+    currency: 'USD',
+    mask: '$ #,##0.00'
+  }),
+]
+```
+
+### Locale-aware sorting
+
+Text sorting uses `String.localeCompare()` with the configured locale, so accented characters sort correctly:
+
+- `pt-BR`: `água` < `bebida` (accent-insensitive)
+- `en-US`: `água` > `bebida` (accent treated as different character)
+
+---
+
+## 11. THEME & STYLING
+
+### Default theme
+
+The default CSS is imported in the plugin:
 
 ```ts
 // plugins/rsdata.ts
 import '@rsdata/nuxt/theme/default.css'
 ```
 
-### Customização rápida (cores)
+### Quick customization (colors)
 
 ```css
 :root {
-  --rs-primary: #1c203f;   /* Azul escuro */
-  --rs-accent:  #65ba88;   /* Verde água */
-  --rs-light:   #cde9f2;   /* Azul claro */
-  --rs-success: #66b32e;   /* Verde claro */
+  --rs-primary: #1c203f;   /* dark blue */
+  --rs-accent:  #65ba88;   /* water green */
+  --rs-light:   #cde9f2;   /* light blue */
+  --rs-success: #66b32e;   /* light green */
 }
 ```
 
-> **Guia completo de estilização:** `THEMING.md` — 3 níveis de customização, 70+ variáveis CSS, galeria de 4 exemplos prontos, tema do zero passo a passo, modo escuro customizável.
+> **Complete theming guide:** `THEMING.md` — 3 customization levels, 70+ CSS variables, 4 ready-to-use examples, from-scratch themes, dark mode.
 
-### Modo escuro
+### Dark mode
 
-Dois mecanismos, ambos suportados:
+Two mechanisms, both supported:
 
-1. **Preferência do SO:** detecta automaticamente `prefers-color-scheme: dark`
-2. **Classe `.dark` no `<html>`:** compatível com Tailwind `darkMode: 'class'`
+1. **OS preference:** auto-detects `prefers-color-scheme: dark`
+2. **`.dark` class on `<html>`:** compatible with Tailwind `darkMode: 'class'`
 
 ---
 
-## 11. PREFERÊNCIAS PERSISTENTES
+## 12. PERSISTENT PREFERENCES
 
-Prop `persistencia` salva em `localStorage`:
+The `persistence` prop saves to `localStorage`:
 
 ```vue
-<RsTable :columns="colunas" :adapter="adapter" persistencia="minha-tabela" />
+<RsTable :columns="columns" :adapter="adapter" persistence="my-table" />
 ```
 
-O que é salvo: ordem das colunas, colunas visíveis, tamanho da página.
+What is saved: column order, visible columns, page size.
 
-**É opt-in explícito** — sem a prop, nada é salvo. Cada tabela deve ter uma chave única.
+**Explicit opt-in** — without the prop, nothing is saved. Each table should have a unique key.
 
 ---
 
-## 12. API COMPLETA
+## 13. COMPLETE API
 
-### `@rsdata/core` — exportações principais
+### `@rsdata/core` — main exports
 
-| Export | Tipo | Descrição |
+| Export | Type | Description |
 |---|---|---|
-| `RsTable` | Classe | Instância viva do Data Engine |
-| `coluna(key, config)` | Função | Criar definição de coluna |
-| `LocalAdapter` | Classe | Adapter para array local |
-| `LaravelAdapter` | Classe | Adapter para backend Laravel |
-| `EventEmitter` | Classe | Sistema de eventos JS puro |
-| `aplicarFiltros` | Função | Aplicar filtros a um array |
-| `ordenarArray` | Função | Ordenar array |
-| `paginarArray` | Função | Paginar array |
-| `calcularTotalPaginas` | Função | Math.ceil(total / pageSize) |
-| `formatarValorPadrao` | Função | Formatar valor pelo tipo da coluna |
-| `validarLinha` / `validarLinhas` | Função | Validar dados (Falhe Alto) |
+| `RsTable` | Class | Live Data Engine instance |
+| `column(key, config)` | Function | Create column definition |
+| `LocalAdapter` | Class | In-memory array adapter |
+| `LaravelAdapter` | Class | Laravel backend adapter |
+| `EventEmitter` | Class | Pure JS event system |
+| `applyFilters` | Function | Apply filters to an array |
+| `sortArray` | Function | Sort array |
+| `paginateArray` | Function | Paginate array |
+| `calculateTotalPages` | Function | Math.ceil(total / pageSize) |
+| `formatDefaultValue` | Function | Format value by column type |
+| `validateRow` / `validateRows` | Function | Validate data (Fail Loud) |
 
-### `RsTable` — métodos públicos
+### `RsTable` — public methods
 
-| Método | Descrição |
+| Method | Description |
 |---|---|
-| `new RsTable({ columns, pageSize? })` | Criar instância |
-| `.usarAdapter(adapter)` | Conectar fonte de dados |
-| `.filtrar({ column, operator, value })` | Aplicar filtro |
-| `.ordenar(column, direction)` | Ordenar por coluna |
-| `.irParaPagina(n)` | Navegar para página |
-| `.setPageSize(n)` | Mudar itens por página |
-| `.getLinhas()` | Linhas da página atual (transformadas) |
-| `.getTotal()` | Total de registros |
-| `.getEstado()` | Snapshot completo do estado |
-| `.esconderColuna(key)` | Esconder coluna |
-| `.mostrarColuna(key)` | Mostrar coluna |
-| `.reordenarColunas([...keys])` | Reordenar colunas visíveis |
-| `.getOpcoesFiltro(column)` | Opções de dropdown do adapter |
-| `.on('dados:carregados', fn)` | Evento: dados carregados |
-| `.on('erro', fn)` | Evento: erro (Falhe Alto) |
-| `.on('estado:alterado', fn)` | Evento: mudança de estado |
+| `new RsTable({ columns, pageSize?, locale? })` | Create instance |
+| `.useAdapter(adapter)` | Connect data source |
+| `.filter({ column, operator, value })` | Apply filter |
+| `.sort(column, direction)` | Sort by column |
+| `.goToPage(n)` | Navigate to page |
+| `.setPageSize(n)` | Change items per page |
+| `.getRows()` | Current page rows (transformed) |
+| `.getTotal()` | Total records |
+| `.getState()` | Full state snapshot |
+| `.hideColumn(key)` | Hide column |
+| `.showColumn(key)` | Show column |
+| `.reorderColumns([...keys])` | Reorder visible columns |
+| `.getFilterOptions(column)` | Dropdown options from adapter |
+| `.on('data:loaded', fn)` | Event: data loaded |
+| `.on('error', fn)` | Event: error (Fail Loud) |
+| `.on('state:changed', fn)` | Event: state changed |
 
-### `@rsdata/nuxt` — exportações principais
+### `@rsdata/nuxt` — main exports
 
-| Export | Tipo | Descrição |
+| Export | Type | Description |
 |---|---|---|
-| `RsData` | Plugin Vue | `app.use(RsData)` |
-| `useRsTable(tabela)` | Composable | Ponte Core ↔ Vue |
-| `RsDataTable` | Componente | Componente principal (`<RsTable>`) |
-| `RsThead` | Componente | Cabeçalho clicável |
-| `RsTbody` | Componente | Corpo da tabela |
-| `RsActions` | Componente | Botões de ação |
-| `RsPagination` | Componente | Controles de paginação |
-| `RsFilters` | Componente | Inputs de filtro |
-| `colunaAcao()` | Função | Helper para coluna de ação |
-| `lerPreferencias()` | Função | Restaurar preferências do localStorage |
-| `salvarPreferencias()` | Função | Persistir preferências no localStorage |
+| `RsData` | Vue Plugin | `app.use(RsData)` |
+| `useRsTable(table)` | Composable | Core ↔ Vue bridge |
+| `RsDataTable` | Component | Main component (`<RsTable>`) |
+| `RsThead` | Component | Clickable header |
+| `RsTbody` | Component | Table body |
+| `RsActions` | Component | Action buttons |
+| `RsPagination` | Component | Pagination controls |
+| `RsFilters` | Component | Filter inputs |
+| `actionColumn()` | Function | Helper for action column |
+| `readPreferences()` | Function | Restore preferences from localStorage |
+| `savePreferences()` | Function | Persist preferences to localStorage |
 
-### Props do `<RsTable>`
+### `<RsTable>` props
 
-| Prop | Tipo | Default | Descrição |
+| Prop | Type | Default | Description |
 |---|---|---|---|
-| `columns` | `ColumnDefinition[]` | — | Definição das colunas |
-| `adapter` | `DataAdapter` | — | Fonte de dados |
-| `pageSize` | `number` | `20` | Itens por página |
-| `debug` | `boolean` | `import.meta.env.DEV` | Modo Falhe Alto dev |
-| `persistencia` | `string` | — | Chave localStorage (opt-in) |
+| `columns` | `ColumnDefinition[]` | — | Column definitions |
+| `adapter` | `DataAdapter` | — | Data source |
+| `table` | `RsTable` | — | Pre-configured instance (control mode) |
+| `pageSize` | `number` | `20` | Items per page |
+| `debug` | `boolean` | `import.meta.env.DEV` | Fail Loud dev mode |
+| `persistence` | `string` | — | localStorage key (opt-in) |
 
-### Eventos do `<RsTable>`
+### `<RsTable>` events
 
-O componente emite **um único evento**:
+The component emits a **single event**:
 
-| Evento | Payload | Quando |
+| Event | Payload | When |
 |---|---|---|
-| `@action` | `{ key: string, row: TransformedRow }` | Clique em action |
+| `@action` | `{ key: string, row: TransformedRow }` | Action clicked |
 
-Os demais eventos são da **instância Core** (`RsTable`), via `tabela.on(...)` — use o modo controle total (`:tabela="tabela"`) para acessá-los:
+Other events are on the **Core instance** (`RsTable`), via `table.on(...)`:
 
-| Evento (Core) | Payload | Quando |
+| Event (Core) | Payload | When |
 |---|---|---|
-| `dados:carregados` | `TransformedRow[]` | Dados carregados |
-| `erro` | `ValidationError` | Falhe Alto |
-| `estado:alterado` | `RsTableState` | Estado mudou |
+| `data:loaded` | `TransformedRow[]` | Data loaded |
+| `error` | `ValidationError` | Fail Loud |
+| `state:changed` | `RsTableState` | State changed |
 
 ---
 
-## EXEMPLO COMPLETO (PRODUÇÃO)
+## FULL EXAMPLE (PRODUCTION)
 
 ```vue
 <template>
   <RsTable
-    :columns="colunas"
+    :columns="columns"
     :adapter="adapter"
     :pageSize="25"
-    persistencia="produtos"
+    persistence="products"
     @action="handleAction"
   />
 </template>
 
 <script setup>
-import { coluna, LaravelAdapter } from '@rsdata/core'
-import { colunaAcao } from '@rsdata/nuxt'
+import { column, LaravelAdapter } from '@rsdata/core'
+import { actionColumn } from '@rsdata/nuxt'
 
-const colunas = [
-  coluna('id',       { type: 'numero',  label: 'ID' }),
-  coluna('nome',     { type: 'texto',   label: 'Produto' }),
-  coluna('preco',    { type: 'numero',  label: 'Preço', mask: 'R$ #.##0,00' }),
-  coluna('estoque',  { type: 'numero',  label: 'Estoque' }),
-  coluna('status',   { type: 'selecao', label: 'Status', options: {
-    1: 'Ativo', 2: 'Inativo', 3: 'Pendente'
-  }}),
-  colunaAcao('acoes', {
-    label: 'Ações',
-    actions: [
-      { key: 'editar',  label: 'Editar' },
-      { key: 'excluir', label: 'Excluir', danger: true },
-    ],
-  }),
+const columns = [
+  column('id',       { type: 'number',  label: 'ID' }),
+  column('name',     { type: 'text',    label: 'Product' }),
+  column('category', { type: 'select',  label: 'Category', options: { 1: 'Beverages', 2: 'Food', 3: 'Hygiene', 4: 'Cleaning' } }),
+  column('price',    { type: 'number',  label: 'Price', mask: 'R$ #,##0.00' }),
+  column('stock',    { type: 'number',  label: 'Stock' }),
+  column('status',   { type: 'select',  label: 'Status', options: { 1: 'Active', 2: 'Inactive', 3: 'Pending' } }),
+  column('created_at', { type: 'date',  label: 'Date' }),
+  actionColumn('actions', [
+    { key: 'edit',   label: 'Edit' },
+    { key: 'delete', label: 'Delete', danger: true },
+  ]),
 ]
 
-const adapter = new LaravelAdapter('https://api.seudominio.com/api/produtos', {
+const adapter = new LaravelAdapter('https://api.example.com/api/products', {
   headers: { Authorization: `Bearer ${token}` }
 })
 
 function handleAction({ key, row }) {
-  if (key === 'editar')  router.push(`/produtos/${row.raw.id}`)
-  if (key === 'excluir') confirmarExclusao(row.raw.id)
+  if (key === 'edit')   router.push(`/products/${row.raw.id}`)
+  if (key === 'delete') confirmDeletion(row.raw.id)
 }
 </script>
 ```
 
 ---
 
-> **Documentos relacionados:** `ARCHITECTURE.md` (estrutura interna), `FEATURES.md` (funcionalidades por fase), `GLOSSARY.md` (termos).
+> **Related documents:** `ARCHITECTURE.md` (internal structure), `THEMING.md` (visual customization), `FEATURES.md` (features by phase), `GLOSSARY.md` (terminology).
