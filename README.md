@@ -77,7 +77,7 @@ const columns = [
   column('name',   { type: 'text',    label: 'Name' }),
   column('price',  { type: 'number',  label: 'Price', mask: '$ #,##0.00' }),
   column('status', { type: 'select',  label: 'Status', options: {
-    entries: { 1: 'Active', 2: 'Inactive' }
+     1: 'Active', 2: 'Inactive' 
   }}),
   column('actions', { type: 'action', options: { actions: [
     { key: 'edit', label: 'Edit' },
