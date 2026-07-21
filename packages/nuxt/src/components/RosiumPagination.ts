@@ -42,7 +42,7 @@ export const RosiumPagination = defineComponent({
           'button',
           {
             type: 'button',
-            class: 'rosium-page-btn rs-page-prev',
+            class: 'rosium-page-btn rosium-page-prev',
             disabled: current <= 1,
             onClick: () => void goToPage(current - 1),
           },
@@ -74,7 +74,7 @@ export const RosiumPagination = defineComponent({
           'button',
           {
             type: 'button',
-            class: 'rosium-page-btn rs-page-next',
+            class: 'rosium-page-btn rosium-page-next',
             disabled: current >= totalPgs,
             onClick: () => void goToPage(current + 1),
           },

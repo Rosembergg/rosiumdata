@@ -1,6 +1,6 @@
 {
   "name": "rosiumdata",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "RosiumData — Data Grid framework for Nuxt 3 with 4-layer architecture (Adapter, Engine, Render, Theme)",
   "license": "MIT",
   "repository": {
@@ -18,7 +18,7 @@
   ],
   "author": "Rafael Melo Rosemberg <rrosembergg.45@gmail.com> (https://github.com/Rosembergg)",
   "dependencies": {
-    "@rosiumdata/core": "^0.0.1",
-    "@rosiumdata/nuxt": "^0.0.1"
+    "@rosiumdata/core": "^0.0.2",
+    "@rosiumdata/nuxt": "^0.0.3"
   }
 }

@@ -157,7 +157,7 @@ describe('Actions — múltiplas ações (menu ⋯)', () => {
     wrapper.unmount()
   })
 
-  it('ação danger no dropdown ganha classe rs-menu-item--danger', async () => {
+  it('ação danger no dropdown ganha classe rosium-menu-item--danger', async () => {
     const { wrapper } = montarTabela({ actions: TRES_ACOES, attach: true })
     await flushPromises()
 

@@ -1,6 +1,6 @@
 {
   "name": "@rosiumdata/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "rosiumdata Data Engine — headless data grid framework (pure TypeScript, zero dependencies)",
   "license": "MIT",
   "repository": {

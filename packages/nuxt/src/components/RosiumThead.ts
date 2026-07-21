@@ -37,7 +37,7 @@ export const RosiumThead = defineComponent({
       h('thead', { class: 'rosium-thead' }, [
         h(
           'tr',
-          { class: 'rosium-row rs-row-header' },
+          { class: 'rosium-row rosium-row-header' },
           props.contexto.columns.value.map((col) => {
             const current = props.contexto.sortState.value
             return h(

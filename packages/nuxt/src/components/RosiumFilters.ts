@@ -127,7 +127,7 @@ export const RosiumFilters = defineComponent({
       return [
         h('input', {
           type: 'number',
-          class: 'rosium-filter-input rs-filter-min',
+          class: 'rosium-filter-input rosium-filter-min',
           placeholder: 'Min',
           value: rangeValue(col.key).min,
           onInput: (e: Event) => {
@@ -137,7 +137,7 @@ export const RosiumFilters = defineComponent({
         }),
         h('input', {
           type: 'number',
-          class: 'rosium-filter-input rs-filter-max',
+          class: 'rosium-filter-input rosium-filter-max',
           placeholder: 'Max',
           value: rangeValue(col.key).max,
           onInput: (e: Event) => {
@@ -152,7 +152,7 @@ export const RosiumFilters = defineComponent({
       return [
         h('input', {
           type: 'date',
-          class: 'rosium-filter-input rs-filter-min',
+          class: 'rosium-filter-input rosium-filter-min',
           'aria-label': 'Start',
           value: rangeValue(col.key).min,
           onInput: (e: Event) => {
@@ -162,7 +162,7 @@ export const RosiumFilters = defineComponent({
         }),
         h('input', {
           type: 'date',
-          class: 'rosium-filter-input rs-filter-max',
+          class: 'rosium-filter-input rosium-filter-max',
           'aria-label': 'End',
           value: rangeValue(col.key).max,
           onInput: (e: Event) => {
@@ -180,7 +180,7 @@ export const RosiumFilters = defineComponent({
       return h(
         'select',
         {
-          class: 'rosium-filter-input rs-filter-select',
+          class: 'rosium-filter-input rosium-filter-select',
           onChange: (e: Event) => filterSelect(col, (e.target as HTMLSelectElement).value),
         },
         [h('option', { value: '' }, 'All'), ...options],
@@ -191,7 +191,7 @@ export const RosiumFilters = defineComponent({
       return h(
         'select',
         {
-          class: 'rosium-filter-input rs-filter-select',
+          class: 'rosium-filter-input rosium-filter-select',
           onChange: (e: Event) => filterBoolean(col, (e.target as HTMLSelectElement).value),
         },
         [
@@ -223,7 +223,7 @@ export const RosiumFilters = defineComponent({
         'div',
         { class: 'rosium-filters' },
         props.contexto.columns.value.filter(isFilterable).map((col) =>
-          h('div', { key: col.key, class: ['rosium-filter', `rs-filter-${col.type}`] }, [
+          h('div', { key: col.key, class: ['rosium-filter', `rosium-filter-${col.type}`] }, [
             h('label', { class: 'rosium-filter-label' }, col.label ?? col.key),
             h('div', { class: 'rosium-filter-fields' }, fieldsByType(col)),
           ]),
